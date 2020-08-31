@@ -1,2 +1,2 @@
-# mawa
 Mawa GNU/Linux
+--------------
