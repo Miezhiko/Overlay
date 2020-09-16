@@ -20,7 +20,7 @@ RESTRICT="test"
 
 DEPEND="
   dev-python/setuptools[${PYTHON_USEDEP}]
-  >=dev-python/vine-1.1.3[${PYTHON_USEDEP}]
+  >=dev-python/vine-5.0.0[${PYTHON_USEDEP}]
 "
 
 python_prepare_all() {

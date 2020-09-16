@@ -16,12 +16,12 @@ IUSE=""
 RESTRICT="test"
 
 RDEPEND="
-  >=dev-python/kombu-5.0.0[${PYTHON_USEDEP}]
+  >=dev-python/kombu-5.0.2[${PYTHON_USEDEP}]
   >=dev-python/billiard-3.6.3[${PYTHON_USEDEP}]
   <dev-python/billiard-4.0.0[${PYTHON_USEDEP}]
   dev-python/pytz[${PYTHON_USEDEP}]
   dev-python/greenlet[${PYTHON_USEDEP}]
-  >=dev-python/vine-1.3.0[${PYTHON_USEDEP}]
+  >=dev-python/vine-5.0.0[${PYTHON_USEDEP}]
   >=dev-python/click-repl-0.1.6[${PYTHON_USEDEP}]
   >=dev-python/click-didyoumean-0.0.3[${PYTHON_USEDEP}]
   >=net-misc/rabbitmq-server-3.8.7
