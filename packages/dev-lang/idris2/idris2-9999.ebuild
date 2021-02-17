@@ -7,7 +7,15 @@ KEYWORDS="~amd64"
 
 DESCRIPTION="A purely functional programming language with first class types"
 HOMEPAGE="https://github.com/idris-lang/Idris2"
-SRC_URI="https://github.com/idris-lang/Idris2/archive/v${PV}.tar.gz"
+
+if [[ ${PV} = 9999 ]]; then
+  inherit git-r3
+  EGIT_REPO_URI="https://github.com/Masha/Idris2.git"
+  EGIT_BRANCH="destdir"
+else
+  SRC_URI="https://github.com/idris-lang/Idris2/archive/v${PV}.tar.gz"
+  S="${WORKDIR}/Idris2-${PV}"
+fi
 
 RESTRICT="mirror test"
 LICENSE="BSD"
@@ -21,11 +29,9 @@ DEPEND="${RDEPEND}
   dev-scheme/chezscheme
 "
 
-S="${WORKDIR}/Idris2-${PV}"
-
 #TODO: prefix should be with D but without D
 src_prepare() {
-  sed -i 's|PREFIX ?= $(HOME)/.idris2|PREFIX = ${D}/usr|g' config.mk || die
+  sed -i 's|PREFIX ?= $(HOME)/.idris2|PREFIX = /usr|g' config.mk || die
   make bootstrap SCHEME=chez
   default
 }
@@ -35,12 +41,12 @@ src_compile() { :; }
 src_test() { :; }
 
 src_install() {
+  # idris2 --install doesn't support destir :(
+  addwrite "/usr/idris2-0.3.0/"
 	default
+	# move stuff back to destidr
+	mv "/usr/idris2-0.3.0/"* "${D}/usr/idris2-0.3.0/"
 	mkdir "${D}/usr/lib64" || die
   mv "${D}/usr/lib"/* "${D}/usr/lib64/" || die
   rm -r "${D}/usr/lib/"
-  #mv "${D}/usr/${P}" "${D}/usr/share/${P}"
-  #mv "${D}/usr/bin/idris2_app"/*.so  "${D}/usr/lib64/"
-  #mv "${D}/usr/bin/idris2_app"/* "${D}/usr/bin/"
-  #rm -r "${D}/usr/bin/idris2_app"
 }
