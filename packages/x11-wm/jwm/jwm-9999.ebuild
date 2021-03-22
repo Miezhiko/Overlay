@@ -2,7 +2,7 @@ EAPI=7
 inherit eutils autotools git-r3
 
 DESCRIPTION="JWM"
-EGIT_REPO_URI="https://github.com/Qeenon/jwm.git"
+EGIT_REPO_URI="https://github.com/joewing/jwm.git"
 
 LICENSE="GPL-2"
 SLOT="0"
