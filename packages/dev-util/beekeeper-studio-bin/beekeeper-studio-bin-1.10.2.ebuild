@@ -73,7 +73,7 @@ src_install() {
   insinto /opt/beekeeper-studio
   doins -r opt/"Beekeeper Studio"/.
   fperms -R +x /opt/beekeeper-studio/beekeeper-studio /opt/beekeeper-studio/beekeeper-studio-bin \
-    /opt/beekeeper-studio/chrome-sandbox /opt/beekeeper-studio/crashpad_handler \
+    /opt/beekeeper-studio/chrome-sandbox \
     /opt/beekeeper-studio/libEGL.so /opt/beekeeper-studio/libGLESv2.so \
     /opt/beekeeper-studio/libffmpeg.so /opt/beekeeper-studio/libvk_swiftshader.so \
     /opt/beekeeper-studio/swiftshader/
