@@ -4,7 +4,7 @@ inherit eutils multilib gnome2-utils font unpacker
 
 DESCRIPTION="A brainstorming and mind mapping software tool"
 HOMEPAGE="http://www.xmind.net"
-SRC_URI="https://dl3.xmind.net/XMind-2020-for-Linux-amd-64bit-10.2.1-202008051959.deb"
+SRC_URI="https://dl3.xmind.net/XMind-2020-for-Linux-amd-64bit-10.3.1-202101132117.deb"
 LICENSE="EPL-1.0 LGPL-3"
 SLOT="0"
 KEYWORDS="amd64"
