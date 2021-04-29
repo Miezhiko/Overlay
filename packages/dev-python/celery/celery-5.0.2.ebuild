@@ -1,13 +1,13 @@
 EAPI=7
 
-PYTHON_COMPAT=( python3_{6,7} )
+PYTHON_COMPAT=( python3_9 )
 
 inherit bash-completion-r1 distutils-r1 eutils
 
 DESCRIPTION="Asynchronous task queue/job queue based on distributed message passing"
 HOMEPAGE="http://celeryproject.org/ https://pypi.org/project/celery/"
-SRC_URI="https://github.com/celery/celery/archive/v5.0.0rc3.tar.gz"
-S="${WORKDIR}/celery-5.0.0rc3"
+SRC_URI="https://github.com/celery/celery/archive/refs/tags/v5.0.2.tar.gz"
+S="${WORKDIR}/celery-5.0.2"
 
 LICENSE="BSD"
 SLOT="0"

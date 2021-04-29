@@ -1,5 +1,5 @@
 EAPI=7
-PYTHON_COMPAT=( python3_{6,7} )
+PYTHON_COMPAT=( python3_9 )
 
 inherit distutils-r1
 
@@ -14,7 +14,7 @@ RESTRICT="test"
 
 RDEPEND="
   >=dev-python/importlib_metadata-0.18[${PYTHON_USEDEP}]
-  >=dev-python/py-amqp-5.0.1[${PYTHON_USEDEP}]
+  >=dev-python/py-amqp-5.0.6[${PYTHON_USEDEP}]
   >=dev-python/pyro-4.76:4[${PYTHON_USEDEP}]
   sqs? ( >=dev-python/boto3-1.4.4[${PYTHON_USEDEP}] )
   msgpack? ( >=dev-python/msgpack-0.3.0[${PYTHON_USEDEP}] )
