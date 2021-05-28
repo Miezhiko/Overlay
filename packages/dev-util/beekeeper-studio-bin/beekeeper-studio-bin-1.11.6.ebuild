@@ -6,7 +6,7 @@ MY_PN="${PN/-bin/}"
 
 DESCRIPTION="SQL client for MySQL, Postgres, SQLite, SQL Server, and more"
 HOMEPAGE="https://www.beekeeperstudio.io"
-SRC_URI="https://dl.bintray.com/beekeeper-studio/releases/${MY_PN}_${PV}_amd64.deb"
+SRC_URI="https://github.com/beekeeper-studio/beekeeper-studio/releases/download/v${PV}/beekeeper-studio_${PV}_amd64.deb"
 
 LICENSE="all-rights-reserved"
 SLOT="0"
