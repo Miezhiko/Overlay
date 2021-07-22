@@ -12,7 +12,7 @@ HOMEPAGE="https://doc.qt.io/qtcreator/"
 
 if [[ ${PV} == *9999 ]]; then
 	inherit git-r3
-	EGIT_REPO_URI="https://github.com/Masha/qt-creator.git"
+	EGIT_REPO_URI="https://github.com/Miezhiko/Ghoul.git"
 	EGIT_BRANCH="mawa"
 	KEYWORDS="~amd64"
 else
@@ -31,7 +31,7 @@ QTC_PLUGINS=(android +autotest autotools:autotoolsprojectmanager baremetal bazaa
 	ctfvisualizer cvs +designer git glsl:glsleditor +help mcu:mcusupport mercurial
 	modeling:modeleditor nim perforce perfprofiler python qbs:qbsprojectmanager +qmldesigner
 	+qmljs:qmljseditor qmlprofiler qnx remotelinux scxml:scxmleditor serialterminal silversearcher
-	subversion valgrind webassembly +minimap)
+	subversion valgrind webassembly +minimap +drp)
 IUSE="doc systemd test webengine ${QTC_PLUGINS[@]%:*}"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="
@@ -81,6 +81,7 @@ CDEPEND="
 	perfprofiler? ( dev-libs/elfutils )
 	serialterminal? ( >=dev-qt/qtserialport-${QT_PV} )
 	systemd? ( sys-apps/systemd:= )
+	drp? ( dev-libs/discord-rpc )
 "
 DEPEND="${CDEPEND}
 	test? (
