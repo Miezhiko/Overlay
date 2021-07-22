@@ -31,7 +31,7 @@ QTC_PLUGINS=(android +autotest autotools:autotoolsprojectmanager baremetal bazaa
 	ctfvisualizer cvs +designer git glsl:glsleditor +help mcu:mcusupport mercurial
 	modeling:modeleditor nim perforce perfprofiler python qbs:qbsprojectmanager +qmldesigner
 	+qmljs:qmljseditor qmlprofiler qnx remotelinux scxml:scxmleditor serialterminal silversearcher
-	subversion valgrind webassembly)
+	subversion valgrind webassembly +minimap)
 IUSE="doc systemd test webengine ${QTC_PLUGINS[@]%:*}"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="
