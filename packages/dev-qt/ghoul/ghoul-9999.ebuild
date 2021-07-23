@@ -5,24 +5,14 @@ EAPI=7
 LLVM_MAX_SLOT=12
 PLOCALES="cs da de fr hr ja pl ru sl uk zh-CN zh-TW"
 
-inherit llvm qmake-utils virtualx xdg
+inherit llvm qmake-utils virtualx xdg git-r3 desktop
 
 DESCRIPTION="Lightweight IDE for C++/QML development centering around Qt"
 HOMEPAGE="https://doc.qt.io/qtcreator/"
 
-if [[ ${PV} == *9999 ]]; then
-	inherit git-r3
-	EGIT_REPO_URI="https://github.com/Miezhiko/Ghoul.git"
-	EGIT_BRANCH="mawa"
-	KEYWORDS="~amd64"
-else
-	MY_PV=${PV/_/-}
-	MY_P=${PN}-opensource-src-${MY_PV}
-	[[ ${MY_PV} == ${PV} ]] && MY_REL=official || MY_REL=development
-	SRC_URI="https://download.qt.io/${MY_REL}_releases/${PN/-}/$(ver_cut 1-2)/${MY_PV}/${MY_P}.tar.xz"
-	S=${WORKDIR}/${MY_P}
-	KEYWORDS="~amd64 ~arm ~x86"
-fi
+EGIT_REPO_URI="https://github.com/Miezhiko/Ghoul.git"
+EGIT_BRANCH="mawa"
+KEYWORDS="~amd64"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -228,4 +218,8 @@ src_install() {
 		doins share/doc/qtcreator/qtcreator{,-dev}.qch
 		docompress -x /usr/share/doc/qtcreator/qtcreator{,-dev}.qch
 	fi
+
+  make_desktop_entry qtcreator Ghoul \
+    "/usr/share/icons/hicolor/512x512/apps/QtProject-qtcreator.png" \
+  Development
 }
