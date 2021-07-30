@@ -147,6 +147,7 @@ VERIFY_SIG_OPENPGP_KEY_PATH="/usr/share/openpgp-keys/rust.asc"
 PATCHES=(
 	"${FILESDIR}"/1.47.0-ignore-broken-and-non-applicable-tests.patch
 	"${FILESDIR}"/1.49.0-gentoo-musl-target-specs.patch
+	"${FILESDIR}"/1.54.0-parallel-miri.patch
 )
 
 S="${WORKDIR}/${MY_P}-src"
