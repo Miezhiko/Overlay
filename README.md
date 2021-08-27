@@ -14,6 +14,7 @@
 
 # random stuff
 
+ - yt-dlp: A youtube-dl fork with additional features and fixes
  - spotifyd (rust spotify demon) and spotify-qt (I don't use spotify, will drop it soon)
  - discord canary client
  - matrix clients element and spectral (with needed libraries)
