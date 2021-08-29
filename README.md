@@ -11,7 +11,7 @@ Setup manually: [Custom ebuild repository](https://wiki.gentoo.org/wiki/Custom_e
 
 # development stuff
 
- - [https://vscodium.com/](vscodium) editor
+ - [vscodium](https://vscodium.com/) editor
  - [shelter](https://github.com/Miezhiko/Shelter) (project for repositories synchronization)
  - [xmind](https://www.xmind.net)
  - [T](https://github.com/Miezhiko/T) (time tracker)
