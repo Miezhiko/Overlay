@@ -1,15 +1,26 @@
+# Install
+
+With [layman](https://wiki.gentoo.org/wiki/Layman):
+
+```sh
+layman -a Miezhiko
+```
+
+Setup manually: [Custom ebuild repository](https://wiki.gentoo.org/wiki/Custom_ebuild_repository)
+
+
 # development stuff
 
- - vscodium editor
- - shelter (project for repositories synchronization)
- - xmind
- - T (time tracker)
- - idris2 (and chezscheme)
- - rust and rakudo modifications and updates
+ - [https://vscodium.com/](vscodium) editor
+ - [shelter](https://github.com/Miezhiko/Shelter) (project for repositories synchronization)
+ - [xmind](https://www.xmind.net)
+ - [T](https://github.com/Miezhiko/T) (time tracker)
+ - [idris2](https://www.idris-lang.org/) (and chezscheme)
+ - [rust](https://www.rust-lang.org) and [rakudo](https://rakudo.org) modifications and updates
  - discord-rpc library
  - python packages for data science stuff
- - ghoul (personal qt-creator IDE fork)
- - beekeeper studio
+ - [Ghoul](https://github.com/Miezhiko/Ghoul) (personal qt-creator IDE fork)
+ - [beekeeper studio](https://www.beekeeperstudio.io)
  - rust analyzer
 
 # random stuff
