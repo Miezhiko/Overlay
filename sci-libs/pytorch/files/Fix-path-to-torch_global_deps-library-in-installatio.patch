@@ -1,0 +1,27 @@
+From dcd48e4fa52efb136c1cfb6ca9d328aca697507f Mon Sep 17 00:00:00 2001
+From: Alexey Chernov <4ernov@gmail.com>
+Date: Fri, 29 May 2020 22:49:12 +0300
+Subject: [PATCH] Fix path to `torch_global_deps` library in installation
+
+---
+ torch/__init__.py | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/torch/__init__.py b/torch/__init__.py
+index ac3ffc684b..31a98f861d 100644
+--- a/torch/__init__.py
++++ b/torch/__init__.py
+@@ -88,7 +88,9 @@ def _load_global_deps():
+ 
+     lib_name = 'libtorch_global_deps' + ('.dylib' if platform.system() == 'Darwin' else '.so')
+     here = os.path.abspath(__file__)
+-    lib_path = os.path.join(os.path.dirname(here), 'lib', lib_name)
++    is_64bits = sys.maxsize > 2**32
++    lib_dir = 'lib64' if is_64bits else 'lib'
++    lib_path = os.path.join('/usr', lib_dir, lib_name)
+ 
+     ctypes.CDLL(lib_path, mode=ctypes.RTLD_GLOBAL)
+ 
+-- 
+2.26.2
+

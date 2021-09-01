@@ -1,0 +1,12 @@
+diff -Naur pytorch-1.6.0.orig/cmake/Dependencies.cmake pytorch-1.6.0/cmake/Dependencies.cmake
+--- pytorch-1.6.0.orig/cmake/Dependencies.cmake	2020-08-04 15:36:13.372313151 -0400
++++ pytorch-1.6.0/cmake/Dependencies.cmake	2020-08-04 15:36:23.813510327 -0400
+@@ -1294,7 +1294,7 @@
+     set(__BUILD_TESTING ${BUILD_TESTING})
+     set(BUILD_TESTING OFF)
+     set(TP_BUILD_PYTHON OFF)
+-    set(TP_BUILD_LIBUV ON)
++    set(TP_BUILD_LIBUV OFF)
+ 
+     add_subdirectory(${PROJECT_SOURCE_DIR}/third_party/tensorpipe)
+ 

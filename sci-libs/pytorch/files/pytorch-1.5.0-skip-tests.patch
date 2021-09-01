@@ -1,0 +1,19 @@
+diff -Naur pytorch-1.5.1.orig/caffe2/share/contrib/depthwise/CMakeLists.txt pytorch-1.5.1/caffe2/share/contrib/depthwise/CMakeLists.txt
+--- pytorch-1.5.1.orig/caffe2/share/contrib/depthwise/CMakeLists.txt	2020-06-23 17:43:13.950365711 -0400
++++ pytorch-1.5.1/caffe2/share/contrib/depthwise/CMakeLists.txt	2020-06-23 17:43:57.711163417 -0400
+@@ -6,4 +6,3 @@
+ )
+ 
+ set(Caffe2_CPU_SRCS ${Caffe2_CPU_SRCS} ${Caffe2_CONTRIB_DEPTHWISE3x3_CPU_SRC} PARENT_SCOPE)
+-set(Caffe2_CPU_TEST_SRCS ${Caffe2_CPU_TEST_SRCS} ${Caffe2_CONTRIB_DEPTHWISE3x3_TEST_CPU_SRC} PARENT_SCOPE)
+diff -Naur pytorch-1.5.1.orig/torch/lib/c10d/test/CMakeLists.txt pytorch-1.5.1/torch/lib/c10d/test/CMakeLists.txt
+--- pytorch-1.5.1.orig/torch/lib/c10d/test/CMakeLists.txt	2020-06-23 17:43:13.958366588 -0400
++++ pytorch-1.5.1/torch/lib/c10d/test/CMakeLists.txt	2020-06-23 17:43:24.988575918 -0400
+@@ -15,7 +15,6 @@
+ 
+ c10d_add_test(FileStoreTest.cpp c10d)
+ c10d_add_test(HashStoreTest.cpp c10d)
+-c10d_add_test(TCPStoreTest.cpp c10d gtest_main)
+ 
+ if(USE_CUDA)
+   if(USE_C10D_GLOO)
