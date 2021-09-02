@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit eutils desktop wrapper
+inherit eutils desktop
 
 DESCRIPTION="All-in-one voice and text chat"
 
@@ -51,9 +51,8 @@ src_install() {
 	doexe DiscordCanary
 
 	dosym $destdir/DiscordCanary /usr/bin/discord-canary
-	make_wrapper discord "/usr/bin/discord-canary --no-sandbox"
 
-	make_desktop_entry discord Discord \
+	make_desktop_entry discord-canary Discord \
 		"/opt/discord/discord.png" \
 		Network
 }
