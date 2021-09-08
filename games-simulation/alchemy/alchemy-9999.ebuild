@@ -13,7 +13,7 @@ HOMEPAGE="https://alchemyviewer.org"
 EGIT_REPO_URI="https://git.alchemyviewer.org/alchemy/alchemy-next.git"
 
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64"
 IUSE=""
 
 DEPEND="${DEPEND}
