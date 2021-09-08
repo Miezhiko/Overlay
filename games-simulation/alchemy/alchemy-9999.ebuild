@@ -52,7 +52,7 @@ src_install() {
   doins -r "${WORKDIR}/${P}"/build-linux-64/newview/packaged/*
 
   fperms +x /opt/alchemy-install/alchemy
-  dosym "/opt/alchemy-install/alchemy" "usr/bin/alchemy"
+  dosym "/opt/alchemy-install/alchemy" "/usr/bin/alchemy"
 
   domenu "${FILESDIR}/alchemy.desktop"
 }
