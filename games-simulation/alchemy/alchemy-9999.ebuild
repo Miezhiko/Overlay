@@ -49,6 +49,6 @@ src_compile() {
 
 src_install() {
   insinto "/opt/${PN}"
-  doins -r "${WORKDIR}"/build-linux-64/newview/packaged/*
+  doins -r "${WORKDIR}/${P}"/build-linux-64/newview/packaged/*
 }
 
