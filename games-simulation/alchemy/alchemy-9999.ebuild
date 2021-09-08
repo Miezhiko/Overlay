@@ -1,7 +1,7 @@
 # Copyright 2021 Miezhiko
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="7"
+EAPI=7
 
 PYTHON_COMPAT=( python3_{7..10} )
 
