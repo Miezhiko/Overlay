@@ -5,7 +5,7 @@ EAPI=7
 
 PYTHON_COMPAT=( python3_{7..10} )
 
-inherit git-r3 python-any-r1
+inherit git-r3 python-any-r1 desktop
 
 DESCRIPTION="Alchemy SL Viewer"
 HOMEPAGE="https://alchemyviewer.org"
@@ -48,7 +48,12 @@ src_compile() {
 }
 
 src_install() {
-  insinto "/opt/${PN}"
+  insinto "/opt/alchemy-install"
   doins -r "${WORKDIR}/${P}"/build-linux-64/newview/packaged/*
+
+  fperms +x /opt/alchemy-install/alchemy
+  dosym "/opt/alchemy-install/alchemy" "usr/bin/alchemy"
+
+  domenu "${FILESDIR}/alchemy.desktop"
 }
 
