@@ -25,7 +25,7 @@ Setup manually: [Custom ebuild repository](https://wiki.gentoo.org/wiki/Custom_e
 
 # random stuff
 
- - Alchemy Viewer
+ - [Alchemy Viewer](https://alchemyviewer.org)
  - WireShark
  - yt-dlp: A youtube-dl fork with additional features and fixes
  - spotifyd (rust spotify demon) and spotify-qt (I don't use spotify, will drop it soon)
