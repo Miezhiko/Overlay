@@ -44,7 +44,7 @@ src_configure() {
 }
 
 src_compile() {
-	autobuild build -A 64 -c ReleaseOS --no-configure
+  autobuild build -A 64 -c ReleaseOS --no-configure
 }
 
 src_install() {
