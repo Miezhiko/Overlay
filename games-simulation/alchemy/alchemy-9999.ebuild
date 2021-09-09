@@ -39,7 +39,6 @@ PATCHES=(
 )
 
 src_prepare() {
-  cd "${WORKDIR}"
   virtualenv ".venv" -p python3
   source .venv/bin/activate
   pip3 install --upgrade autobuild -i https://git.alchemyviewer.org/api/v4/projects/54/packages/pypi/simple --extra-index-url https://pypi.org/simple
