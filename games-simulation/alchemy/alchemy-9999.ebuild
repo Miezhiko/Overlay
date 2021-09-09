@@ -60,6 +60,8 @@ src_install() {
 	fperms +x /opt/alchemy-install/bin/llplugin/chrome-sandbox
 	fperms +x /opt/alchemy-install/bin/llplugin/dullahan_host
 	fperms +x /opt/alchemy-install/bin/do-not-directly-run-alchemy-bin
+	fperms +x /opt/alchemy-install/bin/SLPlugin
+	fperms +x /opt/alchemy-install/bin/SLVoice
 	fperms +x /opt/alchemy-install/alchemy
 	fperms -R +x /opt/alchemy-install/etc/
 
