@@ -5,7 +5,7 @@ EAPI=7
 
 PYTHON_COMPAT=( python3_{7..10} )
 
-inherit git-r3 python-any-r1 desktop
+inherit git-r3 python-any-r1 desktop xdg wrapper
 
 DESCRIPTION="Alchemy SL Viewer"
 HOMEPAGE="https://alchemyviewer.org"
@@ -51,9 +51,17 @@ src_install() {
   insinto "/opt/alchemy-install"
   doins -r "${WORKDIR}/${P}"/build-linux-64/newview/packaged/*
 
+  fperms +x /opt/alchemy-install/bin/llplugin/chrome-sandbox
+  fperms +x /opt/alchemy-install/bin/llplugin/dullahan_host
+  fperms +x /opt/alchemy-install/bin/do-not-directly-run-alchemy-bin
   fperms +x /opt/alchemy-install/alchemy
-  dosym "/opt/alchemy-install/alchemy" "/usr/bin/alchemy"
+  fperms -R +x /opt/alchemy-install/etc/
+
+  make_wrapper alchemy "/opt/alchemy-install/alchemy"
 
   domenu "${FILESDIR}/alchemy.desktop"
 }
 
+pkg_postinst() {
+	xdg_pkg_postinst
+}
