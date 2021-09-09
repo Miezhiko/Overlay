@@ -15,6 +15,7 @@ EGIT_REPO_URI="https://git.alchemyviewer.org/alchemy/alchemy-next.git"
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE=""
+LICENSE="LGPLv2"
 
 DEPEND="${DEPEND}
   media-libs/libpng
@@ -30,6 +31,12 @@ DEPEND="${DEPEND}
   dev-python/pip
   dev-python/virtualenv
   "
+
+RDEPEND="${DEPEND}"
+
+PATCHES=(
+  "${FILESDIR}"/alchemy-cef.patch
+)
 
 src_prepare() {
   cd "${WORKDIR}"
