@@ -3,7 +3,7 @@
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{7..9} )
+PYTHON_COMPAT=( python3_{7..10} )
 
 inherit bash-completion-r1 check-reqs estack flag-o-matic llvm multiprocessing \
 	multilib-build python-any-r1 rust-toolchain toolchain-funcs verify-sig
@@ -145,10 +145,7 @@ RESTRICT="test"
 VERIFY_SIG_OPENPGP_KEY_PATH="/usr/share/openpgp-keys/rust.asc"
 
 PATCHES=(
-	"${FILESDIR}"/1.47.0-ignore-broken-and-non-applicable-tests.patch
 	"${FILESDIR}"/1.49.0-gentoo-musl-target-specs.patch
-	"${FILESDIR}"/1.53.0-rustversion-1.0.5.patch # https://github.com/rust-lang/rust/pull/86425
-	"${FILESDIR}"/1.54.0-parallel-miri.patch # https://github.com/rust-lang/miri/pull/1863
 )
 
 S="${WORKDIR}/${MY_P}-src"
