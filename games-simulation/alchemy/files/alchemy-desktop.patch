@@ -1,0 +1,15 @@
+diff --git a/indra/newview/linux_tools/wrapper.sh b/indra/newview/linux_tools/wrapper.sh
+index e03fd1e1f4..1aa024ee5d 100755
+--- a/indra/newview/linux_tools/wrapper.sh
++++ b/indra/newview/linux_tools/wrapper.sh
+@@ -80,9 +80,6 @@ cd "${RUN_PATH}"
+ # Re-register the secondlife:// protocol handler every launch, for now.
+ ./etc/register_secondlifeprotocol.sh
+ 
+-# Re-register the application with the desktop system every launch, for now.
+-./etc/refresh_desktop_app_entry.sh
+-
+ ## Before we mess with LD_LIBRARY_PATH, save the old one to restore for
+ ##  subprocesses that care.
+ export SAVED_LD_LIBRARY_PATH="${LD_LIBRARY_PATH}"
+

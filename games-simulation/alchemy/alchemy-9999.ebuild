@@ -36,6 +36,7 @@ RDEPEND="${DEPEND}"
 
 PATCHES=(
 	"${FILESDIR}"/alchemy-cef.patch
+	"${FILESDIR}"/alchemy-desktop.patch
 )
 
 src_prepare() {
