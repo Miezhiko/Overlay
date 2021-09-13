@@ -9,6 +9,7 @@ inherit git-r3 python-any-r1 desktop xdg wrapper
 
 DESCRIPTION="Alchemy SL Viewer"
 HOMEPAGE="https://alchemyviewer.org"
+IUSE="system"
 
 # Official source:
 #EGIT_REPO_URI="https://git.alchemyviewer.org/alchemy/alchemy-next.git"
@@ -19,21 +20,22 @@ EGIT_BRANCH="system"
 
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE=""
 LICENSE="LGPLv2"
 
 BDEPEND="${BDEPEND}
-	dev-cpp/abseil-cpp
-	media-libs/freealut
-	dev-libs/glh
-	dev-libs/uriparser
-	media-libs/openjpeg[static-libs]
-	net-libs/nghttp2[cxx,static-libs]
-	media-libs/libwebp
-	app-text/hunspell[static-libs]
-	dev-libs/libndofdev
-	dev-libs/collada-dom
-	x11-libs/pango"
+	system? (
+		dev-cpp/abseil-cpp
+		media-libs/freealut
+		dev-libs/glh
+		dev-libs/uriparser
+		media-libs/openjpeg[static-libs]
+		net-libs/nghttp2[cxx,static-libs]
+		media-libs/libwebp
+		app-text/hunspell[static-libs]
+		dev-libs/libndofdev
+		dev-libs/collada-dom
+		x11-libs/pango
+	)"
 
 DEPEND="${BDEPEND}
 	${DEPEND}
@@ -77,7 +79,7 @@ src_configure() {
 		-DUSE_OPENAL=ON \
 		-DEXAMPLEPLUGIN=OFF \
 		-DREVISION_FROM_VCS=ON \
-		-DUSESYSTEMLIBS=ON \
+		-DUSESYSTEMLIBS=$(usex system ON OFF) \
 		-DUSE_FMODSTUDIO=OFF
 }
 
