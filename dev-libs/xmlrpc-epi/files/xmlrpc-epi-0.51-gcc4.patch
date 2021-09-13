@@ -1,0 +1,11 @@
+--- xmlrpc-epi-0.51/src/xml_element.c.gcc4	2005-08-09 19:07:40.000000000 -0400
++++ xmlrpc-epi-0.51/src/xml_element.c	2005-08-09 19:11:05.000000000 -0400
+@@ -170,7 +170,7 @@ void xml_elem_free_non_recurse(xml_eleme
+ 
+       Q_Destroy(&root->children);
+       Q_Destroy(&root->attrs);
+-      my_free((char*)root->name);
++      my_free(root->name);
+       simplestring_free(&root->text);
+       my_free(root);
+    }

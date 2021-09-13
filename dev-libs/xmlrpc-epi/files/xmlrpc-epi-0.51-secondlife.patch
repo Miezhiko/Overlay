@@ -1,0 +1,12 @@
+--- xmlrpc-epi-0.51-old/src/queue.h	2001-05-18 10:29:09.000000000 -0700
++++ xmlrpc-epi-0.51-new/src/queue.h	2006-05-02 14:25:30.573246791 -0700
+@@ -24,6 +24,9 @@
+    #define True_ 1
+ #endif
+ 
++/* 2006-05-02 Inserted to enable compilation of rpcserver on linux. Phoenix */
++#define queue xmlrpc_queue
++
+ typedef struct nodeptr datanode;
+ 
+ typedef struct nodeptr {

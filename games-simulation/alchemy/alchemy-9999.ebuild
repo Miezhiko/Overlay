@@ -10,14 +10,32 @@ inherit git-r3 python-any-r1 desktop xdg wrapper
 DESCRIPTION="Alchemy SL Viewer"
 HOMEPAGE="https://alchemyviewer.org"
 
-EGIT_REPO_URI="https://git.alchemyviewer.org/alchemy/alchemy-next.git"
+# Official source:
+#EGIT_REPO_URI="https://git.alchemyviewer.org/alchemy/alchemy-next.git"
+
+# Personal fork:
+EGIT_REPO_URI="https://github.com/Miezhiko/Alchemy.git"
+EGIT_BRANCH="system"
 
 SLOT="0"
 KEYWORDS="~amd64"
 IUSE=""
 LICENSE="LGPLv2"
 
-DEPEND="${DEPEND}
+BDEPEND="${BDEPEND}
+	dev-cpp/abseil-cpp
+	media-libs/freealut
+	dev-libs/glh
+	dev-libs/uriparser
+	media-libs/openjpeg[static-libs]
+	net-libs/nghttp2[cxx,static-libs]
+	media-libs/libwebp
+	app-text/hunspell[static-libs]
+	dev-libs/libndofdev
+	x11-libs/pango"
+
+DEPEND="${BDEPEND}
+	${DEPEND}
 	media-libs/libpng
 	sys-libs/zlib
 	dev-libs/boost
@@ -47,7 +65,19 @@ src_prepare() {
 }
 
 src_configure() {
-	autobuild configure -A 64 -c ReleaseOS -- -DLL_TESTS:BOOL=FALSE -DUNIX_DISABLE_FATAL_WARNINGS=ON -DREVISION_FROM_VCS=ON -DUSE_FMODSTUDIO=OFF
+	autobuild configure -A 64 -c ReleaseOS -- \
+		-DLL_TESTS:BOOL=FALSE \
+		-DLLCOREHTTP_TESTS=FALSE \
+		-DUNIX_DISABLE_FATAL_WARNINGS=ON \
+		-DENABLE_MEDIA_PLUGINS=ON \
+		-DUSE_VLC=ON \
+		-DUSE_X11=ON \
+		-DUSE_CEF=ON \
+		-DUSE_OPENAL=ON \
+		-DEXAMPLEPLUGIN=OFF \
+		-DREVISION_FROM_VCS=ON \
+		-DUSESYSTEMLIBS=ON \
+		-DUSE_FMODSTUDIO=OFF
 }
 
 src_compile() {

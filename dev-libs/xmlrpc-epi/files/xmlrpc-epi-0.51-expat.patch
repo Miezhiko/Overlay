@@ -1,0 +1,65 @@
+--- xmlrpc-epi-0.51/configure.in.orig	2002-06-24 01:48:29.000000000 +0200
++++ xmlrpc-epi-0.51/configure.in	2007-02-19 12:33:04.000000000 +0100
+@@ -19,8 +19,7 @@
+ 
+ dnl Checks for header files.
+ AC_HEADER_STDC
+-AC_CHECK_HEADERS(fcntl.h malloc.h unistd.h)
+-
++AC_CHECK_HEADERS(fcntl.h malloc.h unistd.h expat.h)
+ 
+ dnl Checks for typedefs, structures, and compiler characteristics.
+ AC_C_CONST
+@@ -35,8 +34,9 @@
+ AC_FUNC_STRFTIME
+ 
+ AC_CHECK_FUNCS(mktime strstr)
++AC_CHECK_LIB(expat, XML_Parse, , [AC_MSG_ERROR(libexpat not found)])
+ 
+-AC_OUTPUT(src/Makefile Makefile sample/Makefile expat/Makefile expat/xmltok/Makefile expat/xmlparse/Makefile)
++AC_OUTPUT(src/Makefile Makefile sample/Makefile)
+ 
+ 
+ 
+--- xmlrpc-epi-0.51/Makefile.am.orig	2001-04-10 03:37:40.000000000 +0200
++++ xmlrpc-epi-0.51/Makefile.am	2007-02-19 12:16:17.000000000 +0100
+@@ -1,4 +1,4 @@
+-SUBDIRS = expat src sample
++SUBDIRS = src sample
+ 
+ CHANGE_LOG_GEN_BIN = scripts/cvs2cl.pl
+ CHANGE_LOG_GEN_FLAGS = -t -r -b --accum -I ChangeLog --gmt --prune
+--- xmlrpc-epi-0.51/src/Makefile.am.orig	2001-09-16 22:27:27.000000000 +0200
++++ xmlrpc-epi-0.51/src/Makefile.am	2007-02-19 12:16:35.000000000 +0100
+@@ -1,9 +1,5 @@
+-INCLUDES=-I../liblm -I../expat/xmltok -I../expat/xmlparse -I/usr/local/ssl/include 
+-
+ lib_LTLIBRARIES = libxmlrpc.la
+ 
+-libxmlrpc_la_LIBADD = ../expat/xmltok/libexpat_tok.la ../expat/xmlparse/libexpat_parse.la
+-
+ libxmlrpc_la_SOURCES = \
+ 	base64.c \
+ 	encodings.c \
+--- xmlrpc-epi-0.51/src/xml_element.c.orig	2007-02-19 12:23:38.000000000 +0100
++++ xmlrpc-epi-0.51/src/xml_element.c	2007-02-19 22:23:45.000000000 +0100
+@@ -91,7 +91,7 @@
+ 
+ #include "xml_element.h"
+ #include "queue.h"
+-#include "xmlparse.h"
++#include "expat.h"
+ #include "encodings.h"
+ 
+ #define my_free(thing)  if(thing) {free(thing); thing = 0;}
+--- xmlrpc-epi-0.51/src/xmlrpc.c.orig	2007-02-19 12:23:33.000000000 +0100
++++ xmlrpc-epi-0.51/src/xmlrpc.c	2007-02-19 22:24:29.000000000 +0100
+@@ -121,7 +121,7 @@
+ 
+ #include "queue.h"
+ #include "xmlrpc.h"
+-#include "xmlparse.h"
++#include "expat.h"
+ #include "base64.h"
+ 
+ #include "xml_to_xmlrpc.h"

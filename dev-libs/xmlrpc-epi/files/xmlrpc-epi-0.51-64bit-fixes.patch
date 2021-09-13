@@ -1,0 +1,93 @@
+--- xmlrpc-epi-0.51/sample/sample.c.64bit-fixes	2001-09-16 16:33:17.000000000 -0400
++++ xmlrpc-epi-0.51/sample/sample.c	2002-12-08 16:25:15.000000000 -0500
+@@ -38,6 +38,7 @@
+ 
+ #include <stdio.h>
+ #include <stdlib.h>
++#include <string.h>
+ #include "xmlrpc.h"
+ 
+ 
+@@ -118,7 +119,7 @@ void describe_TestStruct(XMLRPC_SERVER s
+    }
+    else {
+       if(err.xml_elem_error.parser_code) {
+-         printf("parse error, line: %i, column: %i, message: %s\n",
++         printf("parse error, line: %ld, column: %ld, message: %s\n",
+                 err.xml_elem_error.line, err.xml_elem_error.column, err.xml_elem_error.parser_error);
+       }
+    }
+--- xmlrpc-epi-0.51/src/encodings.c.64bit-fixes	2002-03-12 13:08:18.000000000 -0500
++++ xmlrpc-epi-0.51/src/encodings.c	2002-12-08 16:11:28.000000000 -0500
+@@ -42,9 +42,9 @@ static char* convert(const char* src, in
+    char* outbuf = 0;
+ 
+    if(src && src_len && from_enc && to_enc) {
+-      int outlenleft = src_len;
++      size_t outlenleft = src_len;
+       int outlen = src_len;
+-      int inlenleft = src_len;
++      size_t inlenleft = src_len;
+       iconv_t ic = iconv_open(to_enc, from_enc);
+       char* src_ptr = (char*)src;
+       char* out_ptr = 0;
+--- xmlrpc-epi-0.51/src/xml_element.c.64bit-fixes	2002-05-23 13:46:51.000000000 -0400
++++ xmlrpc-epi-0.51/src/xml_element.c	2002-12-08 16:22:19.000000000 -0500
+@@ -461,9 +461,10 @@ static void xml_element_serialize(xml_el
+ }
+ 
+ /* print buf to file */
+-static file_out_fptr(void *f, const char *text, int size)
++static int file_out_fptr(void *f, const char *text, int size)
+ {
+-   fputs(text, (FILE *)f);
++  // Assume we want to return 0 on success, -1 otherwise
++  return fputs(text, (FILE *)f) >= 0 ? 0 : -1;
+ }
+ 
+ /* print buf to simplestring */
+@@ -473,6 +474,7 @@ static simplestring_out_fptr(void *f, co
+    if(buf) {
+       simplestring_addn(buf, text, size);
+    }
++   return 0;
+ }
+ 
+ /****f* xml_element/xml_elem_serialize_to_string
+@@ -687,7 +689,7 @@ xml_element* xml_elem_parse_buf(const ch
+          if(byte_idx >= 0) {
+              snprintf(buf, 
+                       sizeof(buf),
+-                      "\n\tdata beginning %i before byte index: %s\n",
++                      "\n\tdata beginning %ld before byte index: %s\n",
+                       byte_idx > 10  ? 10 : byte_idx,
+                       in_buf + (byte_idx > 10 ? byte_idx - 10 : byte_idx));
+          }
+@@ -696,7 +698,7 @@ xml_element* xml_elem_parse_buf(const ch
+                 "\tdescription: %s\n"
+                 "\tline: %i\n"
+                 "\tcolumn: %i\n"
+-                "\tbyte index: %i\n"
++                "\tbyte index: %ld\n"
+                 "\ttotal bytes: %i\n%s ",
+                 err_code, error_str, line_num, 
+                 col_num, byte_idx, byte_total, buf);
+--- xmlrpc-epi-0.51/src/xmlrpc.c.64bit-fixes	2002-03-09 18:15:44.000000000 -0500
++++ xmlrpc-epi-0.51/src/xmlrpc.c	2002-12-08 16:23:50.000000000 -0500
+@@ -116,6 +116,7 @@ static const char rcsid[] =
+ #include <stdlib.h>
+ #include <string.h>
+ #include <stdarg.h>
++#include <ctype.h>
+ #include <time.h>
+ 
+ #include "queue.h"
+@@ -699,7 +700,7 @@ static XMLRPC_VALUE map_expat_errors (XM
+ 		XMLRPC_ERROR_CODE code;
+ 		char buf[1024];
+ 		snprintf (buf, sizeof (buf),
+-					 "error occurred at line %i, column %i, byte index %i",
++					 "error occurred at line %ld, column %ld, byte index %ld",
+ 					 error->line, error->column, error->byte_index);
+ 
+ 		/* expat specific errors */
