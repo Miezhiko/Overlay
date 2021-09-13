@@ -32,6 +32,7 @@ BDEPEND="${BDEPEND}
 	media-libs/libwebp
 	app-text/hunspell[static-libs]
 	dev-libs/libndofdev
+	dev-libs/collada-dom
 	x11-libs/pango"
 
 DEPEND="${BDEPEND}
