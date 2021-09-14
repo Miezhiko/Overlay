@@ -11,19 +11,12 @@ DESCRIPTION="Alchemy SL Viewer"
 HOMEPAGE="https://alchemyviewer.org"
 IUSE="system fmod"
 
-# Official source:
-#EGIT_REPO_URI="https://git.alchemyviewer.org/alchemy/alchemy-next.git"
-
 # TO build with fmod get https://git.alchemyviewer.org/alchemy/thirdparty/3p-fmodstudio
 # put https://www.fmod.com/download#fmodstudiosuite to fmodstudio directory
 # run
 # autobuild build -A64
 # autobuild package -A64
 # copy archive to /var/tmp/fmodstudio.tar.xz
-
-# Personal fork:
-EGIT_REPO_URI="https://github.com/Miezhiko/Alchemy.git"
-EGIT_BRANCH="system"
 
 SLOT="0"
 KEYWORDS="~amd64"
@@ -66,6 +59,22 @@ PATCHES=(
 	"${FILESDIR}"/alchemy-cef.patch
 	"${FILESDIR}"/alchemy-desktop.patch
 )
+
+src_unpack() {
+	if use system; then
+		# Personal fork:
+		EGIT_REPO_URI="https://github.com/Miezhiko/Alchemy.git"
+		EGIT_BRANCH="system"
+	else
+		# Official repository:
+		EGIT_REPO_URI="https://git.alchemyviewer.org/alchemy/alchemy-next.git"
+		EGIT_BRANCH="master"
+	fi
+
+	_git-r3_env_setup
+	git-r3_src_fetch
+	git-r3_checkout
+}
 
 src_prepare() {
 	virtualenv ".venv" -p python3
