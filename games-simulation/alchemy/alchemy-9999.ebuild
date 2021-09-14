@@ -71,9 +71,7 @@ src_unpack() {
 		EGIT_BRANCH="master"
 	fi
 
-	_git-r3_env_setup
-	git-r3_src_fetch
-	git-r3_checkout
+	git-r3_src_unpack
 }
 
 src_prepare() {
