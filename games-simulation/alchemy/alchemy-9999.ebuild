@@ -9,10 +9,17 @@ inherit git-r3 python-any-r1 desktop xdg wrapper
 
 DESCRIPTION="Alchemy SL Viewer"
 HOMEPAGE="https://alchemyviewer.org"
-IUSE="system"
+IUSE="system fmod"
 
 # Official source:
 #EGIT_REPO_URI="https://git.alchemyviewer.org/alchemy/alchemy-next.git"
+
+# TO build with fmod get https://git.alchemyviewer.org/alchemy/thirdparty/3p-fmodstudio
+# put https://www.fmod.com/download#fmodstudiosuite to fmodstudio directory
+# run
+# autobuild build -A64
+# autobuild package -A64
+# copy archive to /var/tmp/fmodstudio.tar.xz
 
 # Personal fork:
 EGIT_REPO_URI="https://github.com/Miezhiko/Alchemy.git"
@@ -68,6 +75,9 @@ src_prepare() {
 }
 
 src_configure() {
+	if use fmod; then
+		autobuild installables edit -a file:///var/tmp/fmodstudio.tar.xz
+	fi
 	autobuild configure -A 64 -c ReleaseOS -- \
 		-DLL_TESTS:BOOL=FALSE \
 		-DLLCOREHTTP_TESTS=FALSE \
@@ -80,7 +90,7 @@ src_configure() {
 		-DEXAMPLEPLUGIN=OFF \
 		-DREVISION_FROM_VCS=ON \
 		-DUSESYSTEMLIBS=$(usex system ON OFF) \
-		-DUSE_FMODSTUDIO=OFF
+		-DUSE_FMODSTUDIO=$(usex fmod ON OFF)
 }
 
 src_compile() {
