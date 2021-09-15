@@ -118,7 +118,7 @@ src_install() {
 
 	make_wrapper alchemy "/opt/alchemy-install/alchemy"
 
-	domenu "${FILESDIR}/alchemy.desktop"
+	domenu "${FILESDIR}/alchemy-viewer.desktop"
 }
 
 pkg_postinst() {
