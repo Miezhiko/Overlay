@@ -20,7 +20,6 @@ DEPEND="${RDEPEND}
 	sys-libs/libcxx
 	dev-libs/expat
 	dev-libs/nss
-	gnome-base/gconf
 	media-gfx/graphite2
 	media-libs/alsa-lib
 	media-libs/libpng
