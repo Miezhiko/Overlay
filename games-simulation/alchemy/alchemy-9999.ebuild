@@ -9,8 +9,11 @@ inherit git-r3 python-any-r1 desktop xdg wrapper
 
 DESCRIPTION="Alchemy SL Viewer"
 HOMEPAGE="https://alchemyviewer.org"
-IUSE="system fmod"
+IUSE="+fork system fmod j1"
 
+REQUIRED_USE="system? ( fork )"
+
+# TODO: maybe automate 3p-fmodstudio building from another ebuild
 # TO build with fmod get https://git.alchemyviewer.org/alchemy/thirdparty/3p-fmodstudio
 # put https://www.fmod.com/download#fmodstudiosuite to fmodstudio directory
 # run
@@ -62,9 +65,13 @@ PATCHES=(
 
 src_unpack() {
 	if use system; then
+		ewarn "system USE flag is experimental and not ready! (Work in progress)"
+	fi
+
+	if use fork; then
 		# Personal fork:
 		EGIT_REPO_URI="https://github.com/Miezhiko/Alchemy.git"
-		EGIT_BRANCH="system"
+		EGIT_BRANCH="mawa"
 	else
 		# Official repository:
 		EGIT_REPO_URI="https://git.alchemyviewer.org/alchemy/alchemy-next.git"
@@ -75,15 +82,18 @@ src_unpack() {
 }
 
 src_prepare() {
-	virtualenv ".venv" -p python3
+	virtualenv ".venv" -p python3 || die "failed to create virtual env"
 	source .venv/bin/activate
-	pip3 install --upgrade autobuild -i https://git.alchemyviewer.org/api/v4/projects/54/packages/pypi/simple --extra-index-url https://pypi.org/simple
+	pip3 install --upgrade autobuild -i https://git.alchemyviewer.org/api/v4/projects/54/packages/pypi/simple --extra-index-url https://pypi.org/simple || die
+	if use j1; then
+		export AUTOBUILD_CPU_COUNT=1
+	fi
 	default
 }
 
 src_configure() {
 	if use fmod; then
-		autobuild installables edit -a file:///var/tmp/fmodstudio.tar.xz
+		autobuild installables edit -a file:///var/tmp/fmodstudio.tar.xz || die "failed to add fmod to autobuild.xml"
 	fi
 	autobuild configure -A 64 -c ReleaseOS -- \
 		-DLL_TESTS:BOOL=FALSE \
@@ -97,11 +107,11 @@ src_configure() {
 		-DEXAMPLEPLUGIN=OFF \
 		-DREVISION_FROM_VCS=ON \
 		-DUSESYSTEMLIBS=$(usex system ON OFF) \
-		-DUSE_FMODSTUDIO=$(usex fmod ON OFF)
+		-DUSE_FMODSTUDIO=$(usex fmod ON OFF) || die "configure failed"
 }
 
 src_compile() {
-	autobuild build -A 64 -c ReleaseOS --no-configure
+	autobuild build -A 64 -c ReleaseOS --no-configure || die "build failed"
 }
 
 src_install() {
