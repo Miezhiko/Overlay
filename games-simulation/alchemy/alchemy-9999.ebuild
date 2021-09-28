@@ -59,7 +59,6 @@ DEPEND="${BDEPEND}
 RDEPEND="${DEPEND}"
 
 PATCHES=(
-	"${FILESDIR}"/alchemy-cef.patch
 	"${FILESDIR}"/alchemy-desktop.patch
 )
 
@@ -87,6 +86,9 @@ src_prepare() {
 	pip3 install --upgrade autobuild -i https://git.alchemyviewer.org/api/v4/projects/54/packages/pypi/simple --extra-index-url https://pypi.org/simple || die
 	if use j1; then
 		export AUTOBUILD_CPU_COUNT=1
+	fi
+	if ! use fork; then
+		eapply "${FILESDIR}"/alchemy-cef.patch
 	fi
 	default
 }
