@@ -13,14 +13,6 @@ IUSE="+fork system fmod j1"
 
 REQUIRED_USE="system? ( fork )"
 
-# TODO: maybe automate 3p-fmodstudio building from another ebuild
-# TO build with fmod get https://git.alchemyviewer.org/alchemy/thirdparty/3p-fmodstudio
-# put https://www.fmod.com/download#fmodstudiosuite to fmodstudio directory
-# run
-# autobuild build -A64
-# autobuild package -A64
-# copy archive to /var/tmp/fmodstudio.tar.xz
-
 SLOT="0"
 KEYWORDS="~amd64"
 LICENSE="LGPLv2"
@@ -62,9 +54,31 @@ PATCHES=(
 	"${FILESDIR}"/alchemy-desktop.patch
 )
 
+: ${FMOD_VERSION:="2.02.03"}
+: ${FMOD_FILE_PATH="/var/tmp"}
+
+FMOD_DIR="${WORKDIR}/fmod"
+FMOD_VERSION_NO_DOTS=${FMOD_VERSION//./}
+FMOD_FILE="${FMOD_FILE_PATH}/fmodstudioapi${FMOD_VERSION_NO_DOTS}linux.tar.gz"
+FMOD_OUT_FILE="${FMOD_DIR}/fmodstudio-${FMOD_VERSION}-linux64-0.tar.xz"
+
 src_unpack() {
 	if use system; then
 		ewarn "system USE flag is experimental and not ready! (Work in progress)"
+	fi
+
+	if use fmod; then
+		EGIT_REPO_URI="https://git.alchemyviewer.org/alchemy/thirdparty/3p-fmodstudio.git"
+		EGIT_BRANCH="master"
+		EGIT_SUBMODULES=()
+		EGIT_CHECKOUT_DIR="${FMOD_DIR}"
+		git-r3_src_unpack
+		if [[ -f "${FMOD_FILE}" ]]; then
+			mkdir -p "${FMOD_DIR}/fmodstudio"
+			cp "${FMOD_FILE}" "${FMOD_DIR}/fmodstudio/" || die
+		else
+			die "can't find FMOD_FILE at ${FMOD_FILE}, please download from https://www.fmod.com/download#fmodstudiosuite"
+		fi
 	fi
 
 	if use fork; then
@@ -76,6 +90,8 @@ src_unpack() {
 		EGIT_REPO_URI="https://git.alchemyviewer.org/alchemy/alchemy-next.git"
 		EGIT_BRANCH="master"
 	fi
+	EGIT_SUBMODULES=( '*' )
+	EGIT_CHECKOUT_DIR="${WORKDIR}/${P}"
 
 	git-r3_src_unpack
 }
@@ -95,7 +111,15 @@ src_prepare() {
 
 src_configure() {
 	if use fmod; then
-		autobuild installables edit -a file:///var/tmp/fmodstudio.tar.xz || die "failed to add fmod to autobuild.xml"
+		cd "${FMOD_DIR}"
+		AUTOBUILD_BUILD_ID=0 autobuild build -A64 || die "failed to compile fmod studio"
+		AUTOBUILD_BUILD_ID=0 autobuild package -A64 || die "failed to package fmod studio"
+		cd "${S}"
+		if [[ -f ${FMOD_OUT_FILE} ]]; then
+			autobuild installables edit -a file://${FMOD_OUT_FILE} || die "failed to add fmod to autobuild.xml"
+		else
+			die "failed to compile fmod studio"
+		fi
 	fi
 	autobuild configure -A 64 -c ReleaseOS -- \
 		-DLL_TESTS:BOOL=FALSE \
