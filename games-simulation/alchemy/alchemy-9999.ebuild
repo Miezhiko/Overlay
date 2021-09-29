@@ -9,7 +9,7 @@ inherit git-r3 python-any-r1 desktop xdg wrapper
 
 DESCRIPTION="Alchemy SL Viewer"
 HOMEPAGE="https://alchemyviewer.org"
-IUSE="+fork system fmod j1"
+IUSE="+fork fmod gnome j1 kde system"
 
 REQUIRED_USE="system? ( fork )"
 
@@ -20,6 +20,7 @@ LICENSE="LGPLv2"
 BDEPEND="${BDEPEND}
 	system? (
 		dev-cpp/abseil-cpp
+		dev-libs/boost
 		media-libs/freealut
 		dev-libs/glh
 		dev-libs/uriparser
@@ -36,19 +37,19 @@ DEPEND="${BDEPEND}
 	${DEPEND}
 	media-libs/libpng
 	sys-libs/zlib
-	dev-libs/boost
 	dev-util/cmake
 	gui-libs/gtk
 	media-libs/mesa
 	media-libs/libsdl2
 	dev-perl/XML-XPath
-	media-libs/openjpeg
 	media-video/vlc
 	dev-python/pip
 	dev-python/virtualenv
 	"
 
-RDEPEND="${DEPEND}"
+RDEPEND="${DEPEND}
+	gnome? ( gnome-base/gconf )
+	kde? ( kde-plasma/kde-cli-tools )"
 
 PATCHES=(
 	"${FILESDIR}"/alchemy-desktop.patch
