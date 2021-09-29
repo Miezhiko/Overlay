@@ -48,6 +48,7 @@ DEPEND="${BDEPEND}
 	"
 
 RDEPEND="${DEPEND}
+	net-dns/libidn-compat
 	gnome? ( gnome-base/gconf )
 	kde? ( kde-plasma/kde-cli-tools )"
 
