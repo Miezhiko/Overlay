@@ -9,7 +9,7 @@ inherit git-r3 python-any-r1 desktop xdg wrapper
 
 DESCRIPTION="Alchemy SL Viewer"
 HOMEPAGE="https://alchemyviewer.org"
-IUSE="+fork fmod gnome j1 kde system"
+IUSE="+fork fmod gnome j1 kde +lto system"
 
 REQUIRED_USE="system? ( fork )"
 
@@ -134,6 +134,7 @@ src_configure() {
 		-DUSE_OPENAL=ON \
 		-DEXAMPLEPLUGIN=OFF \
 		-DREVISION_FROM_VCS=ON \
+		-DUSE_LTO=$(usex lto ON OFF) \
 		-DUSESYSTEMLIBS=$(usex system ON OFF) \
 		-DUSE_FMODSTUDIO=$(usex fmod ON OFF) || die "configure failed"
 }
