@@ -62,7 +62,7 @@ PATCHES=(
 FMOD_DIR="${WORKDIR}/fmod"
 FMOD_VERSION_NO_DOTS=${FMOD_VERSION//./}
 FMOD_FILE="${FMOD_FILE_PATH}/fmodstudioapi${FMOD_VERSION_NO_DOTS}linux.tar.gz"
-FMOD_OUT_FILE="${FMOD_DIR}/fmodstudio-${FMOD_VERSION}-linux64-0.tar.xz"
+FMOD_OUT_FILE="${FMOD_DIR}/fmodstudio-${FMOD_VERSION}-linux64-0.tar.zst"
 
 src_unpack() {
 	if use system; then
@@ -120,7 +120,8 @@ src_configure() {
 		if [[ -f ${FMOD_OUT_FILE} ]]; then
 			autobuild installables edit -a file://${FMOD_OUT_FILE} || die "failed to add fmod to autobuild.xml"
 		else
-			die "failed to compile fmod studio"
+			eerror "${FMOD_OUT_FILE} missing"
+			die "failed to find compiled fmod studio"
 		fi
 	fi
 	autobuild configure -A 64 -c ReleaseOS -- \
