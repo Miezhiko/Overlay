@@ -9,7 +9,7 @@ inherit git-r3 python-any-r1 desktop xdg wrapper
 
 DESCRIPTION="Alchemy SL Viewer"
 HOMEPAGE="https://alchemyviewer.org"
-IUSE="+fork fmod gnome j1 kde +lto system"
+IUSE="+fork fmod gnome j1 kde +lto system rpath-patch"
 
 REQUIRED_USE="system? ( fork )"
 
@@ -105,7 +105,7 @@ src_prepare() {
 	if use j1; then
 		export AUTOBUILD_CPU_COUNT=1
 	fi
-	if ! use fork; then
+	if use rpath-patch; then
 		eapply "${FILESDIR}"/alchemy-cef.patch
 	fi
 	default
