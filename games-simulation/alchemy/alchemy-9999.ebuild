@@ -9,7 +9,7 @@ inherit git-r3 python-any-r1 desktop xdg wrapper
 
 DESCRIPTION="Alchemy SL Viewer"
 HOMEPAGE="https://alchemyviewer.org"
-IUSE="+fork fmod gnome j1 kde +lto system"
+IUSE="+fork fmod j1 kde +lto system"
 
 REQUIRED_USE="system? ( fork )"
 
@@ -49,7 +49,6 @@ DEPEND="${BDEPEND}
 
 RDEPEND="${DEPEND}
 	net-dns/libidn-compat
-	gnome? ( gnome-base/gconf )
 	kde? ( kde-plasma/kde-cli-tools )"
 
 : ${FMOD_VERSION:="2.02.03"}
