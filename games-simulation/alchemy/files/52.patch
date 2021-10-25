@@ -1,0 +1,592 @@
+From 38ef927605c3aeb4d09fc944434a27bd0e622700 Mon Sep 17 00:00:00 2001
+From: JennaHuntsman <jenna.salem.sf@gmail.com>
+Date: Fri, 15 Oct 2021 16:45:04 -0400
+Subject: [PATCH 1/9] Add xdg-mime functionality to register secondlife
+ protocol with freedesktop compatible DEs
+
+---
+ .../register_secondlifeprotocol.sh            | 47 ++++++++++++++++++-
+ 1 file changed, 45 insertions(+), 2 deletions(-)
+
+diff --git a/indra/newview/linux_tools/register_secondlifeprotocol.sh b/indra/newview/linux_tools/register_secondlifeprotocol.sh
+index 7f73ce48e2..e7b052999e 100755
+--- a/indra/newview/linux_tools/register_secondlifeprotocol.sh
++++ b/indra/newview/linux_tools/register_secondlifeprotocol.sh
+@@ -10,11 +10,14 @@ RUN_PATH=`dirname "$0" || echo .`
+ cd "${RUN_PATH}/.."
+ 
+ if [ -z "$HANDLER" ]; then
+-    HANDLER=`pwd`/etc/handle_secondlifeprotocol.sh
++    HANDLER="$RUN_PATH/etc/handle_secondlifeprotocol.sh"
++    #curdir=`pwd`
++    #echo $curdir
++    #HANDLER="$curdir/etc/handle_secondlifeprotocol.sh"
+ fi
+ 
+ # Register handler for GNOME-aware apps
+-LLGCONFTOOL=gconftool
++LLGCONFTOOL=gconftool-2
+ if which ${LLGCONFTOOL} >/dev/null; then
+     (${LLGCONFTOOL} -s -t string /desktop/gnome/url-handlers/secondlife/command "${HANDLER} \"%s\"" && ${LLGCONFTOOL} -s -t bool /desktop/gnome/url-handlers/secondlife/enabled true) || echo Warning: Did not register secondlife:// handler with GNOME: ${LLGCONFTOOL} failed.
+ else
+@@ -46,3 +49,43 @@ EOF
+     fi
+ done
+ 
++#Check if xdg-mime is present, if so, use it to register new protocol.
++if command -v xdg-mime query default x-scheme-handler/secondlife > /dev/null 2>&1; then
++	#zenity --info --text="xdg-mime present\!" --title="register_secondlife_protocol"
++	urlhandler=`xdg-mime query default x-scheme-handler/secondlife`
++	localappdir="$HOME/.local/share/applications"
++	newhandler="handle_secondlifeprotocol.desktop"
++	cat >"$localappdir/$newhandler" <<EOFnew || echo Warning: Did not register secondlife:// handler with xdg-mime: Could not write $newhandler
++[Desktop Entry]
++Encoding=UTF-8
++Version=1.5
++Name="Second Life URL handler"
++Comment="secondlife:// URL handler"
++Type=Application
++Exec=$HANDLER %u
++Terminal=false
++StartupNotify=false
++NoDisplay=true
++MimeType=x-scheme-handler/secondlife
++EOFnew
++
++	if [ -z $urlhandler ]; then
++		echo No SLURL handler currently registered, creating new...
++	else
++		echo Current SLURL Handler: $urlhandler - Setting new default...
++		#xdg-mime uninstall $localappdir/$urlhandler
++		#Clean up handlers from other viewers
++		if [ "$urlhandler" != "$newhandler" ]; then
++			mv $localappdir/$urlhandler $localappdir/$urlhandler.bak
++		fi
++	fi
++	xdg-mime default $newhandler x-scheme-handler/secondlife
++	if command -v update-desktop-database > /dev/null 2>&1; then
++		update-desktop-database $localappdir
++		echo -e "Registered secondlife:// protocol with xdg-mime\nNew default: `xdg-mime query default x-scheme-handler/secondlife`"
++	else
++		echo Warning: Cannot update desktop database, command missing - installation may be incomplete.
++	fi
++else
++	echo Warning: Did not register secondlife:// handler with xdg-mime: Package not found.
++fi
+-- 
+GitLab
+
+
+From fcc944e7b11e1bed90c582c2188b25092ca9e5ff Mon Sep 17 00:00:00 2001
+From: JennaHuntsman <jenna.salem.sf@gmail.com>
+Date: Fri, 15 Oct 2021 16:46:40 -0400
+Subject: [PATCH 2/9] Add dbus functionality to URL handler to send LM to any
+ running viewers, instead of always attempting to launch a new instance
+
+---
+ .../linux_tools/handle_secondlifeprotocol.sh  | 27 +++++++++++++++----
+ 1 file changed, 22 insertions(+), 5 deletions(-)
+
+diff --git a/indra/newview/linux_tools/handle_secondlifeprotocol.sh b/indra/newview/linux_tools/handle_secondlifeprotocol.sh
+index 53d875ee07..5d63c4514e 100755
+--- a/indra/newview/linux_tools/handle_secondlifeprotocol.sh
++++ b/indra/newview/linux_tools/handle_secondlifeprotocol.sh
+@@ -1,17 +1,34 @@
+ #!/bin/bash
+ 
+-# Send a URL of the form secondlife://... to Second Life.
++# Send a URL of the form secondlife://... to any running viewer, if not, launch Alchemy viewer.
+ #
+ 
++#enable or disable debugging code
++debug=0
++
+ URL="$1"
+ 
+ if [ -z "$URL" ]; then
+-    echo Usage: $0 secondlife://...
++    echo "Usage: $0 [ secondlife://  | hop:// ] ..."
+     exit
+ fi
+ 
+ RUN_PATH=`dirname "$0" || echo .`
+-cd "${RUN_PATH}/.."
+-
+-exec ./alchemy -url \'"${URL}"\'
++#ch "${RUN_PATH}"
+ 
++# Use pgrep to return the NUMBER of matching processes, not their IDs. Stragely returning IDs via pidof will cause the script to fail at random, even when it shouldn't.
++# pgrep -c returns 0 to show if process (any matching viewer) is not running, 
++if [ `pgrep -c do-not-directly` != 0 ]; then
++	if [ $debug == 1 ]; then
++		zenity --info --text="pgrep passed\!" --title="secondlife_protocol"
++	fi
++	exec dbus-send --type=method_call --dest=com.secondlife.ViewerAppAPIService /com/secondlife/ViewerAppAPI com.secondlife.ViewerAppAPI.GoSLURL string:"$1"
++else
++	if [ $debug == 1 ]; then
++		zenity --info --text="pgrep fail\!" --title="secondlife_protocol"
++	fi
++	cd "${RUN_PATH}"/..
++	#Go to .sh location (/etc), then up a directory to the viewer location
++	exec ./alchemy -url \'"${URL}"\'
++fi
++`
+-- 
+GitLab
+
+
+From 38b3cfa8b8fc5135a47967285c3c30c996224ba8 Mon Sep 17 00:00:00 2001
+From: JennaHuntsman <jenna.salem.sf@gmail.com>
+Date: Fri, 15 Oct 2021 17:35:20 -0400
+Subject: [PATCH 3/9] Fix issue wherein handler directory would be set
+ incorrectly, thus breaking SLURL handling
+
+---
+ indra/newview/linux_tools/register_secondlifeprotocol.sh | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/indra/newview/linux_tools/register_secondlifeprotocol.sh b/indra/newview/linux_tools/register_secondlifeprotocol.sh
+index e7b052999e..859bf2d915 100755
+--- a/indra/newview/linux_tools/register_secondlifeprotocol.sh
++++ b/indra/newview/linux_tools/register_secondlifeprotocol.sh
+@@ -10,10 +10,11 @@ RUN_PATH=`dirname "$0" || echo .`
+ cd "${RUN_PATH}/.."
+ 
+ if [ -z "$HANDLER" ]; then
+-    HANDLER="$RUN_PATH/etc/handle_secondlifeprotocol.sh"
+-    #curdir=`pwd`
+-    #echo $curdir
+-    #HANDLER="$curdir/etc/handle_secondlifeprotocol.sh"
++    #HANDLER="$RUN_PATH/etc/handle_secondlifeprotocol.sh"
++	#above code breaks handler path, so use below for now
++    curdir=`pwd`
++    echo $curdir
++    HANDLER="$curdir/etc/handle_secondlifeprotocol.sh"
+ fi
+ 
+ # Register handler for GNOME-aware apps
+-- 
+GitLab
+
+
+From e0d0c534d0ec644851c61887656f5a252ea596ee Mon Sep 17 00:00:00 2001
+From: JennaHuntsman <jenna.salem.sf@gmail.com>
+Date: Fri, 15 Oct 2021 17:42:37 -0400
+Subject: [PATCH 4/9] Removes some URL wrapping to fix handover upon viewer
+ startup
+
+---
+ .../register_secondlifeprotocol.sh            | 104 ++++--------------
+ 1 file changed, 24 insertions(+), 80 deletions(-)
+
+diff --git a/indra/newview/linux_tools/register_secondlifeprotocol.sh b/indra/newview/linux_tools/register_secondlifeprotocol.sh
+index 859bf2d915..26fa2cca23 100755
+--- a/indra/newview/linux_tools/register_secondlifeprotocol.sh
++++ b/indra/newview/linux_tools/register_secondlifeprotocol.sh
+@@ -1,92 +1,36 @@
+ #!/bin/bash
+ 
+-# Register a protocol handler (default: handle_secondlifeprotocol.sh) for
+-# URLs of the form secondlife://...
++# Send a URL of the form secondlife://... to any running viewer, if not, launch Alchemy viewer.
+ #
+ 
+-HANDLER="$1"
++#enable or disable debugging code
++debug=1
+ 
+-RUN_PATH=`dirname "$0" || echo .`
+-cd "${RUN_PATH}/.."
+-
+-if [ -z "$HANDLER" ]; then
+-    #HANDLER="$RUN_PATH/etc/handle_secondlifeprotocol.sh"
+-	#above code breaks handler path, so use below for now
+-    curdir=`pwd`
+-    echo $curdir
+-    HANDLER="$curdir/etc/handle_secondlifeprotocol.sh"
+-fi
++URL="$1"
+ 
+-# Register handler for GNOME-aware apps
+-LLGCONFTOOL=gconftool-2
+-if which ${LLGCONFTOOL} >/dev/null; then
+-    (${LLGCONFTOOL} -s -t string /desktop/gnome/url-handlers/secondlife/command "${HANDLER} \"%s\"" && ${LLGCONFTOOL} -s -t bool /desktop/gnome/url-handlers/secondlife/enabled true) || echo Warning: Did not register secondlife:// handler with GNOME: ${LLGCONFTOOL} failed.
+-else
+-    echo Warning: Did not register secondlife:// handler with GNOME: ${LLGCONFTOOL} not found.
++if [ -z "$URL" ]; then
++    echo "Usage: $0 [ secondlife://  | hop:// ] ..."
++    exit
+ fi
+ 
+-# Register handler for KDE-aware apps
+-for LLKDECONFIG in kde-config kde4-config; do
+-    if [ `which $LLKDECONFIG` ]; then
+-        LLKDEPROTODIR=`$LLKDECONFIG --path services | cut -d ':' -f 1`
+-        if [ -d "$LLKDEPROTODIR" ]; then
+-            LLKDEPROTOFILE=${LLKDEPROTODIR}/secondlife.protocol
+-            cat > ${LLKDEPROTOFILE} <<EOF || echo Warning: Did not register secondlife:// handler with KDE: Could not write ${LLKDEPROTOFILE} 
+-[Protocol]
+-exec=${HANDLER} '%u'
+-protocol=secondlife
+-input=none
+-output=none
+-helper=true
+-listing=
+-reading=false
+-writing=false
+-makedir=false
+-deleting=false
+-EOF
+-        else
+-            echo Warning: Did not register secondlife:// handler with KDE: Directory $LLKDEPROTODIR does not exist.
+-        fi
+-    fi
+-done
+-
+-#Check if xdg-mime is present, if so, use it to register new protocol.
+-if command -v xdg-mime query default x-scheme-handler/secondlife > /dev/null 2>&1; then
+-	#zenity --info --text="xdg-mime present\!" --title="register_secondlife_protocol"
+-	urlhandler=`xdg-mime query default x-scheme-handler/secondlife`
+-	localappdir="$HOME/.local/share/applications"
+-	newhandler="handle_secondlifeprotocol.desktop"
+-	cat >"$localappdir/$newhandler" <<EOFnew || echo Warning: Did not register secondlife:// handler with xdg-mime: Could not write $newhandler
+-[Desktop Entry]
+-Encoding=UTF-8
+-Version=1.5
+-Name="Second Life URL handler"
+-Comment="secondlife:// URL handler"
+-Type=Application
+-Exec=$HANDLER %u
+-Terminal=false
+-StartupNotify=false
+-NoDisplay=true
+-MimeType=x-scheme-handler/secondlife
+-EOFnew
++RUN_PATH=`dirname "$0" || echo .`
++#ch "${RUN_PATH}"
+ 
+-	if [ -z $urlhandler ]; then
+-		echo No SLURL handler currently registered, creating new...
+-	else
+-		echo Current SLURL Handler: $urlhandler - Setting new default...
+-		#xdg-mime uninstall $localappdir/$urlhandler
+-		#Clean up handlers from other viewers
+-		if [ "$urlhandler" != "$newhandler" ]; then
+-			mv $localappdir/$urlhandler $localappdir/$urlhandler.bak
+-		fi
+-	fi
+-	xdg-mime default $newhandler x-scheme-handler/secondlife
+-	if command -v update-desktop-database > /dev/null 2>&1; then
+-		update-desktop-database $localappdir
+-		echo -e "Registered secondlife:// protocol with xdg-mime\nNew default: `xdg-mime query default x-scheme-handler/secondlife`"
+-	else
+-		echo Warning: Cannot update desktop database, command missing - installation may be incomplete.
++# Use pgrep to return the NUMBER of matching processes, not their IDs. Stragely returning IDs via pidof will cause the script to fail at random, even when it shouldn't.
++# pgrep -c returns 0 to show if process (any matching viewer) is not running, 
++if [ `pgrep -c do-not-directly` != 0 ]; then
++	if [ $debug == 1 ]; then
++		zenity --info --text="pgrep passed\!" --title="secondlife_protocol"
+ 	fi
++	exec dbus-send --type=method_call --dest=com.secondlife.ViewerAppAPIService /com/secondlife/ViewerAppAPI com.secondlife.ViewerAppAPI.GoSLURL string:"$1"
+ else
+-	echo Warning: Did not register secondlife:// handler with xdg-mime: Package not found.
++	if [ $debug == 1 ]; then
++		zenity --info --text="pgrep fail\!" --title="secondlife_protocol"
++	fi
++	cd "${RUN_PATH}"/..
++	#Go to .sh location (/etc), then up a directory to the viewer location
++	#exec ./alchemy -url \'"${URL}"\'
++	exec ./alchemy -url ${URL}
++	#remove some of the wrapping around the URL, as this was breaking the handover upon startup
+ fi
++`
+-- 
+GitLab
+
+
+From 6fbf5c2f9a3986357fe9b1884ca9d41ba3342200 Mon Sep 17 00:00:00 2001
+From: JennaHuntsman <jenna.salem.sf@gmail.com>
+Date: Fri, 15 Oct 2021 18:07:45 -0400
+Subject: [PATCH 5/9] Fix dumb pasting error & remove depreciated strings from
+ desktop entry
+
+---
+ .../register_secondlifeprotocol.sh            | 102 +++++++++++++-----
+ 1 file changed, 78 insertions(+), 24 deletions(-)
+
+diff --git a/indra/newview/linux_tools/register_secondlifeprotocol.sh b/indra/newview/linux_tools/register_secondlifeprotocol.sh
+index 26fa2cca23..7c9d46c2cb 100755
+--- a/indra/newview/linux_tools/register_secondlifeprotocol.sh
++++ b/indra/newview/linux_tools/register_secondlifeprotocol.sh
+@@ -1,36 +1,90 @@
+ #!/bin/bash
+ 
+-# Send a URL of the form secondlife://... to any running viewer, if not, launch Alchemy viewer.
++# Register a protocol handler (default: handle_secondlifeprotocol.sh) for
++# URLs of the form secondlife://...
+ #
+ 
+-#enable or disable debugging code
+-debug=1
++HANDLER="$1"
+ 
+-URL="$1"
++RUN_PATH=`dirname "$0" || echo .`
++cd "${RUN_PATH}/.."
+ 
+-if [ -z "$URL" ]; then
+-    echo "Usage: $0 [ secondlife://  | hop:// ] ..."
+-    exit
++if [ -z "$HANDLER" ]; then
++    #HANDLER="$RUN_PATH/etc/handle_secondlifeprotocol.sh"
++    curdir=`pwd`
++    echo $curdir
++    HANDLER="$curdir/etc/handle_secondlifeprotocol.sh"
+ fi
+ 
+-RUN_PATH=`dirname "$0" || echo .`
+-#ch "${RUN_PATH}"
++# Register handler for GNOME-aware apps
++LLGCONFTOOL=gconftool-2
++if which ${LLGCONFTOOL} >/dev/null; then
++    (${LLGCONFTOOL} -s -t string /desktop/gnome/url-handlers/secondlife/command "${HANDLER} \"%s\"" && ${LLGCONFTOOL} -s -t bool /desktop/gnome/url-handlers/secondlife/enabled true) || echo Warning: Did not register secondlife:// handler with GNOME: ${LLGCONFTOOL} failed.
++else
++    echo Warning: Did not register secondlife:// handler with GNOME: ${LLGCONFTOOL} not found.
++fi
+ 
+-# Use pgrep to return the NUMBER of matching processes, not their IDs. Stragely returning IDs via pidof will cause the script to fail at random, even when it shouldn't.
+-# pgrep -c returns 0 to show if process (any matching viewer) is not running, 
+-if [ `pgrep -c do-not-directly` != 0 ]; then
+-	if [ $debug == 1 ]; then
+-		zenity --info --text="pgrep passed\!" --title="secondlife_protocol"
++# Register handler for KDE-aware apps
++for LLKDECONFIG in kde-config kde4-config; do
++    if [ `which $LLKDECONFIG` ]; then
++        LLKDEPROTODIR=`$LLKDECONFIG --path services | cut -d ':' -f 1`
++        if [ -d "$LLKDEPROTODIR" ]; then
++            LLKDEPROTOFILE=${LLKDEPROTODIR}/secondlife.protocol
++            cat > ${LLKDEPROTOFILE} <<EOF || echo Warning: Did not register secondlife:// handler with KDE: Could not write ${LLKDEPROTOFILE} 
++[Protocol]
++exec=${HANDLER} '%u'
++protocol=secondlife
++input=none
++output=none
++helper=true
++listing=
++reading=false
++writing=false
++makedir=false
++deleting=false
++EOF
++        else
++            echo Warning: Did not register secondlife:// handler with KDE: Directory $LLKDEPROTODIR does not exist.
++        fi
++    fi
++done
++
++#Check if xdg-mime is present, if so, use it to register new protocol.
++if command -v xdg-mime query default x-scheme-handler/secondlife > /dev/null 2>&1; then
++	#zenity --info --text="xdg-mime present\!" --title="register_secondlife_protocol"
++	urlhandler=`xdg-mime query default x-scheme-handler/secondlife`
++	localappdir="$HOME/.local/share/applications"
++	newhandler="handle_secondlifeprotocol.desktop"
++	cat >"$localappdir/$newhandler" <<EOFnew || echo Warning: Did not register secondlife:// handler with xdg-mime: Could not write $newhandler
++[Desktop Entry]
++Version=1.5
++Name="Second Life URL handler"
++Comment="secondlife:// URL handler"
++Type=Application
++Exec=$HANDLER %u
++Terminal=false
++StartupNotify=false
++NoDisplay=true
++MimeType=x-scheme-handler/secondlife
++EOFnew
++
++	if [ -z $urlhandler ]; then
++		echo No SLURL handler currently registered, creating new...
++	else
++		echo Current SLURL Handler: $urlhandler - Setting new default...
++		#xdg-mime uninstall $localappdir/$urlhandler
++		#Clean up handlers from other viewers
++		if [ "$urlhandler" != "$newhandler" ]; then
++			mv $localappdir/$urlhandler $localappdir/$urlhandler.bak
++		fi
+ 	fi
+-	exec dbus-send --type=method_call --dest=com.secondlife.ViewerAppAPIService /com/secondlife/ViewerAppAPI com.secondlife.ViewerAppAPI.GoSLURL string:"$1"
+-else
+-	if [ $debug == 1 ]; then
+-		zenity --info --text="pgrep fail\!" --title="secondlife_protocol"
++	xdg-mime default $newhandler x-scheme-handler/secondlife
++	if command -v update-desktop-database > /dev/null 2>&1; then
++		update-desktop-database $localappdir
++		echo -e "Registered secondlife:// protocol with xdg-mime\nNew default: `xdg-mime query default x-scheme-handler/secondlife`"
++	else
++		echo Warning: Cannot update desktop database, command missing - installation may be incomplete.
+ 	fi
+-	cd "${RUN_PATH}"/..
+-	#Go to .sh location (/etc), then up a directory to the viewer location
+-	#exec ./alchemy -url \'"${URL}"\'
+-	exec ./alchemy -url ${URL}
+-	#remove some of the wrapping around the URL, as this was breaking the handover upon startup
++else
++	echo Warning: Did not register secondlife:// handler with xdg-mime: Package not found.
+ fi
+-`
+-- 
+GitLab
+
+
+From 65a74a10d80620024d458e56263ed8b7f7c18ce6 Mon Sep 17 00:00:00 2001
+From: JennaHuntsman <jenna.salem.sf@gmail.com>
+Date: Fri, 15 Oct 2021 18:11:21 -0400
+Subject: [PATCH 6/9] Remove URL escape & patch out irrelevant echo
+
+---
+ indra/newview/linux_tools/handle_secondlifeprotocol.sh | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/indra/newview/linux_tools/handle_secondlifeprotocol.sh b/indra/newview/linux_tools/handle_secondlifeprotocol.sh
+index 5d63c4514e..c45410463c 100755
+--- a/indra/newview/linux_tools/handle_secondlifeprotocol.sh
++++ b/indra/newview/linux_tools/handle_secondlifeprotocol.sh
+@@ -9,7 +9,7 @@ debug=0
+ URL="$1"
+ 
+ if [ -z "$URL" ]; then
+-    echo "Usage: $0 [ secondlife://  | hop:// ] ..."
++    echo "Usage: $0 secondlife:// ..."
+     exit
+ fi
+ 
+@@ -29,6 +29,8 @@ else
+ 	fi
+ 	cd "${RUN_PATH}"/..
+ 	#Go to .sh location (/etc), then up a directory to the viewer location
+-	exec ./alchemy -url \'"${URL}"\'
++	#exec ./alchemy -url \'"${URL}"\'
++	exec ./alchemy -url ${URL}
++	#remove some of the wrapping around the URL, as this was breaking the handover upon startup
+ fi
+ `
+-- 
+GitLab
+
+
+From 7f41ccd9b990bbcd4ea60a0fc9cfb32427e18a88 Mon Sep 17 00:00:00 2001
+From: JennaHuntsman <jenna.salem.sf@gmail.com>
+Date: Sun, 24 Oct 2021 17:59:27 -0400
+Subject: [PATCH 7/9] Swap out use of backticks for parenthesis  in
+ handle_secondlifeprotocol.sh
+
+---
+ indra/newview/linux_tools/handle_secondlifeprotocol.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/indra/newview/linux_tools/handle_secondlifeprotocol.sh b/indra/newview/linux_tools/handle_secondlifeprotocol.sh
+index c45410463c..a74301ccf8 100755
+--- a/indra/newview/linux_tools/handle_secondlifeprotocol.sh
++++ b/indra/newview/linux_tools/handle_secondlifeprotocol.sh
+@@ -13,12 +13,12 @@ if [ -z "$URL" ]; then
+     exit
+ fi
+ 
+-RUN_PATH=`dirname "$0" || echo .`
++RUN_PATH=$(dirname "$0" || echo .)
+ #ch "${RUN_PATH}"
+ 
+ # Use pgrep to return the NUMBER of matching processes, not their IDs. Stragely returning IDs via pidof will cause the script to fail at random, even when it shouldn't.
+ # pgrep -c returns 0 to show if process (any matching viewer) is not running, 
+-if [ `pgrep -c do-not-directly` != 0 ]; then
++if [ $(pgrep -c do-not-directly) != 0 ]; then
+ 	if [ $debug == 1 ]; then
+ 		zenity --info --text="pgrep passed\!" --title="secondlife_protocol"
+ 	fi
+-- 
+GitLab
+
+
+From dfa18e557b80a7b821f0af1a6b3f562fbba8d1ad Mon Sep 17 00:00:00 2001
+From: JennaHuntsman <jenna.salem.sf@gmail.com>
+Date: Sun, 24 Oct 2021 18:03:37 -0400
+Subject: [PATCH 8/9] Swap out use of backticks for parenthesis in
+ register_secondlifeprotocol.sh
+
+---
+ .../linux_tools/register_secondlifeprotocol.sh       | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/indra/newview/linux_tools/register_secondlifeprotocol.sh b/indra/newview/linux_tools/register_secondlifeprotocol.sh
+index 7c9d46c2cb..0347cb5e09 100755
+--- a/indra/newview/linux_tools/register_secondlifeprotocol.sh
++++ b/indra/newview/linux_tools/register_secondlifeprotocol.sh
+@@ -6,12 +6,12 @@
+ 
+ HANDLER="$1"
+ 
+-RUN_PATH=`dirname "$0" || echo .`
++RUN_PATH=$(dirname "$0" || echo .)
+ cd "${RUN_PATH}/.."
+ 
+ if [ -z "$HANDLER" ]; then
+     #HANDLER="$RUN_PATH/etc/handle_secondlifeprotocol.sh"
+-    curdir=`pwd`
++    curdir=$(pwd)
+     echo $curdir
+     HANDLER="$curdir/etc/handle_secondlifeprotocol.sh"
+ fi
+@@ -26,8 +26,8 @@ fi
+ 
+ # Register handler for KDE-aware apps
+ for LLKDECONFIG in kde-config kde4-config; do
+-    if [ `which $LLKDECONFIG` ]; then
+-        LLKDEPROTODIR=`$LLKDECONFIG --path services | cut -d ':' -f 1`
++    if [ $(which $LLKDECONFIG) ]; then
++        LLKDEPROTODIR=$($LLKDECONFIG --path services | cut -d ':' -f 1)
+         if [ -d "$LLKDEPROTODIR" ]; then
+             LLKDEPROTOFILE=${LLKDEPROTODIR}/secondlife.protocol
+             cat > ${LLKDEPROTOFILE} <<EOF || echo Warning: Did not register secondlife:// handler with KDE: Could not write ${LLKDEPROTOFILE} 
+@@ -52,7 +52,7 @@ done
+ #Check if xdg-mime is present, if so, use it to register new protocol.
+ if command -v xdg-mime query default x-scheme-handler/secondlife > /dev/null 2>&1; then
+ 	#zenity --info --text="xdg-mime present\!" --title="register_secondlife_protocol"
+-	urlhandler=`xdg-mime query default x-scheme-handler/secondlife`
++	urlhandler=$(xdg-mime query default x-scheme-handler/secondlife)
+ 	localappdir="$HOME/.local/share/applications"
+ 	newhandler="handle_secondlifeprotocol.desktop"
+ 	cat >"$localappdir/$newhandler" <<EOFnew || echo Warning: Did not register secondlife:// handler with xdg-mime: Could not write $newhandler
+@@ -81,7 +81,7 @@ EOFnew
+ 	xdg-mime default $newhandler x-scheme-handler/secondlife
+ 	if command -v update-desktop-database > /dev/null 2>&1; then
+ 		update-desktop-database $localappdir
+-		echo -e "Registered secondlife:// protocol with xdg-mime\nNew default: `xdg-mime query default x-scheme-handler/secondlife`"
++		echo -e "Registered secondlife:// protocol with xdg-mime\nNew default: $(xdg-mime query default x-scheme-handler/secondlife)"
+ 	else
+ 		echo Warning: Cannot update desktop database, command missing - installation may be incomplete.
+ 	fi
+-- 
+GitLab
+
+
+From 7cdd9c0713fd84f075a861ccd925ae9d4eacf57e Mon Sep 17 00:00:00 2001
+From: JennaHuntsman <jenna.salem.sf@gmail.com>
+Date: Mon, 25 Oct 2021 04:09:55 -0400
+Subject: [PATCH 9/9] Remove backtick originating from pasting error (oops!) in
+ handle_secondlifeprotocol.sh
+
+---
+ indra/newview/linux_tools/handle_secondlifeprotocol.sh | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/indra/newview/linux_tools/handle_secondlifeprotocol.sh b/indra/newview/linux_tools/handle_secondlifeprotocol.sh
+index a74301ccf8..9d2af06cb3 100755
+--- a/indra/newview/linux_tools/handle_secondlifeprotocol.sh
++++ b/indra/newview/linux_tools/handle_secondlifeprotocol.sh
+@@ -33,4 +33,3 @@ else
+ 	exec ./alchemy -url ${URL}
+ 	#remove some of the wrapping around the URL, as this was breaking the handover upon startup
+ fi
+-`
+-- 
+GitLab
+

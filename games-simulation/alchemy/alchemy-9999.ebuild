@@ -102,6 +102,7 @@ src_prepare() {
 		export AUTOBUILD_CPU_COUNT=1
 	fi
 	if ! use fork; then
+		eapply "${FILESDIR}"/52.patch
 		eapply "${FILESDIR}"/alchemy-desktop.patch
 	fi
 	default
