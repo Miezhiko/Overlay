@@ -39,13 +39,13 @@ https://github.com/Maratyszcza/pthreadpool/archive/a134dd5d4cee80cce15db81a72e7f
 https://github.com/Maratyszcza/PeachPy/archive/07d8fde8ac45d7705129475c0f94ed8925b93473.tar.gz -> PeachPy-07d8fde8ac45d7705129475c0f94ed8925b93473.tar.gz
 https://github.com/pytorch/QNNPACK/archive/7d2a4e9931a82adc3814275b6219a03e24e36b4c.tar.gz -> QNNPACK-7d2a4e9931a82adc3814275b6219a03e24e36b4c.tar.gz
 https://github.com/shibatch/sleef/archive/e0a003ee838b75d11763aa9c3ef17bf71a725bff.tar.gz -> sleef-e0a003ee838b75d11763aa9c3ef17bf71a725bff.tar.gz
-https://github.com/pytorch/tensorpipe/archive/c0e7623adb05f36311c7cde6dac8fc4c290419d9.tar.gz -> tensorpipe-c0e7623adb05f36311c7cde6dac8fc4c290419d9.tar.gz
+https://github.com/pytorch/tensorpipe/archive/d2aa3485e8229c98891dfd604b514a39d45a5c99.tar.gz -> tensorpipe-d2aa3485e8229c98891dfd604b514a39d45a5c99.tar.gz
 https://github.com/google/googletest/archive/2fe3bd99.tar.gz -> googletest-2fe3bd99.tar.gz
 https://github.com/google/libnop/archive/aa95422e.tar.gz -> libnop-aa95422e.tar.gz
 https://github.com/libuv/libuv/archive/48e04275332f5753427d21a52f17ec6206451f2c.tar.gz -> libuv-48e04275332f5753427d21a52f17ec6206451f2c.tar.gz
 https://github.com/google/XNNPACK/archive/79cd5f9e18ad0925ac9a050b00ea5a36230072db.tar.gz -> XNNPACK-79cd5f9e18ad0925ac9a050b00ea5a36230072db.tar.gz
 https://github.com/pytorch/kineto/archive/dbfa0ead96612f7ca265c63a35fdf0488395179b.tar.gz -> kineto-dbfa0ead96612f7ca265c63a35fdf0488395179b.tar.gz
-https://github.com/google/breakpad/archive/fe35cd43f2c7386704837b686f91a4e3c882664d.tar.gz -> breakpad-fe35cd43f2c7386704837b686f91a4e3c882664d.tar.gz
+https://github.com/driazati/breakpad/archive/7d188f679d4ae0a5bd06408a3047d69ef8eef848.tar.gz -> breakpad-7d188f679d4ae0a5bd06408a3047d69ef8eef848.tar.gz
 "
 
 # git clone git@github.com:pytorch/pytorch.git && cd pytorch
@@ -179,7 +179,7 @@ src_prepare() {
 	rmdir third_party/sleef || die
 	ln -sv "${WORKDIR}"/sleef-e0a003ee838b75d11763aa9c3ef17bf71a725bff third_party/sleef || die
 	rmdir third_party/tensorpipe || die
-	ln -sv "${WORKDIR}"/tensorpipe-c0e7623adb05f36311c7cde6dac8fc4c290419d9 third_party/tensorpipe || die
+	ln -sv "${WORKDIR}"/tensorpipe-d2aa3485e8229c98891dfd604b514a39d45a5c99 third_party/tensorpipe || die
 	rmdir third_party/tensorpipe/third_party/googletest || die
 	ln -sv "${WORKDIR}"/googletest-2fe3bd994b3189899d93f1d5a881e725e046fdc2 third_party/tensorpipe/third_party/googletest || die
 	rmdir third_party/tensorpipe/third_party/libnop || die
@@ -191,7 +191,7 @@ src_prepare() {
 	rmdir third_party/kineto || die
 	ln -sv "${WORKDIR}"/kineto-dbfa0ead96612f7ca265c63a35fdf0488395179b third_party/kineto || die
 	rmdir third_party/breakpad || die
-	ln -sv "${WORKDIR}"/breakpad-fe35cd43f2c7386704837b686f91a4e3c882664d third_party/breakpad || die
+	ln -sv "${WORKDIR}"/breakpad-7d188f679d4ae0a5bd06408a3047d69ef8eef848 third_party/breakpad || die
 
 	if use cuda; then
 		cd third_party/nccl/nccl || die
