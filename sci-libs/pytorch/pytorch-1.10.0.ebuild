@@ -42,9 +42,10 @@ https://github.com/shibatch/sleef/archive/e0a003ee838b75d11763aa9c3ef17bf71a725b
 https://github.com/pytorch/tensorpipe/archive/c0e7623adb05f36311c7cde6dac8fc4c290419d9.tar.gz -> tensorpipe-c0e7623adb05f36311c7cde6dac8fc4c290419d9.tar.gz
 https://github.com/google/googletest/archive/2fe3bd99.tar.gz -> googletest-2fe3bd99.tar.gz
 https://github.com/google/libnop/archive/aa95422e.tar.gz -> libnop-aa95422e.tar.gz
-https://github.com/libuv/libuv/archive/02a9e1be.tar.gz -> libuv-02a9e1be.tar.gz
+https://github.com/libuv/libuv/archive/48e04275332f5753427d21a52f17ec6206451f2c.tar.gz -> libuv-48e04275332f5753427d21a52f17ec6206451f2c.tar.gz
 https://github.com/google/XNNPACK/archive/79cd5f9e18ad0925ac9a050b00ea5a36230072db.tar.gz -> XNNPACK-79cd5f9e18ad0925ac9a050b00ea5a36230072db.tar.gz
 https://github.com/pytorch/kineto/archive/dbfa0ead96612f7ca265c63a35fdf0488395179b.tar.gz -> kineto-dbfa0ead96612f7ca265c63a35fdf0488395179b.tar.gz
+https://github.com/google/breakpad/archive/fe35cd43f2c7386704837b686f91a4e3c882664d.tar.gz -> breakpad-fe35cd43f2c7386704837b686f91a4e3c882664d.tar.gz
 "
 
 # git clone git@github.com:pytorch/pytorch.git && cd pytorch
@@ -184,11 +185,13 @@ src_prepare() {
 	rmdir third_party/tensorpipe/third_party/libnop || die
 	ln -sv "${WORKDIR}"/libnop-aa95422ea8c409e3f078d2ee7708a5f59a8b9fa2 third_party/tensorpipe/third_party/libnop || die
 	rmdir third_party/tensorpipe/third_party/libuv || die
-	ln -sv "${WORKDIR}"/libuv-02a9e1be252b623ee032a3137c0b0c94afbe6809 third_party/tensorpipe/third_party/libuv || die
+	ln -sv "${WORKDIR}"/libuv-48e04275332f5753427d21a52f17ec6206451f2c third_party/tensorpipe/third_party/libuv || die
 	rmdir third_party/XNNPACK || die
 	ln -sv "${WORKDIR}"/XNNPACK-79cd5f9e18ad0925ac9a050b00ea5a36230072db third_party/XNNPACK || die
 	rmdir third_party/kineto || die
 	ln -sv "${WORKDIR}"/kineto-dbfa0ead96612f7ca265c63a35fdf0488395179b third_party/kineto || die
+	rmdir third_party/breakpad || die
+	ln -sv "${WORKDIR}"/breakpad-fe35cd43f2c7386704837b686f91a4e3c882664d third_party/breakpad || die
 
 	if use cuda; then
 		cd third_party/nccl/nccl || die
