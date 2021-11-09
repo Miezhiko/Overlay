@@ -119,6 +119,7 @@ PATCHES=(
 	"${FILESDIR}"/0002-Don-t-build-libtorch-again-for-PyTorch-1.7.1.patch
 	"${FILESDIR}"/${PN}-1.7.1-no-rpath.patch
 	"${FILESDIR}"/${PN}-1.7.1-torch_shm_manager.patch
+	"${FILESDIR}"/${PN}-1.10.0-nonull.patch
 )
 
 src_prepare() {
@@ -226,6 +227,7 @@ src_prepare() {
 
 src_configure() {
 	local mycmakeargs=(
+		-DWERROR=OFF
 		-DTORCH_BUILD_VERSION=${PV}
 		-DTORCH_INSTALL_LIB_DIR=$(get_libdir)
 		-DBUILD_BINARY=$(usex tools ON OFF)
