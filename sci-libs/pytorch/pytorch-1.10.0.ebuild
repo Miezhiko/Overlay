@@ -14,7 +14,7 @@ https://github.com/google/benchmark/archive/e991355c02b93fe17713efe04cbc2e278e00
 https://github.com/pytorch/cpuinfo/archive/63b25457.tar.gz -> cpuinfo-63b25457.tar.gz
 https://github.com/NVlabs/cub/archive/d106ddb991a56c3df1b6d51b2409e36ba8181ce4.tar.gz -> cub-d106ddb991a56c3df1b6d51b2409e36ba8181ce4.tar.gz
 https://github.com/pytorch/fbgemm/archive/7588d9d804826b428fc0e4fd418e9cc3f7a72e52.tar.gz -> fbgemm-7588d9d804826b428fc0e4fd418e9cc3f7a72e52.tar.gz
-https://github.com/asmjit/asmjit/archive/9057aa30.tar.gz -> asmjit-9057aa30.tar.gz
+https://github.com/asmjit/asmjit/archive/d0d14ac774977d0060a351f66e35cb57ba0bf59c.tar.gz -> asmjit-d0d14ac774977d0060a351f66e35cb57ba0bf59c.tar.gz
 https://github.com/pytorch/cpuinfo/archive/5916273f79a21551890fd3d56fc5375a78d1598d.tar.gz -> cpuinfo-5916273f79a21551890fd3d56fc5375a78d1598d.tar.gz
 https://github.com/google/googletest/archive/0fc5466d.tar.gz -> googletest-0fc5466d.tar.gz
 https://github.com/fmtlib/fmt/archive/cd4af11efc9c622896a3e4cb599fa28668ca3d05.tar.gz -> fmt-cd4af11efc9c622896a3e4cb599fa28668ca3d05.tar.gz
@@ -133,7 +133,7 @@ src_prepare() {
 	rmdir third_party/fbgemm || die
 	ln -sv "${WORKDIR}"/FBGEMM-7588d9d804826b428fc0e4fd418e9cc3f7a72e52 third_party/fbgemm || die
 	rmdir third_party/fbgemm/third_party/asmjit || die
-	ln -sv "${WORKDIR}"/asmjit-9057aa30b620f0662ff51e2230c126a345063064 third_party/fbgemm/third_party/asmjit || die
+	ln -sv "${WORKDIR}"/asmjit-d0d14ac774977d0060a351f66e35cb57ba0bf59c third_party/fbgemm/third_party/asmjit || die
 	rmdir third_party/fbgemm/third_party/cpuinfo || die
 	ln -sv "${WORKDIR}"/cpuinfo-d5e37adf1406cf899d7d9ec1d317c47506ccb970 third_party/fbgemm/third_party/cpuinfo || die
 	rmdir third_party/fbgemm/third_party/googletest || die
