@@ -13,7 +13,7 @@ SRC_URI="https://github.com/pytorch/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz
 https://github.com/google/benchmark/archive/e991355c02b93fe17713efe04cbc2e278e00fdbd.tar.gz -> benchmark-e991355c02b93fe17713efe04cbc2e278e00fdbd.tar.gz
 https://github.com/pytorch/cpuinfo/archive/63b25457.tar.gz -> cpuinfo-63b25457.tar.gz
 https://github.com/NVlabs/cub/archive/d106ddb991a56c3df1b6d51b2409e36ba8181ce4.tar.gz -> cub-d106ddb991a56c3df1b6d51b2409e36ba8181ce4.tar.gz
-https://github.com/pytorch/fbgemm/archive/7495417ad31c38a06b1b13db66b355b6f23cd96d.tar.gz -> fbgemm-7495417ad31c38a06b1b13db66b355b6f23cd96d.tar.gz
+https://github.com/pytorch/fbgemm/archive/7588d9d804826b428fc0e4fd418e9cc3f7a72e52.tar.gz -> fbgemm-7588d9d804826b428fc0e4fd418e9cc3f7a72e52.tar.gz
 https://github.com/asmjit/asmjit/archive/9057aa30.tar.gz -> asmjit-9057aa30.tar.gz
 https://github.com/pytorch/cpuinfo/archive/5916273f79a21551890fd3d56fc5375a78d1598d.tar.gz -> cpuinfo-5916273f79a21551890fd3d56fc5375a78d1598d.tar.gz
 https://github.com/google/googletest/archive/0fc5466d.tar.gz -> googletest-0fc5466d.tar.gz
@@ -44,7 +44,7 @@ https://github.com/google/googletest/archive/2fe3bd99.tar.gz -> googletest-2fe3b
 https://github.com/google/libnop/archive/aa95422e.tar.gz -> libnop-aa95422e.tar.gz
 https://github.com/libuv/libuv/archive/48e04275332f5753427d21a52f17ec6206451f2c.tar.gz -> libuv-48e04275332f5753427d21a52f17ec6206451f2c.tar.gz
 https://github.com/google/XNNPACK/archive/79cd5f9e18ad0925ac9a050b00ea5a36230072db.tar.gz -> XNNPACK-79cd5f9e18ad0925ac9a050b00ea5a36230072db.tar.gz
-https://github.com/pytorch/kineto/archive/dbfa0ead96612f7ca265c63a35fdf0488395179b.tar.gz -> kineto-dbfa0ead96612f7ca265c63a35fdf0488395179b.tar.gz
+https://github.com/pytorch/kineto/archive/879a203d9bf554e95541679ddad6e0326f272dc1.tar.gz -> kineto-879a203d9bf554e95541679ddad6e0326f272dc1.tar.gz
 https://github.com/driazati/breakpad/archive/7d188f679d4ae0a5bd06408a3047d69ef8eef848.tar.gz -> breakpad-7d188f679d4ae0a5bd06408a3047d69ef8eef848.tar.gz
 "
 
@@ -131,7 +131,7 @@ src_prepare() {
 	rmdir third_party/cub || die
 	ln -sv "${WORKDIR}"/cub-d106ddb991a56c3df1b6d51b2409e36ba8181ce4 third_party/cub || die
 	rmdir third_party/fbgemm || die
-	ln -sv "${WORKDIR}"/FBGEMM-7495417ad31c38a06b1b13db66b355b6f23cd96d third_party/fbgemm || die
+	ln -sv "${WORKDIR}"/FBGEMM-7588d9d804826b428fc0e4fd418e9cc3f7a72e52 third_party/fbgemm || die
 	rmdir third_party/fbgemm/third_party/asmjit || die
 	ln -sv "${WORKDIR}"/asmjit-9057aa30b620f0662ff51e2230c126a345063064 third_party/fbgemm/third_party/asmjit || die
 	rmdir third_party/fbgemm/third_party/cpuinfo || die
@@ -189,7 +189,7 @@ src_prepare() {
 	rmdir third_party/XNNPACK || die
 	ln -sv "${WORKDIR}"/XNNPACK-79cd5f9e18ad0925ac9a050b00ea5a36230072db third_party/XNNPACK || die
 	rmdir third_party/kineto || die
-	ln -sv "${WORKDIR}"/kineto-dbfa0ead96612f7ca265c63a35fdf0488395179b third_party/kineto || die
+	ln -sv "${WORKDIR}"/kineto-879a203d9bf554e95541679ddad6e0326f272dc1 third_party/kineto || die
 	rmdir third_party/breakpad || die
 	ln -sv "${WORKDIR}"/breakpad-7d188f679d4ae0a5bd06408a3047d69ef8eef848 third_party/breakpad || die
 
