@@ -5,7 +5,7 @@ EAPI=7
 
 PYTHON_COMPAT=( python3_{7,8,9,10} )
 
-inherit cmake cuda distutils-r1 prefix
+inherit cmake cuda distutils-r1 prefix flag-o-matic
 
 DESCRIPTION="Tensors and Dynamic neural networks in Python with strong GPU acceleration"
 HOMEPAGE="https://pytorch.org/"
@@ -122,6 +122,8 @@ PATCHES=(
 )
 
 src_prepare() {
+	append-flags -Wno-error
+
 	cmake_src_prepare
 	eprefixify torch/__init__.py
 
