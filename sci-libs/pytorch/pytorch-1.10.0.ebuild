@@ -194,7 +194,7 @@ src_prepare() {
 	rmdir third_party/breakpad || die
 	ln -sv "${WORKDIR}"/breakpad-7d188f679d4ae0a5bd06408a3047d69ef8eef848 third_party/breakpad || die
 	rmdir third_party/breakpad/src/third_party/lss || die
-	ln -sv "${WORKDIR}"/lss-e1e7b0ad8ee99a875b272c8e33e308472e897660 third_party/breakpad/src/third_party/lss || die
+	ln -sv "${WORKDIR}"/linux-syscall-support-e1e7b0ad8ee99a875b272c8e33e308472e897660 third_party/breakpad/src/third_party/lss || die
 
 	if use cuda; then
 		cd third_party/nccl/nccl || die
