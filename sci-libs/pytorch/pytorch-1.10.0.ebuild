@@ -122,7 +122,7 @@ PATCHES=(
 )
 
 src_prepare() {
-	append-flags -Wno-error
+	append-flags -Wno-error=nonnull
 
 	cmake_src_prepare
 	eprefixify torch/__init__.py
