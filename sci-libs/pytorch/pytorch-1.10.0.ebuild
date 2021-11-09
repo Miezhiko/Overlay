@@ -82,7 +82,7 @@ RDEPEND="
 			>=dev-util/roctracer-4 )
 	ffmpeg? ( media-video/ffmpeg )
 	gflags? ( dev-cpp/gflags )
-	glog? ( dev-cpp/glog )
+	glog? ( dev-cpp/glog[gflags] )
 	leveldb? ( dev-libs/leveldb )
 	lmdb? ( dev-db/lmdb )
 	mpi? ( virtual/mpi )
