@@ -108,7 +108,7 @@ DEPEND="${RDEPEND}
 	test? ( dev-python/pytest[${PYTHON_USEDEP}] )
 	dev-cpp/tbb
 	app-arch/zstd
-	dev-python/pybind11[${PYTHON_USEDEP}]
+	!dev-python/pybind11
 	dev-python/typing-extensions[${PYTHON_USEDEP}]
 	sys-fabric/libibverbs
 	sys-process/numactl
