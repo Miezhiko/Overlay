@@ -1,7 +1,6 @@
 name: CI
 
 on:
-  # Triggers the workflow on push or pull request events but only for the mawa branch
   push:
     branches: [ mawa ]
   pull_request:
@@ -14,5 +13,5 @@ jobs:
             - uses: actions/checkout@v2
             - uses: lucianposton/repoman-ebuild-qa-action@v1
               with:
-                repoman_args: -d --mode=scan
+                repoman_args: -dI
                 portage_version: latest
