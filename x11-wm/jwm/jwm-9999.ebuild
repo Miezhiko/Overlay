@@ -3,6 +3,7 @@ inherit eutils autotools git-r3
 
 DESCRIPTION="JWM"
 EGIT_REPO_URI="https://github.com/joewing/jwm.git"
+HIMEPAGE="https://joewing.net/projects/jwm"
 
 LICENSE="GPL-2"
 SLOT="0"
