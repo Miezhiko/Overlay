@@ -1,3 +1,5 @@
+[![CI](https://github.com/Miezhiko/Overlay/actions/workflows/repoman.yml/badge.svg)](https://github.com/Miezhiko/Overlay/actions/workflows/repoman.yml)
+
 # Install
 
 With [layman](https://wiki.gentoo.org/wiki/Layman):
