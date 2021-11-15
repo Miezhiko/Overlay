@@ -15,9 +15,10 @@ REQUIRED_USE="system? ( fork )"
 
 SLOT="0"
 KEYWORDS="~amd64"
-LICENSE="LGPLv2"
+LICENSE="LGPL-2"
 
 BDEPEND="${BDEPEND}
+	dev-util/cmake
 	system? (
 		dev-cpp/abseil-cpp
 		dev-libs/boost
@@ -33,11 +34,9 @@ BDEPEND="${BDEPEND}
 		x11-libs/pango
 	)"
 
-DEPEND="${BDEPEND}
-	${DEPEND}
+DEPEND="${DEPEND}
 	media-libs/libpng
 	sys-libs/zlib
-	dev-util/cmake
 	gui-libs/gtk
 	media-libs/mesa
 	media-libs/libsdl2
@@ -101,7 +100,6 @@ src_prepare() {
 		export AUTOBUILD_CPU_COUNT=1
 	fi
 	if ! use fork; then
-		eapply "${FILESDIR}"/52.patch
 		eapply "${FILESDIR}"/alchemy-desktop.patch
 	fi
 	default

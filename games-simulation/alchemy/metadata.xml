@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>Miezhiko@gmail.com</email>
+		<name>Miezhiko</name>
+	</maintainer>
+	<use>
+		<flag name="fork">use mawa fork with minor tweaks</flag>
+		<flag name="fmod">use proprietary fmod for music streams support</flag>
+		<flag name="j1">compile in one thread...</flag>
+		<flag name="lto">link time optimization (suggested)</flag>
+		<flag name="system">use system libs (not supported at all)</flag>
+	</use>
+</pkgmetadata>
