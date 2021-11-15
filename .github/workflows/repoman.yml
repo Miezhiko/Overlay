@@ -13,3 +13,6 @@ jobs:
         steps:
             - uses: actions/checkout@v2
             - uses: lucianposton/repoman-ebuild-qa-action@v1
+              with:
+                repoman_args: -d --mode=scan
+                portage_version: latest
