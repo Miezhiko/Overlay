@@ -56,7 +56,7 @@ https://github.com/mikey/linux-syscall-support/archive/e1e7b0ad8ee99a875b272c8e3
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~x86 ~amd64"
+KEYWORDS="~amd64"
 
 IUSE="asan blas cuda +fbgemm ffmpeg gflags glog +gloo leveldb lmdb mkldnn mpi namedtensor +nnpack numa +observers opencl opencv +openmp +python +qnnpack redis rocm static test tools zeromq"
 RESTRICT="!test? ( test )"

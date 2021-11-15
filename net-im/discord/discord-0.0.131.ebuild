@@ -14,7 +14,10 @@ RESTRICT="mirror"
 KEYWORDS="~amd64"
 
 SLOT="0"
-LICENSE="hammer-and-chisel"
+
+# not really but something proprietary
+LICENSE="google-chrome"
+
 RDEPEND=""
 DEPEND="${RDEPEND}
 	sys-libs/libcxx

@@ -13,18 +13,17 @@ LICENSE="GPL-3"
 RESTRICT="mirror"
 SLOT="0"
 
-IUSE="alsa dbus libressl portaudio pulseaudio rodio"
+IUSE="alsa dbus portaudio pulseaudio rodio"
 REQUIRED_USE="|| ( alsa portaudio pulseaudio rodio )"
 
 KEYWORDS="~amd64 ~x86"
 
 DEPEND=">=dev-lang/rust-1.50.0
-  alsa? ( media-libs/alsa-lib )
-  dbus? ( sys-apps/dbus )
-  !libressl? ( dev-libs/openssl:0= )
-  libressl? ( dev-libs/libressl:0= )
-  portaudio? ( media-libs/portaudio )
-  pulseaudio? ( media-sound/pulseaudio )"
+	alsa? ( media-libs/alsa-lib )
+	dbus? ( sys-apps/dbus )
+	dev-libs/openssl:0=
+	portaudio? ( media-libs/portaudio )
+	pulseaudio? ( media-sound/pulseaudio )"
 RDEPEND="${DEPEND}"
 
 src_unpack() {

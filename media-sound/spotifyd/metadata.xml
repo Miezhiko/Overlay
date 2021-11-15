@@ -5,4 +5,7 @@
 		<email>Miezhiko@gmail.com</email>
 		<name>Miezhiko</name>
 	</maintainer>
+	<use>
+		<flag name="rodio">RODIO (no idea)</flag>
+	</use>
 </pkgmetadata>
