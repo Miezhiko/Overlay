@@ -33,4 +33,4 @@ Setup manually: [Custom ebuild repository](https://wiki.gentoo.org/wiki/Custom_e
  - spotifyd (rust spotify demon) and spotify-qt (I don't use spotify, will drop it soon)
  - discord canary client
  - matrix clients element and spectral (with needed libraries)
- - jwm and compton
+ - jwm
