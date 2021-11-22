@@ -6,11 +6,6 @@ EAPI=8
 DESCRIPTION="MIGMA SHELTER"
 HOMEPAGE="https://github.com/Miezhiko/Shelter"
 
-inherit cmake
-
-CMAKE_MIN_VERSION=3.20.0
-CMAKE_MAKEFILE_GENERATOR=emake
-
 if [[ ${PV} = 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/Miezhiko/Shelter.git"
@@ -29,13 +24,24 @@ IUSE="+lto"
 RDEPEND=""
 DEPEND="${RDEPEND}"
 
+src_unpack() {
+	git-r3_src_unpack
+	cd ${S}
+	mkdir build || die
+	cd build || die
+	cmake -DUSE_LTO=$(usex lto TRUE FALSE) -DCMAKE_BUILD_TYPE=Release .. || die
+	make || die
+}
+
 src_configure() {
-	local mycmakeargs=(
-		-DUSE_LTO=$(usex lto TRUE FALSE)
-	)
-	cmake_src_configure
+	:;
+}
+
+src_compile() {
+	:;
 }
 
 src_install() {
-	dobin "${BUILD_DIR}/shelter"
+	dobin "${S}/build/shelter"
 }
+
