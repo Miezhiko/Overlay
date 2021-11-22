@@ -26,7 +26,7 @@ DEPEND="${RDEPEND}"
 
 src_unpack() {
 	git-r3_src_unpack
-	cd ${S}
+	cd "${S}"
 	mkdir build || die
 	cd build || die
 	cmake -DUSE_LTO=$(usex lto TRUE FALSE) -DCMAKE_BUILD_TYPE=Release .. || die
@@ -44,4 +44,3 @@ src_compile() {
 src_install() {
 	dobin "${S}/build/shelter"
 }
-
