@@ -8,7 +8,7 @@ HOMEPAGE="https://github.com/Miezhiko/Shelter"
 
 inherit cmake
 
-CMAKE_MIN_VERSION=3.9.0
+CMAKE_MIN_VERSION=3.20.0
 CMAKE_MAKEFILE_GENERATOR=emake
 
 if [[ ${PV} = 9999 ]]; then
