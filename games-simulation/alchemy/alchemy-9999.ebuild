@@ -95,19 +95,7 @@ src_unpack() {
 	virtualenv ".venv" -p python3 || die "failed to create virtual env"
 	source .venv/bin/activate
 	pip3 install --upgrade autobuild -i https://git.alchemyviewer.org/api/v4/projects/54/packages/pypi/simple --extra-index-url https://pypi.org/simple || die
-}
 
-src_prepare() {
-	if use j1; then
-		export AUTOBUILD_CPU_COUNT=1
-	fi
-	if ! use fork; then
-		eapply "${FILESDIR}"/alchemy-desktop.patch
-	fi
-	default
-}
-
-src_configure() {
 	if use fmod; then
 		cd "${FMOD_DIR}"
 		AUTOBUILD_BUILD_ID=0 autobuild build -A64 || die "failed to compile fmod studio"
@@ -120,6 +108,7 @@ src_configure() {
 			die "failed to find compiled fmod studio"
 		fi
 	fi
+
 	autobuild configure -A 64 -c ReleaseOS -- \
 		-DLL_TESTS:BOOL=FALSE \
 		-DLLCOREHTTP_TESTS=FALSE \
@@ -134,6 +123,20 @@ src_configure() {
 		-DUSE_LTO=$(usex lto ON OFF) \
 		-DUSESYSTEMLIBS=$(usex system ON OFF) \
 		-DUSE_FMODSTUDIO=$(usex fmod ON OFF) || die "configure failed"
+}
+
+src_prepare() {
+	if use j1; then
+		export AUTOBUILD_CPU_COUNT=1
+	fi
+	if ! use fork; then
+		eapply "${FILESDIR}"/alchemy-desktop.patch
+	fi
+	default
+}
+
+src_configure() {
+	:;
 }
 
 src_compile() {
