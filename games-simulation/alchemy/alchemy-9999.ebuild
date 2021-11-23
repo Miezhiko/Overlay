@@ -90,12 +90,14 @@ src_unpack() {
 	EGIT_CHECKOUT_DIR="${WORKDIR}/${P}"
 
 	git-r3_src_unpack
-}
 
-src_prepare() {
+	cd "${S}"
 	virtualenv ".venv" -p python3 || die "failed to create virtual env"
 	source .venv/bin/activate
 	pip3 install --upgrade autobuild -i https://git.alchemyviewer.org/api/v4/projects/54/packages/pypi/simple --extra-index-url https://pypi.org/simple || die
+}
+
+src_prepare() {
 	if use j1; then
 		export AUTOBUILD_CPU_COUNT=1
 	fi
