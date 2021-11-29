@@ -84,7 +84,7 @@ src_unpack() {
 	else
 		# Official repository:
 		EGIT_REPO_URI="https://git.alchemyviewer.org/alchemy/alchemy-next.git"
-		EGIT_BRANCH="master"
+		EGIT_BRANCH="main"
 	fi
 	EGIT_SUBMODULES=( '*' )
 	EGIT_CHECKOUT_DIR="${WORKDIR}/${P}"
