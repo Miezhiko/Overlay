@@ -1,9 +1,9 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-inherit eutils desktop
+inherit desktop
 
 DESCRIPTION="All-in-one voice and text chat"
 
@@ -20,6 +20,7 @@ LICENSE="google-chrome"
 
 RDEPEND=""
 DEPEND="${RDEPEND}
+	sys-libs/glibc[-clone3]
 	sys-libs/libcxx
 	dev-libs/expat
 	dev-libs/nss
