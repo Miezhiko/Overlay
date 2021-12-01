@@ -18,9 +18,8 @@ SLOT="0"
 # not really but something proprietary
 LICENSE="google-chrome"
 
-RDEPEND=""
+RDEPEND="|| ( <sys-libs/glibc-2.34 >=sys-libs/glibc-2.34[-clone3(+)] )"
 DEPEND="${RDEPEND}
-	sys-libs/glibc[-clone3]
 	sys-libs/libcxx
 	dev-libs/expat
 	dev-libs/nss
