@@ -9,7 +9,7 @@ inherit git-r3 python-any-r1 desktop xdg wrapper
 
 DESCRIPTION="Alchemy SL Viewer"
 HOMEPAGE="https://alchemyviewer.org"
-IUSE="+fork fmod j1 kde +lto system"
+IUSE="fork fmod j1 kde +lto system"
 
 REQUIRED_USE="system? ( fork )"
 
