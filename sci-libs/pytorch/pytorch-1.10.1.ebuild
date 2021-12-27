@@ -3,7 +3,8 @@
 
 EAPI=8
 
-DISTUTILS_USE_SETUPTOOLS=no
+DISTUTILS_USE_SETUPTOOLS=manual
+DISTUTILS_SINGLE_IMPL=1
 PYTHON_COMPAT=( python3_{8..10} )
 
 inherit cmake cuda distutils-r1 prefix
@@ -63,7 +64,9 @@ IUSE="asan blas cuda +fbgemm ffmpeg gflags glog +gloo leveldb lmdb mkldnn mpi na
 REQUIRED_USE="	?? ( cuda rocm )"
 
 RDEPEND="
+	$(python_gen_cond_dep '
 	dev-python/pyyaml[${PYTHON_USEDEP}]
+	')
 	blas? ( virtual/blas )
 	cuda? ( dev-libs/cudnn
 		dev-cpp/eigen[cuda] )
@@ -84,12 +87,15 @@ RDEPEND="
 	leveldb? ( dev-libs/leveldb )
 	lmdb? ( dev-db/lmdb )
 	mpi? ( virtual/mpi )
-	opencl? ( dev-libs/clhpp virtual/opencl )
+	opencl? ( dev-libs/clhpp )
 	opencv? ( media-libs/opencv )
 	python? ( ${PYTHON_DEPS}
+		$(python_gen_cond_dep '
+		dev-python/setuptools[${PYTHON_USEDEP}]
 		dev-python/pybind11[${PYTHON_USEDEP}]
 		dev-python/numpy[${PYTHON_USEDEP}]
-		dev-python/protobuf-python:=
+		dev-python/protobuf-python:=[${PYTHON_USEDEP}]
+		')
 	)
 	redis? ( dev-db/redis )
 	zeromq? ( net-libs/zeromq )
@@ -104,8 +110,10 @@ BDEPEND="dev-python/pyyaml"
 DEPEND="${RDEPEND}
 	dev-cpp/tbb
 	app-arch/zstd
+	$(python_gen_cond_dep '
 	dev-python/pybind11[${PYTHON_USEDEP}]
 	dev-python/typing-extensions[${PYTHON_USEDEP}]
+	')
 	sys-fabric/libibverbs
 	sys-process/numactl
 "
@@ -117,9 +125,11 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-1.7.1-no-rpath.patch
 	"${FILESDIR}"/${PN}-1.7.1-torch_shm_manager.patch
 	"${FILESDIR}"/${PN}-1.10.0-nonull.patch
+	"${FILESDIR}"/${PN}-1.10.0-fix-distutils.patch
+	"${FILESDIR}"/${PN}-1.10.0-clhpp2.patch
 )
 
-distutils_enable_tests pytest
+distutils_enable_tests --install pytest
 
 src_prepare() {
 	cmake_src_prepare
@@ -313,7 +323,7 @@ src_install() {
 		scanelf -r --fix "${BUILD_DIR}/caffe2/python" || die
 		USE_SYSTEM_LIBS=ON CMAKE_BUILD_DIR=${BUILD_DIR} distutils-r1_src_install
 
-		python_foreach_impl python_optimize
+		python_optimize
 	fi
 
 	find "${ED}/usr/${LIB}" -name "*.a" -exec rm -fv {} \; || die
