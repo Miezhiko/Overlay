@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit gnome2-utils meson xdg git-r3
+inherit gnome2-utils xdg git-r3 meson
 
 DESCRIPTION="Gnome Twitch"
 HOMEPAGE="https://github.com/vinszent/gnome-twitch"
@@ -11,32 +11,65 @@ EGIT_REPO_URI="https://github.com/vinszent/gnome-twitch.git"
 EGIT_BRANCH="master"
 LICENSE="GPL-3"
 SLOT="0"
-
 KEYWORDS="~amd64 ~x86"
 
-DEPEND=">=dev-libs/glib-2.50:2
-	>=dev-libs/gobject-introspection-1.54:=
-	>=x11-libs/gtk+-3.24.7:3[introspection]
-	net-libs/libsoup:2.4[introspection]
-"
+IUSE="+gst-cairo gst-opengl gst-clutter mpv"
 
+DEPEND=">=dev-util/meson-0.32.0
+		dev-util/ninja"
 RDEPEND="${DEPEND}
-	media-libs/gstreamer:1.0[introspection]
-	media-libs/gst-plugins-base:1.0[introspection]
-	media-plugins/gst-plugins-meta:1.0
-"
-BDEPEND="
-	dev-libs/libxml2:2
-	>=sys-devel/gettext-0.19.8
-	virtual/pkgconfig
-"
+		>=x11-libs/gtk+-3.20
+		net-libs/libsoup
+		dev-libs/json-glib
+		net-libs/webkit-gtk
+		gst-cairo? (
+			media-libs/gstreamer
+			media-plugins/gst-plugins-libav
+			media-libs/gst-plugins-base
+			media-libs/gst-plugins-good
+			media-libs/gst-plugins-bad
+		)
+		gst-opengl? (
+			media-libs/gstreamer
+			media-plugins/gst-plugins-libav
+			media-libs/gst-plugins-base
+			media-libs/gst-plugins-good
+			media-libs/gst-plugins-bad
+		)
+		gst-clutter? (
+			media-libs/gstreamer
+			media-plugins/gst-plugins-libav
+			media-libs/gst-plugins-base
+			media-libs/gst-plugins-good
+			media-libs/gst-plugins-bad
+			>=media-libs/clutter-gst-3.0
+			>=media-libs/clutter-gtk-1.0
+		)
+		mpv? (
+			media-video/mpv[libmpv]
+		)
+		dev-libs/libpeas
+		dev-libs/gobject-introspection"
 
-src_prepare() {
-	xdg_src_prepare
-}
+src_configure() {
+	local backends
 
-src_install() {
-	meson_src_install
+	if use gst-cairo ; then
+		backends+=("gstreamer-cairo")
+	fi
+	if use gst-opengl ; then
+		backends+=("gstreamer-opengl")
+	fi
+	if use gst-clutter ; then
+		backends+=("gstreamer-clutter")
+	fi
+	if use mpv ; then
+		backends+=("mpv-opengl")
+	fi
+	local emesonargs=(
+		-Dbuild-player-backends=${local}
+	)
+	meson_src_configure
 }
 
 pkg_postinst() {

@@ -5,4 +5,10 @@
 		<email>Miezhiko@gmail.com</email>
 		<name>Miezhiko</name>
 	</maintainer>
+	<use>
+		<flag name="gst-cairo">Add GStreamer Cairo player backend.</flag>
+		<flag name="gst-opengl">Add GStreamer OpenGL player backend.</flag>
+		<flag name="gst-clutter">Add GStreamer Clutter player backend.</flag>
+		<flag name="mpv">Add MPV OpenGL player backend.</flag>
+	</use>
 </pkgmetadata>
