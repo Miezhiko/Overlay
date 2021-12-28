@@ -67,7 +67,7 @@ src_configure() {
 		backends+=("mpv-opengl")
 	fi
 	local emesonargs=(
-		-Dbuild-player-backends=${local}
+		-Dbuild-player-backends=${backends}
 	)
 	meson_src_configure
 }
