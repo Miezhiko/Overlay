@@ -27,6 +27,9 @@ Setup manually: [Custom ebuild repository](https://wiki.gentoo.org/wiki/Custom_e
 
 # random stuff
 
+ - [snooze](https://github.com/leahneukirchen/snooze) run a command at a particular time
+ - [lr](https://github.com/leahneukirchen/lr) list files, recursively
+ - [nq](https://github.com/leahneukirchen/nq) Unix command line queue utility
  - [Alchemy Viewer](https://alchemyviewer.org)
  - WireShark
  - spotifyd (rust spotify demon) and spotify-qt (I don't use spotify, will drop it soon)
