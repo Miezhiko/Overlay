@@ -9,7 +9,7 @@ inherit git-r3 python-any-r1 desktop xdg wrapper
 
 DESCRIPTION="Alchemy SL Viewer"
 HOMEPAGE="https://alchemyviewer.org"
-IUSE="fork fmod j1 kde +lto system"
+IUSE="fork fmod kde lto system"
 
 REQUIRED_USE="system? ( fork )"
 
@@ -126,9 +126,6 @@ src_unpack() {
 }
 
 src_prepare() {
-	if use j1; then
-		export AUTOBUILD_CPU_COUNT=1
-	fi
 	if ! use fork; then
 		eapply "${FILESDIR}"/alchemy-desktop.patch
 	fi
