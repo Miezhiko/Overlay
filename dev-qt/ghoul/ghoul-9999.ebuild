@@ -5,7 +5,7 @@ EAPI=7
 LLVM_MAX_SLOT=13
 PLOCALES="cs da de fr hr ja pl ru sl uk zh-CN zh-TW"
 
-inherit llvm qmake-utils virtualx xdg git-r3
+inherit llvm qmake-utils virtualx xdg git-r3 desktop
 
 DESCRIPTION="Lightweight IDE for C++/QML development centering around Qt"
 HOMEPAGE="https://doc.qt.io/qtcreator/"
@@ -222,4 +222,8 @@ src_install() {
 		doins share/doc/qtcreator/qtcreator{,-dev}.qch
 		docompress -x /usr/share/doc/qtcreator/qtcreator{,-dev}.qch
 	fi
+
+	make_desktop_entry qtcreator Ghoul \
+		"/usr/share/icons/hicolor/512x512/apps/QtProject-qtcreator.png" \
+	Development
 }
