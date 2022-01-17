@@ -50,6 +50,10 @@ RDEPEND="${DEPEND}
 	net-dns/libidn-compat
 	kde? ( kde-plasma/kde-cli-tools )"
 
+# https://www.fmod.com/download#fmodstudiosuite
+# register or login
+# FMOD Engine -> Linux -> Download
+# mv ~/Downloads/fmod* /var/tmp/
 : ${FMOD_VERSION:="2.02.05"}
 : ${FMOD_FILE_PATH="/var/tmp"}
 
