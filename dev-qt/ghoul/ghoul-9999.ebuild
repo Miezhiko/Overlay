@@ -2,10 +2,10 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
-LLVM_MAX_SLOT=12
+LLVM_MAX_SLOT=13
 PLOCALES="cs da de fr hr ja pl ru sl uk zh-CN zh-TW"
 
-inherit llvm qmake-utils virtualx xdg git-r3 desktop
+inherit llvm qmake-utils virtualx xdg git-r3
 
 DESCRIPTION="Lightweight IDE for C++/QML development centering around Qt"
 HOMEPAGE="https://doc.qt.io/qtcreator/"
@@ -16,24 +16,25 @@ KEYWORDS="~amd64"
 
 LICENSE="GPL-3"
 SLOT="0"
-QTC_PLUGINS=(android +autotest autotools:autotoolsprojectmanager baremetal bazaar beautifier boot2qt
-	'+clang:clangcodemodel|clangformat|clangtools' clearcase cmake:cmakeprojectmanager cppcheck
-	ctfvisualizer cvs +designer git glsl:glsleditor +help mcu:mcusupport mercurial
-	modeling:modeleditor nim perforce perfprofiler python qbs:qbsprojectmanager +qmldesigner
-	+qmljs:qmljseditor qmlprofiler qnx remotelinux scxml:scxmleditor serialterminal silversearcher
-	subversion valgrind webassembly +minimap +drp)
+QTC_PLUGINS=(android +autotest autotools:autotoolsprojectmanager baremetal bazaar beautifier boot2qt '+clang:clangcodemodel|clangformat|clangtools'
+	clearcase +cmake:cmakeprojectmanager conan cppcheck ctfvisualizer cvs +designer docker +git glsl:glsleditor +help incredibuild
+	+lsp:languageclient mcu:mcusupport mercurial meson:mesonprojectmanager modeling:modeleditor nim perforce perfprofiler python
+	qbs:qbsprojectmanager +qmake:qmakeprojectmanager '+qml:qmldesigner|qmljseditor|qmlpreview|qmlprojectmanager|studiowelcome'
+	qmlprofiler qnx remotelinux scxml:scxmleditor serialterminal silversearcher subversion valgrind webassembly +minimap +drp)
 IUSE="doc systemd test webengine ${QTC_PLUGINS[@]%:*}"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="
+	android? ( lsp )
 	boot2qt? ( remotelinux )
-	clang? ( test? ( qbs ) )
-	mcu? ( cmake )
-	qmldesigner? ( qmljs )
+	clang? ( lsp )
+	mcu? ( baremetal cmake )
+	python? ( lsp )
+	qml? ( qmake )
 	qnx? ( remotelinux )
 "
 
 # minimum Qt version required
-QT_PV="5.14:5"
+QT_PV="5.15:5"
 
 BDEPEND="
 	>=dev-qt/linguist-tools-${QT_PV}
@@ -54,10 +55,11 @@ CDEPEND="
 	>=dev-qt/qtwidgets-${QT_PV}
 	>=dev-qt/qtx11extras-${QT_PV}
 	>=dev-qt/qtxml-${QT_PV}
-	kde-frameworks/syntax-highlighting:5
+	>=kde-frameworks/syntax-highlighting-5.87:5
 	clang? (
 		>=dev-cpp/yaml-cpp-0.6.2:=
 		|| (
+			sys-devel/clang:13
 			sys-devel/clang:12
 			sys-devel/clang:11
 		)
@@ -83,18 +85,16 @@ DEPEND="${CDEPEND}
 "
 RDEPEND="${CDEPEND}
 	sys-devel/gdb[python]
-	autotools? ( sys-devel/autoconf )
-	cmake? ( >=dev-util/cmake-3.14 )
 	cppcheck? ( dev-util/cppcheck )
 	cvs? ( dev-vcs/cvs )
 	git? ( dev-vcs/git )
 	mercurial? ( dev-vcs/mercurial )
-	qbs? ( >=dev-util/qbs-1.18 )
-	qmldesigner? ( >=dev-qt/qtquicktimeline-${QT_PV} )
+	qml? ( >=dev-qt/qtquicktimeline-${QT_PV} )
 	silversearcher? ( sys-apps/the_silver_searcher )
 	subversion? ( dev-vcs/subversion )
 	valgrind? ( dev-util/valgrind )
 "
+
 # qt translations must also be installed or qt-creator translations won't be loaded
 for x in ${PLOCALES}; do
 	IUSE+=" l10n_${x}"
@@ -116,21 +116,22 @@ src_prepare() {
 	# disable unwanted plugins
 	for plugin in "${QTC_PLUGINS[@]#[+-]}"; do
 		if ! use ${plugin%:*}; then
-			einfo "Disabling ${plugin%:*} plugin"
 			sed -i -re "s/(^\s+|\s*SUBDIRS\s*\+=.*)\<(${plugin#*:})\>(.*)/\1\3/" \
 				src/plugins/plugins.pro || die "failed to disable ${plugin%:*} plugin"
 		fi
 	done
-	sed -i -re '/\<(clangpchmanager|clangrefactoring|ios|updateinfo|winrt)\>/d' src/plugins/plugins.pro || die
-	sed -i -re '/clang(pchmanager|refactoring)backend/d' src/tools/tools.pro || die
+	sed -i -re '/\<(ios|updateinfo|winrt)\>/d' src/plugins/plugins.pro || die
 
 	# avoid building unused support libraries and tools
 	if ! use clang; then
-		sed -i -e '/clangsupport\|sqlite\|yaml-cpp/d' src/libs/libs.pro || die
+		sed -i -e '/yaml-cpp/d' src/libs/libs.pro || die
 		sed -i -e '/clangbackend/d' src/tools/tools.pro || die
 	fi
 	if ! use glsl; then
 		sed -i -e '/glsl/d' src/libs/libs.pro || die
+	fi
+	if ! use lsp; then
+		sed -i -e '/languageserverprotocol/d' src/libs/libs.pro tests/auto/auto.pro || die
 	fi
 	if ! use modeling; then
 		sed -i -e '/modelinglib/d' src/libs/libs.pro || die
@@ -141,13 +142,13 @@ src_prepare() {
 			sed -i -e '/tracing/d' src/libs/libs.pro tests/auto/auto.pro || die
 		fi
 	fi
-	if ! use qmldesigner; then
-		sed -i -e '/advanceddockingsystem/d' src/libs/libs.pro || die
-		sed -i -e '/qml2puppet/d' src/tools/tools.pro || die
-		sed -i -e '/qmldesigner/d' tests/auto/qml/qml.pro || die
+	if ! use qmake; then
+		sed -i -e '/buildoutputparser/d' src/tools/tools.pro || die
 	fi
-	if ! use qmljs; then
-		sed -i -e '/qmleditorwidgets/d' src/libs/libs.pro || die
+	if ! use qml; then
+		sed -i -e '/advanceddockingsystem\|qmleditorwidgets/d' src/libs/libs.pro || die
+		sed -i -e '/qml2puppet/d' src/tools/tools.pro || die
+		sed -i -e '/qmldesigner\|qmlprojectmanager/d' tests/auto/qml/qml.pro || die
 	fi
 	if ! use valgrind; then
 		sed -i -e '/valgrindfake/d' src/tools/tools.pro || die
@@ -161,9 +162,12 @@ src_prepare() {
 
 	# disable broken or unreliable tests
 	sed -i -e 's/\(manual\|tools\|unit\)//g' tests/tests.pro || die
-	sed -i -e '/\(dumpers\|namedemangler\)\.pro/d' tests/auto/debugger/debugger.pro || die
+	sed -i -e '/dumpers\.pro/d' tests/auto/debugger/debugger.pro || die
 	sed -i -e '/CONFIG -=/s/$/ testcase/' tests/auto/extensionsystem/pluginmanager/correctplugins1/plugin?/plugin?.pro || die
-	sed -i -e 's/\<check\>//' tests/auto/qml/codemodel/codemodel.pro || die
+	sed -i -e '/reformatter/d' tests/auto/qml/qml.pro || die
+	sed -i -e 's/\<\(imports\|\)check\>//' tests/auto/qml/codemodel/codemodel.pro || die
+	sed -i -e '/timelineitemsrenderpass/d' tests/auto/tracing/tracing.pro || die
+	sed -i -e '/qtcprocess/d' tests/auto/utils/utils.pro || die
 
 	# do not install test binaries
 	sed -i -e '/CONFIG +=/s/$/ no_testcase_installs/' tests/auto/{qttest.pri,json/json.pro} || die
@@ -218,8 +222,4 @@ src_install() {
 		doins share/doc/qtcreator/qtcreator{,-dev}.qch
 		docompress -x /usr/share/doc/qtcreator/qtcreator{,-dev}.qch
 	fi
-
-  make_desktop_entry qtcreator Ghoul \
-    "/usr/share/icons/hicolor/512x512/apps/QtProject-qtcreator.png" \
-  Development
 }
