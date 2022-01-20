@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit autotools
+inherit autotools multilib
 
 DESCRIPTION="A complete implementation of the MS-NLMP documents as a GSSAPI mechanism"
 HOMEPAGE="https://github.com/gssapi/gss-ntlmssp"
@@ -13,8 +13,23 @@ LICENSE="ISC"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 
+DEPEND="dev-libs/libunistring
+	virtual/krb5
+	net-fs/samba[client,winbind]
+	dev-libs/openssl
+"
+
 src_prepare() {
-   default
-   eautoreconf
+	default
+	eautoreconf
+}
+
+src_install() {
+	# install config file for kerberos
+	sed -i 's,\$(get_libdir),/usr,g' "${S}"/examples/mech.ntlmssp
+	insinto /etc/gss/mech.d/
+	newins "${S}"/examples/mech.ntlmssp gssntlmssp.conf
+
+	default
 }
 
