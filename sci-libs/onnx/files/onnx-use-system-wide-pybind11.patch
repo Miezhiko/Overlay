@@ -1,0 +1,16 @@
+diff -Naur onnx-1.7.0.orig/CMakeLists.txt onnx-1.7.0/CMakeLists.txt
+--- onnx-1.7.0.orig/CMakeLists.txt	2020-06-25 22:33:22.414091408 -0400
++++ onnx-1.7.0/CMakeLists.txt	2020-06-25 22:35:54.648527904 -0400
+@@ -399,10 +399,9 @@
+                              ${PYTHON_INCLUDE_DIR})
+ 
+   # pybind11 is a header only lib
+-  find_package(pybind11 2.2)
++  set(pybind11_FOUND TRUE)
+   if(pybind11_FOUND)
+-    target_include_directories(onnx_cpp2py_export PUBLIC
+-      ${pybind11_INCLUDE_DIRS})
++    set(pybind11_INCLUDE_DIRS ${PYTHON_INCLUDE_DIR})
+   else()
+     if(EXISTS ${ONNX_ROOT}/third_party/pybind11/include/pybind11/pybind11.h)
+       target_include_directories(onnx_cpp2py_export PUBLIC
