@@ -5,7 +5,7 @@ EAPI=7
 LLVM_MAX_SLOT=13
 PLOCALES="cs da de fr hr ja pl ru sl uk zh-CN zh-TW"
 
-inherit llvm qmake-utils virtualx xdg git-r3 desktop
+inherit llvm cmake virtualx xdg git-r3 desktop
 
 DESCRIPTION="Lightweight IDE for C++/QML development centering around Qt"
 HOMEPAGE="https://doc.qt.io/qtcreator/"
@@ -111,106 +111,30 @@ pkg_setup() {
 }
 
 src_prepare() {
+	cmake_src_prepare
 	default
-
-	# disable unwanted plugins
-	for plugin in "${QTC_PLUGINS[@]#[+-]}"; do
-		if ! use ${plugin%:*}; then
-			sed -i -re "s/(^\s+|\s*SUBDIRS\s*\+=.*)\<(${plugin#*:})\>(.*)/\1\3/" \
-				src/plugins/plugins.pro || die "failed to disable ${plugin%:*} plugin"
-		fi
-	done
-	sed -i -re '/\<(ios|updateinfo|winrt)\>/d' src/plugins/plugins.pro || die
-
-	# avoid building unused support libraries and tools
-	if ! use clang; then
-		sed -i -e '/yaml-cpp/d' src/libs/libs.pro || die
-		sed -i -e '/clangbackend/d' src/tools/tools.pro || die
-	fi
-	if ! use glsl; then
-		sed -i -e '/glsl/d' src/libs/libs.pro || die
-	fi
-	if ! use lsp; then
-		sed -i -e '/languageserverprotocol/d' src/libs/libs.pro tests/auto/auto.pro || die
-	fi
-	if ! use modeling; then
-		sed -i -e '/modelinglib/d' src/libs/libs.pro || die
-	fi
-	if ! use perfprofiler; then
-		rm -r src/tools/perfparser || die
-		if ! use ctfvisualizer && ! use qmlprofiler; then
-			sed -i -e '/tracing/d' src/libs/libs.pro tests/auto/auto.pro || die
-		fi
-	fi
-	if ! use qmake; then
-		sed -i -e '/buildoutputparser/d' src/tools/tools.pro || die
-	fi
-	if ! use qml; then
-		sed -i -e '/advanceddockingsystem\|qmleditorwidgets/d' src/libs/libs.pro || die
-		sed -i -e '/qml2puppet/d' src/tools/tools.pro || die
-		sed -i -e '/qmldesigner\|qmlprojectmanager/d' tests/auto/qml/qml.pro || die
-	fi
-	if ! use valgrind; then
-		sed -i -e '/valgrindfake/d' src/tools/tools.pro || die
-		sed -i -e '/valgrind/d' tests/auto/auto.pro || die
-	fi
-
-	# automagic dep on qtwebengine
-	if ! use webengine; then
-		sed -i -e 's/isEmpty(QT\.webenginewidgets\.name)/true/' src/plugins/help/help.pro || die
-	fi
-
-	# disable broken or unreliable tests
-	sed -i -e 's/\(manual\|tools\|unit\)//g' tests/tests.pro || die
-	sed -i -e '/dumpers\.pro/d' tests/auto/debugger/debugger.pro || die
-	sed -i -e '/CONFIG -=/s/$/ testcase/' tests/auto/extensionsystem/pluginmanager/correctplugins1/plugin?/plugin?.pro || die
-	sed -i -e '/reformatter/d' tests/auto/qml/qml.pro || die
-	sed -i -e 's/\<\(imports\|\)check\>//' tests/auto/qml/codemodel/codemodel.pro || die
-	sed -i -e '/timelineitemsrenderpass/d' tests/auto/tracing/tracing.pro || die
-	sed -i -e '/qtcprocess/d' tests/auto/utils/utils.pro || die
-
-	# do not install test binaries
-	sed -i -e '/CONFIG +=/s/$/ no_testcase_installs/' tests/auto/{qttest.pri,json/json.pro} || die
-
-	# fix path to some clang headers
-	sed -i -e "/^CLANG_INCLUDE_DIR\s*=/s:\$\${LLVM_LIBDIR}:${EPREFIX}/usr/lib:" src/shared/clang/clang_defines.pri || die
-
-	# fix translations
-	local lang languages=
-	for lang in ${PLOCALES}; do
-		use l10n_${lang} && languages+=" ${lang/-/_}"
-	done
-	sed -i -e "/^LANGUAGES\s*=/s:=.*:=${languages}:" share/qtcreator/translations/translations.pro || die
-
-	# remove bundled syntax-highlighting
-	rm -r src/libs/3rdparty/syntax-highlighting || die
-
-	# remove bundled yaml-cpp
-	rm -r src/libs/3rdparty/yaml-cpp || die
-
-	# remove bundled qbs
-	rm -r src/shared/qbs || die
-
-	# TODO: unbundle sqlite
 }
 
 src_configure() {
-	eqmake5 IDE_LIBRARY_BASENAME="$(get_libdir)" \
-		IDE_PACKAGE_MODE=1 \
-		KSYNTAXHIGHLIGHTING_LIB_DIR="${EPREFIX}/usr/$(get_libdir)" \
-		KSYNTAXHIGHLIGHTING_INCLUDE_DIR="${EPREFIX}/usr/include/KF5/KSyntaxHighlighting" \
-		$(use clang && echo LLVM_INSTALL_DIR="$(get_llvm_prefix ${LLVM_MAX_SLOT})") \
-		$(use qbs && echo QBS_INSTALL_DIR="${EPREFIX}/usr") \
-		$(use systemd && echo CONFIG+=journald) \
-		$(use test && echo BUILD_TESTS=1)
+	local disabled_plugins
+	for plugin in "${QTC_PLUGINS[@]#[+-]}"; do
+		if ! use ${plugin%:*}; then
+			disabled_plugins="${disabled_plugins}\n-DBUILD_PLUGIN_${plugin^^}=OFF"
+		fi
+	done
+
+	local mycmakeargs=(
+		${disabled_plugins}
+	)
+	cmake_src_configure
 }
 
-src_test() {
-	cd tests/auto && virtx default
+src_compile() {
+	cmake_src_compile
 }
 
 src_install() {
-	emake INSTALL_ROOT="${ED}/usr" install
+	cmake_src_install
 
 	dodoc dist/{changes-*,known-issues}
 

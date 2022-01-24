@@ -1,8 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
-
+EAPI=8
 PYTHON_COMPAT=( python3_{7..10} )
 
 inherit gnome.org libtool python-r1 xdg
@@ -12,7 +11,7 @@ HOMEPAGE="http://www.gnumeric.org/"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc x86"
+KEYWORDS="~alpha ~amd64 ~arm ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 IUSE="+introspection libgda perl"
 REQUIRED_USE="introspection? ( ${PYTHON_REQUIRED_USE} )"
 
@@ -36,7 +35,7 @@ RDEPEND="
 	sys-libs/zlib
 	>=dev-libs/glib-2.40.0:2
 	>=gnome-extra/libgsf-1.14.33:=
-	>=x11-libs/goffice-0.10.50:0.10
+	>=x11-libs/goffice-0.10.51:0.10
 	>=dev-libs/libxml2-2.4.12:2
 	>=x11-libs/pango-1.24.0:=
 
