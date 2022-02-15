@@ -20,6 +20,8 @@ RDEPEND=">=dev-lang/ghc-8
 	dev-haskell/utf8-string
 	dev-haskell/missingh
 	dev-haskell/base-unicode-symbols
-	dev-haskell/executable-path"
+	dev-haskell/executable-path
+	dev-haskell/lifted-base
+	dev-haskell/yaml"
 
 DEPEND="${RDEPEND}"
