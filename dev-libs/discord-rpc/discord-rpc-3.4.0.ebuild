@@ -3,6 +3,8 @@
 
 EAPI=7
 
+CMAKE_MAKEFILE_GENERATOR=emake
+
 inherit cmake-multilib
 
 DESCRIPTION="Discord RPC lib"
@@ -14,7 +16,7 @@ SLOT="0"
 KEYWORDS="~x86 ~amd64"
 IUSE=""
 
-DEPEND=""
+DEPEND="dev-libs/rapidjson"
 RDEPEND="${DEPEND}"
 
 src_prepare() {
