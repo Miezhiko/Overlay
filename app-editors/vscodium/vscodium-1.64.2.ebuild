@@ -95,6 +95,7 @@ src_install() {
 	fperms 4711 /opt/${PN}/chrome-sandbox
 	fperms 755 /opt/${PN}/resources/app/extensions/git/dist/askpass.sh
 	fperms 755 /opt/${PN}/resources/app/extensions/git/dist/askpass-empty.sh
+	fperms 755 /opt/${PN}/resources/app/node_modules.asar.unpacked/@vscode/ripgrep/bin/rg
 	fperms -R +x /opt/${PN}/resources/app/out/vs/base/node
 	dosym "../../opt/${PN}/bin/codium" "usr/bin/vscodium"
 	dosym "../../opt/${PN}/bin/codium" "usr/bin/codium"
