@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>perlovka@gmail.com</email>
+		<name>Michael Perlov</name>
+	</maintainer>
+	<upstream>
+		<remote-id type="github">yandex/Clickhouse</remote-id>
+	</upstream>
+	<use>
+		<flag name="client">Install CLI client</flag>
+		<flag name="server">Install server</flag>
+	</use>
+</pkgmetadata>
