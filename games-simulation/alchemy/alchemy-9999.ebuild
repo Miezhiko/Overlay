@@ -15,7 +15,7 @@ REQUIRED_USE="system? ( fork )"
 
 SLOT="0"
 KEYWORDS="~amd64"
-LICENSE="LGPL-2"
+LICENSE="GPL-2-with-Linden-Lab-FLOSS-exception"
 
 BDEPEND="${BDEPEND}
 	dev-util/cmake
@@ -65,6 +65,10 @@ FMOD_OUT_FILE="${FMOD_DIR}/fmodstudio-${FMOD_VERSION}-linux64-0.tar.zst"
 src_unpack() {
 	if use system; then
 		ewarn "system USE flag is experimental and not ready! (Work in progress)"
+	fi
+
+	if use lto; then
+		ewarn "LTO only works fine with clang and will lead to problems with GCC!"
 	fi
 
 	if use fmod; then
