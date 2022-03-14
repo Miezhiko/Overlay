@@ -1,8 +1,8 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
-LLVM_MAX_SLOT=13
+EAPI=8
+LLVM_MAX_SLOT=14
 PLOCALES="cs da de fr hr ja pl ru sl uk zh-CN zh-TW"
 
 inherit llvm cmake virtualx xdg git-r3
@@ -16,22 +16,9 @@ KEYWORDS="~amd64"
 
 LICENSE="GPL-3"
 SLOT="0"
-QTC_PLUGINS=(android +autotest autotools:autotoolsprojectmanager baremetal bazaar beautifier boot2qt '+clang:clangcodemodel|clangformat|clangtools'
-	clearcase +cmake:cmakeprojectmanager conan cppcheck ctfvisualizer cvs +designer docker +git glsl:glsleditor +help incredibuild
-	+lsp:languageclient mcu:mcusupport mercurial meson:mesonprojectmanager modeling:modeleditor nim perforce perfprofiler python
-	qbs:qbsprojectmanager +qmake:qmakeprojectmanager '+qml:qmldesigner|qmljseditor|qmlpreview|qmlprojectmanager|studiowelcome'
-	qmlprofiler qnx remotelinux scxml:scxmleditor serialterminal silversearcher subversion valgrind webassembly +minimap drp)
-IUSE="doc systemd test webengine ${QTC_PLUGINS[@]%:*}"
+
+IUSE="doc systemd drp test webengine +clang help serialterminal cvs git subversion mercurial cppcheck silversearcher"
 RESTRICT="!test? ( test )"
-REQUIRED_USE="
-	android? ( lsp )
-	boot2qt? ( remotelinux )
-	clang? ( lsp )
-	mcu? ( baremetal cmake )
-	python? ( lsp )
-	qml? ( qmake )
-	qnx? ( remotelinux )
-"
 
 # minimum Qt version required
 QT_PV="5.15:5"
@@ -65,12 +52,12 @@ CDEPEND="
 		)
 		<sys-devel/clang-$((LLVM_MAX_SLOT + 1)):=
 	)
-	designer? ( >=dev-qt/designer-${QT_PV} )
+	>=dev-qt/designer-${QT_PV}
 	help? (
 		>=dev-qt/qthelp-${QT_PV}
 		webengine? ( >=dev-qt/qtwebengine-${QT_PV}[widgets] )
 	)
-	perfprofiler? ( dev-libs/elfutils )
+	dev-libs/elfutils
 	serialterminal? ( >=dev-qt/qtserialport-${QT_PV} )
 	systemd? ( sys-apps/systemd:= )
 	drp? ( dev-libs/discord-rpc )
@@ -89,10 +76,10 @@ RDEPEND="${CDEPEND}
 	cvs? ( dev-vcs/cvs )
 	git? ( dev-vcs/git )
 	mercurial? ( dev-vcs/mercurial )
-	qml? ( >=dev-qt/qtquicktimeline-${QT_PV} )
+	>=dev-qt/qtquicktimeline-${QT_PV}
 	silversearcher? ( sys-apps/the_silver_searcher )
 	subversion? ( dev-vcs/subversion )
-	valgrind? ( dev-util/valgrind )
+	dev-util/valgrind
 "
 
 # qt translations must also be installed or qt-creator translations won't be loaded
@@ -116,16 +103,10 @@ src_prepare() {
 }
 
 src_configure() {
-	local disabled_plugins
-	for plugin in "${QTC_PLUGINS[@]#[+-]}"; do
-		if ! use ${plugin%:*}; then
-			disabled_plugins="${disabled_plugins}\n-DBUILD_PLUGIN_${plugin^^}=OFF"
-		fi
-	done
-
-	local mycmakeargs=(
-		${disabled_plugins}
-	)
+	#TEMPORARY DISABLE DRP PLUGIN
+        local mycmakeargs=(
+                -DBUILD_PLUGIN_DRP=OFF
+        )
 	cmake_src_configure
 }
 
