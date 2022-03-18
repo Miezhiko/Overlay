@@ -106,6 +106,7 @@ src_configure() {
 	#TEMPORARY DISABLE DRP PLUGIN
         local mycmakeargs=(
                 -DBUILD_PLUGIN_DRP=OFF
+                -DBUILD_PLUGIN_MCUSUPPORT=OFF
         )
 	cmake_src_configure
 }
