@@ -33,4 +33,4 @@ while read e; do
             break
         fi
     done < "$e"
-done < <(find . -type f)
+done < <(find . -type f -not -path '*/\.*')
