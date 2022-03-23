@@ -57,6 +57,12 @@ RDEPEND="
 "
 DEPEND="${RDEPEND}"
 
+src_prepare() {
+	default
+	# remove deny! macro
+	sed -i '9d' "${S}"/fractal-gtk/src/main.rs || die
+}
+
 src_configure() {
 	local emesonargs=(
 		-Dprofile=$(usex debug 'development' 'default')
