@@ -30,7 +30,7 @@ while read e; do
 					fi
 					versp=${versp%.ebuild*};
 					if [[ "$versp" != "9999" ]]; then
-						if [ $(version ${versp}) -gt $(version ${vers}) ]; then
+						if [ $(version ${versp}) -ge $(version ${vers}) ]; then
 							echo "${relative}: ${versp} in portage, ${vers} in overlay!"
 						fi
 					fi
