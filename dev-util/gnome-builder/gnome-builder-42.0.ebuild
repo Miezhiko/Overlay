@@ -113,6 +113,10 @@ that are currently available with packages include:
 # stylelint for stylesheet (CSS and co) linting
 # gvls for vala language-server integration
 
+PATCHES=(
+	"${FILESDIR}/fullscreen.patch"
+)
+
 llvm_check_deps() {
 	has_version "sys-devel/clang:${LLVM_SLOT}"
 }
