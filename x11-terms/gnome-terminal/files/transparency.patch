@@ -432,4 +432,3 @@ index 5019a3ac..5513eedc 100644
    return GTK_WIDGET_CLASS (terminal_window_parent_class)->draw (widget, cr);
 -- 
 2.33.1
-مبدئ
