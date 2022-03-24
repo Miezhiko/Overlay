@@ -44,6 +44,10 @@ DOC_CONTENTS="To get previous working directory inherited in new opened tab, or
 	to add the following line to your ~/.bashrc:\n
 	. /etc/profile.d/vte-2.91.sh"
 
+PATCHES=(
+	"${FILESDIR}/transparency.patch"
+)
+
 src_prepare() {
 	default
 }
