@@ -134,7 +134,7 @@ src_configure() {
 
 		-Dnetwork_tests=false
 		$(meson_use clang plugin_clang)
-		-Dplugin_color_picker=false # needs libportal
+		-Dplugin_color_picker=true # needs libportal
 		$(meson_use devhelp plugin_devhelp)
 		-Dplugin_deviced=false
 		-Dplugin_editorconfig=true # needs libpcre
