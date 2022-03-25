@@ -5,8 +5,6 @@ EAPI=7
 
 inherit gnome.org gnome2-utils meson xdg vala
 
-SRC_URI="https://gitlab.gnome.org/GNOME/libnma/-/archive/1.8.35-dev/libnma-1.8.35-dev.tar.bz2"
-
 DESCRIPTION="NetworkManager GUI library"
 HOMEPAGE="https://wiki.gnome.org/Projects/NetworkManager"
 
@@ -38,8 +36,6 @@ BDEPEND="
 		net-misc/networkmanager[vala]
 	)
 "
-
-S="${WORKDIR}/libnma-1.8.35-dev"
 
 src_prepare() {
 	use vala && vala_src_prepare
