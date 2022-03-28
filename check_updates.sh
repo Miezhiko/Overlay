@@ -39,3 +39,9 @@ while read e; do
 		fi
 	fi
 done < <(find . -type f -not -path '*/\.*' -name '*.ebuild')
+
+for d in */ ; do
+	if [ -z "$(ls -A $d)" ]; then
+		echo "$d category is empty"
+	fi
+done
