@@ -314,6 +314,7 @@ src_configure() {
 
 		-DVTK_WRAP_JAVA=$(usex java ON OFF)
 		-DVTK_WRAP_PYTHON=$(usex python ON OFF)
+		-DQMLPLUGINDUMP_EXECUTABLE="/usr/$(get_libdir)/qt5/bin/qmlplugindump"
 	)
 
 	if use all-modules; then
