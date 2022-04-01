@@ -26,6 +26,7 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 RDEPEND="
 	${PYTHON_DEPS}
+	dev-libs/glib
 	dev-libs/appstream-glib[introspection]
 	dev-python/pygobject[cairo]
 "
@@ -34,7 +35,28 @@ DEPEND="
 	${RDEPEND}
 "
 
+pkg_preinst() {
+	gnome2_schemas_savelist
+	xdg_environment_reset
+}
+
 src_prepare() {
 	sed -i -e '7,10d' "${S}/help/meson.build" || die
 	default
+}
+
+pkg_postinst() {
+	gnome2_gconf_install
+	gnome2_schemas_update
+	xdg_icon_cache_update
+	xdg_desktop_database_update
+	xdg_mimeinfo_database_update
+}
+
+pkg_postrm() {
+	gnome2_gconf_uninstall
+	gnome2_schemas_update
+	xdg_icon_cache_update
+	xdg_desktop_database_update
+	xdg_mimeinfo_database_update
 }
