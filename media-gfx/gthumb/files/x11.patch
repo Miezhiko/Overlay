@@ -1,0 +1,26 @@
+diff --git a/gthumb/main.c b/gthumb/main.c
+index a754d7583a736949e24fa45f91acefcd0d37688e..c8add34c3bb141c1a984aab3946f9821185c3b27 100644
+--- a/gthumb/main.c
++++ b/gthumb/main.c
+@@ -21,6 +21,9 @@
+ 
+ #include <config.h>
+ #include <gtk/gtk.h>
++#ifdef GDK_WINDOWING_X11
++#include <X11/Xlib.h>
++#endif
+ #include "gth-application.h"
+ #include "gth-main.h"
+ #include "gth-window.h"
+@@ -49,6 +52,11 @@ main (int argc, char *argv[])
+ 	bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+ 	textdomain (GETTEXT_PACKAGE);
+ 
++#if defined (HAVE_GSTREAMER) && defined (GDK_WINDOWING_X11)
++	/* https://discourse.gnome.org/t/how-to-correctly-init-gtk-app-with-gstreamer/5105/3 */
++	XInitThreads();
++#endif
++
+ 	/* run the main application */
+ 
+ 	Main_Application = gth_application_new ();
