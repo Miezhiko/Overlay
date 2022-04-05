@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Cryptowatch
+Comment=fast and furious
+GenericName=gui
+Exec=/usr/bin/cryptowatch
+Icon=Cryptowatch
+Type=Application
+StartupNotify=true
+StartupWMClass=Cryptowatch
+Categories=Utility;Development;IDE;
+MimeType=text/plain;inode/directory;
+Keywords=crypto
