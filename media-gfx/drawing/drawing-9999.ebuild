@@ -40,11 +40,6 @@ pkg_preinst() {
 	xdg_environment_reset
 }
 
-src_prepare() {
-	sed -i -e '7,10d' "${S}/help/meson.build" || die
-	default
-}
-
 pkg_postinst() {
 	gnome2_gconf_install
 	gnome2_schemas_update
