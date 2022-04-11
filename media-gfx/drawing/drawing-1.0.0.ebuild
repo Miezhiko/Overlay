@@ -18,7 +18,7 @@ else
 	SRC_URI="https://github.com/maoschanz/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
 fi
 
-KEYWORDS=""
+KEYWORDS="~amd64 ~x86"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -34,6 +34,11 @@ DEPEND="
 	dev-util/itstool
 	${RDEPEND}
 "
+
+src_prepare() {
+	sed -i -e '7,10d' "${S}/help/meson.build" || die
+	default
+}
 
 pkg_preinst() {
 	gnome2_schemas_savelist
