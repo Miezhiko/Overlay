@@ -6,7 +6,7 @@ EAPI=8
 PYTHON_COMPAT=( python3_{8..10} )
 PYTHON_REQ_USE="threads(+)"
 
-inherit bash-completion-r1 flag-o-matic pax-utils python-any-r1 toolchain-funcs xdg-utils
+inherit bash-completion-r1 flag-o-matic python-any-r1 toolchain-funcs xdg-utils
 
 DESCRIPTION="A JavaScript runtime built on Chrome's V8 JavaScript engine"
 HOMEPAGE="https://nodejs.org/"
@@ -23,7 +23,7 @@ else
 	S="${WORKDIR}/node-v${PV}"
 fi
 
-IUSE="cpu_flags_x86_sse2 debug doc +icu inspector lto +npm pax-kernel +snapshot +ssl +system-icu +system-ssl systemtap test"
+IUSE="cpu_flags_x86_sse2 debug doc +icu inspector lto +npm +snapshot +ssl +system-icu +system-ssl systemtap test"
 REQUIRED_USE="inspector? ( icu ssl )
 	npm? ( ssl )
 	system-icu? ( icu )
@@ -42,19 +42,12 @@ BDEPEND="${PYTHON_DEPS}
 	sys-apps/coreutils
 	virtual/pkgconfig
 	systemtap? ( dev-util/systemtap )
-	test? ( net-misc/curl )
-	pax-kernel? ( sys-apps/elfix )"
+	test? ( net-misc/curl )"
 DEPEND="${RDEPEND}"
-
-PATCHES=(
-	"${FILESDIR}"/${PN}-12.22.5-shared_c-ares_nameser_h.patch
-	"${FILESDIR}"/${PN}-15.2.0-global-npm-config.patch
-)
 
 pkg_pretend() {
 	(use x86 && ! use cpu_flags_x86_sse2) && \
 		die "Your CPU doesn't support the required SSE2 instruction."
-
 	if [[ ${MERGE_TYPE} != "binary" ]]; then
 		if use lto; then
 			if tc-is-gcc; then
@@ -72,37 +65,10 @@ src_prepare() {
 	export V=1
 	export BUILDTYPE=Release
 
-	# fix compilation on Darwin
-	# https://code.google.com/p/gyp/issues/detail?id=260
-	sed -i -e "/append('-arch/d" tools/gyp/pylib/gyp/xcode_emulation.py || die
-
-	# less verbose install output (stating the same as portage, basically)
-	sed -i -e "/print/d" tools/install.py || die
-
-	# proper libdir, hat tip @ryanpcmcquen https://github.com/iojs/io.js/issues/504
-	local LIBDIR=$(get_libdir)
-	sed -i -e "s|lib/|${LIBDIR}/|g" tools/install.py || die
-	sed -i -e "s/'lib'/'${LIBDIR}'/" deps/npm/lib/npm.js || die
-
-	# Avoid writing a depfile, not useful
-	sed -i -e "/DEPFLAGS =/d" tools/gyp/pylib/gyp/generator/make.py || die
-
-	sed -i -e "/'-O3'/d" common.gypi node.gypi || die
-
-	# debug builds. change install path, remove optimisations and override buildtype
 	if use debug; then
-		sed -i -e "s|out/Release/|out/Debug/|g" tools/install.py || die
 		BUILDTYPE=Debug
 	fi
 
-	# We need to disable mprotect on two files when it builds Bug 694100.
-	use pax-kernel && PATCHES+=( "${FILESDIR}"/${PN}-13.8.0-paxmarking.patch )
-
-	# All this test does is check if the npm CLI produces warnings of any sort,
-	# failing if it does. Overkill, much? Especially given one possible warning
-	# is that there is a newer version of npm available upstream (yes, it does
-	# use the network if available), thus making it a real possibility for this
-	# test to begin failing one day even though it was fine before.
 	rm -f test/parallel/test-release-npm.js
 
 	default
@@ -169,8 +135,6 @@ src_install() {
 	local LIBDIR="${ED}/usr/$(get_libdir)"
 	default
 
-	pax-mark -m "${ED}"/usr/bin/node
-
 	# set up a symlink structure that node-gyp expects..
 	dodir /usr/include/node/deps/{v8,uv}
 	dosym . /usr/include/node/src
@@ -205,14 +169,6 @@ src_install() {
 			"*.md" "*.markdown" "*.bat" "*.cmd"; do
 			find_name+=( ${find_exp} "${match}" )
 		done
-
-		# Remove various development and/or inappropriate files and
-		# useless docs of dependend packages.
-		find "${LIBDIR}"/node_modules \
-			\( -type d -name examples \) -or \( -type f \( \
-				-iname "LICEN?E*" \
-				"${find_name[@]}" \
-			\) \) -exec rm -rf "{}" \;
 	fi
 
 	mv "${ED}"/usr/share/doc/node "${ED}"/usr/share/doc/${PF} || die
