@@ -35,11 +35,6 @@ DEPEND="
 	${RDEPEND}
 "
 
-src_prepare() {
-	sed -i -e '7,10d' "${S}/help/meson.build" || die
-	default
-}
-
 pkg_preinst() {
 	gnome2_schemas_savelist
 	xdg_environment_reset
