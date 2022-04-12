@@ -11,7 +11,6 @@ DESCRIPTION="Library for rendering dynamic web content in Qt5 C++ and QML applic
 HOMEPAGE="https://www.qt.io/"
 
 if [[ ${QT5_BUILD_TYPE} == release ]]; then
-	KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~x86"
 	if [[ ${PV} == ${QT5_PV}_p* ]]; then
 		SRC_URI="https://dev.gentoo.org/~asturm/distfiles/${P}.tar.xz"
 		S="${WORKDIR}/${P}"
@@ -25,6 +24,8 @@ else
 	)
 	inherit git-r3
 fi
+
+KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~x86"
 
 # ppc64 patchset based on https://github.com/chromium-ppc64le releases
 SRC_URI+=" https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${PN}-5.15.2_p20211019-jumbo-build.patch.bz2
