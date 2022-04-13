@@ -7,11 +7,7 @@ inherit desktop pax-utils xdg
 
 DESCRIPTION="Multiplatform Visual Studio Code from Microsoft"
 HOMEPAGE="https://code.visualstudio.com"
-SRC_URI="
-	amd64? ( https://update.code.visualstudio.com/${PV}/linux-x64/stable -> ${P}-amd64.tar.gz )
-	arm? ( https://update.code.visualstudio.com/${PV}/linux-armhf/stable -> ${P}-arm.tar.gz )
-	arm64? ( https://update.code.visualstudio.com/${PV}/linux-arm64/stable -> ${P}-arm64.tar.gz )
-"
+SRC_URI="https://update.code.visualstudio.com/${PV}/linux-x64/stable -> ${P}-amd64.tar.gz"
 S="${WORKDIR}"
 
 RESTRICT="mirror strip bindist"
@@ -36,7 +32,7 @@ LICENSE="
 	W3C
 "
 SLOT="0"
-KEYWORDS="-* ~amd64 ~arm ~arm64"
+KEYWORDS="~amd64"
 
 RDEPEND="
 	app-accessibility/at-spi2-atk:2
