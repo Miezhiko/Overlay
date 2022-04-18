@@ -45,6 +45,10 @@ BDEPEND="${PYTHON_DEPS}
 	test? ( net-misc/curl )"
 DEPEND="${RDEPEND}"
 
+PATCHES=(
+	"${FILESDIR}/${P}-gcc-12.patch" # by mori <3
+)
+
 pkg_pretend() {
 	(use x86 && ! use cpu_flags_x86_sse2) && \
 		die "Your CPU doesn't support the required SSE2 instruction."
