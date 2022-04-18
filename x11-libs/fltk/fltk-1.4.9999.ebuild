@@ -36,7 +36,6 @@ RDEPEND="
 	)
 	xft? ( x11-libs/libXft[${MULTILIB_USEDEP}] )
 	xinerama? ( x11-libs/libXinerama[${MULTILIB_USEDEP}] )
-	media-libs/glfw
 "
 DEPEND="
 	${RDEPEND}
