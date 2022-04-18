@@ -1,0 +1,31 @@
+From 3479c0afaf01be05c28746ec4557055c1668ee88 Mon Sep 17 00:00:00 2001
+From: Christian Rauch <Rauch.Christian@gmx.de>
+Date: Mon, 9 Aug 2021 00:16:02 +0100
+Subject: [PATCH] egl: link against libOpenGL and not libGL
+
+On modern Linux, GLVND provides a way to separate the pure OpenGL functions
+(gl*) from the GLX/EGL context creation (glX*/egl*). This requires to link
+OpenGL and EGL separately. Previously, we would simply link against libGL,
+which includes OpenGL and GLX symbols. This in turn links against libX11,
+which is not desired for a pure Wayland client.
+By replacing libGL with libOpenGL, we prevent linking GLX.
+---
+ demo/meson.build | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/demo/meson.build b/demo/meson.build
+index 819aeda..0cadb3f 100644
+--- a/demo/meson.build
++++ b/demo/meson.build
+@@ -5,7 +5,7 @@ wayland_cursor_dep = dependency('wayland-cursor')
+ math_dep = cc.find_library('m')
+ 
+ egl_dep = dependency('egl')
+-gl_dep = dependency('gl')
++gl_dep = dependency('opengl')
+ wayland_egl_dep = dependency('wayland-egl')
+ 
+ xkb_dep = dependency('xkbcommon')
+-- 
+GitLab
+
