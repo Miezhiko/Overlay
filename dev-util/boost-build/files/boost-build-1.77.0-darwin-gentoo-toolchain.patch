@@ -4,17 +4,17 @@ arch, etc.
 
 --- a/tools/darwin.jam
 +++ b/tools/darwin.jam
-@@ -239,6 +239,9 @@
+@@ -240,6 +240,9 @@
          }
      }
-     
+ 
 +    # leave compiler flags etc. up to the toolchain
 +    return $(version-feature) ;
 +
      if $(version-feature)
      {
          if $(.debug-configuration)
-@@ -447,7 +450,8 @@
+@@ -448,7 +451,8 @@
              support-ppc64 = ;
          }
      }
@@ -22,5 +22,5 @@ arch, etc.
 +    # Gentoo Prefix toolchain doesn't do multi-arch, so don't try either
 +    switch $(donotaddarchpleaseXXXarch)
      {
-         case combined : 
+         case combined :
          {

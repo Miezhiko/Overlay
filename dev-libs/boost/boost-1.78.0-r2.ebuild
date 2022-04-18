@@ -1,7 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 PYTHON_COMPAT=( python3_{8..10} )
 
@@ -17,11 +17,9 @@ S="${WORKDIR}/${PN}_${MY_PV}"
 
 LICENSE="Boost-1.0"
 SLOT="0/${PV}" # ${PV} instead ${MAJOR_V} due to bug 486122
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
-IUSE="bzip2 context debug doc icu lzma +nls mpi numpy python static-libs +threads tools zlib zstd"
-REQUIRED_USE="
-	mpi? ( threads )
-	python? ( ${PYTHON_REQUIRED_USE} )"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~sparc-solaris ~sparc64-solaris ~x64-solaris ~x86-solaris ~x86-winnt"
+IUSE="bzip2 context debug doc icu lzma +nls mpi numpy python tools zlib zstd"
+REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 # the tests will never fail because these are not intended as sanity
 # tests at all. They are more a way for upstream to check their own code
 # on new compilers. Since they would either be completely unreliable
@@ -45,7 +43,8 @@ RDEPEND="
 	zlib? ( sys-libs/zlib:=[${MULTILIB_USEDEP}] )
 	zstd? ( app-arch/zstd:=[${MULTILIB_USEDEP}] )"
 DEPEND="${RDEPEND}"
-BDEPEND=">=dev-util/boost-build-${MAJOR_V}-r2"
+#BDEPEND=">=dev-util/boost-build-${MAJOR_V}"
+BDEPEND=">=dev-util/boost-build-1.78.0-r1"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.71.0-disable_icu_rpath.patch
@@ -54,8 +53,8 @@ PATCHES=(
 	# Boost.MPI's __init__.py doesn't work on Py3
 	"${FILESDIR}"/${PN}-1.73-boost-mpi-python-PEP-328.patch
 	"${FILESDIR}"/${PN}-1.74-CVE-2012-2677.patch
-	"${FILESDIR}"/${PN}-1.76-boost-numpy.patch
-	"${FILESDIR}"/${PN}-1.76-sparc-define.patch
+
+	"${FILESDIR}"/${P}-interprocess-musl-include.patch
 )
 
 python_bindings_needed() {
@@ -89,7 +88,7 @@ create_user-config.jam() {
 	fi
 
 	cat > "${user_config_jam}" <<- __EOF__ || die
-		using ${compiler} : ${compiler_version} : ${compiler_executable} : <cflags>"${CFLAGS}" <cxxflags>"${CXXFLAGS}" <linkflags>"${LDFLAGS}" ;
+		using ${compiler} : ${compiler_version} : ${compiler_executable} : <cflags>"${CFLAGS}" <cxxflags>"${CXXFLAGS}" <linkflags>"${LDFLAGS}" <archiver>"$(tc-getAR)" <ranlib>"$(tc-getRANLIB)" ;
 		${mpi_configuration}
 	__EOF__
 
@@ -166,17 +165,16 @@ src_configure() {
 		-d+2
 		pch=off
 		$(usex icu "-sICU_PATH=${ESYSROOT}/usr" '--disable-icu boost.locale.icu=off')
-		$(usex mpi '' '--without-mpi')
-		$(usex nls '' '--without-locale')
-		$(usex context '' '--without-context --without-coroutine --without-fiber')
-		$(usex threads '' '--without-thread')
+		$(usev !mpi --without-mpi)
+		$(usev !nls --without-locale)
+		$(usev !context '--without-context --without-coroutine --without-fiber')
 		--without-stacktrace
 		--boost-build="${BROOT}"/usr/share/boost-build/src
 		--layout=system
 		# building with threading=single is currently not possible
 		# https://svn.boost.org/trac/boost/ticket/7105
 		threading=multi
-		link=$(usex static-libs shared,static shared)
+		link=shared
 		# this seems to be the only way to disable compression algorithms
 		# https://www.boost.org/doc/libs/1_70_0/libs/iostreams/doc/installation.html#boost-build
 		-sNO_BZIP2=$(usex bzip2 0 1)
@@ -216,18 +214,6 @@ multilib_src_install() {
 		--includedir="${ED}"/usr/include \
 		--libdir="${ED}"/usr/$(get_libdir) \
 		"${OPTIONS[@]}" install || die "Installation of Boost libraries failed"
-
-	pushd "${ED}"/usr/$(get_libdir) >/dev/null || die
-
-	local ext=$(get_libname)
-	if use threads; then
-		local f
-		for f in *${ext}; do
-			dosym ${f} /usr/$(get_libdir)/${f/${ext}/-mt${ext}}
-		done
-	fi
-
-	popd >/dev/null || die
 
 	if tools_needed; then
 		dobin dist/bin/*
