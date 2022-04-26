@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit multilib xdg unpacker
+inherit xdg unpacker
 
 DESCRIPTION="A brainstorming and mind mapping software tool"
 HOMEPAGE="http://www.xmind.net"
