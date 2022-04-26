@@ -186,10 +186,6 @@ src_test() {
 
 src_install() {
 	meson_src_install
-
-	insinto /usr/share/gtk-doc/html
-	# This will install API docs specific to X11 and wayland regardless of USE flags, but this is intentional
-	doins -r "${S}"/docs/reference/{gtk/gtk4,gsk/gsk4,gdk/gdk4{,-wayland,-x11}}
 }
 
 pkg_preinst() {
