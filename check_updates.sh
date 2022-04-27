@@ -23,7 +23,7 @@ while read e; do
 	if [[ "$vers" != "9999" ]]; then
 		relative="${DIR:2}"
 		if [[ ! " ${exceptions[*]} " =~ " ${relative} " ]]; then
-			portage="/usr/portage/${relative}"
+			portage="/data/portage/${relative}"
 			if [ -d "$portage" ]; then
 				while read p; do
 					FILEP="$(basename "${p}")";
