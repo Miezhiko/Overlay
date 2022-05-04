@@ -42,7 +42,7 @@ CDEPEND="
 	>=dev-qt/qtwidgets-${QT_PV}
 	>=dev-qt/qtx11extras-${QT_PV}
 	>=dev-qt/qtxml-${QT_PV}
-	>=kde-frameworks/syntax-highlighting-5.87:5
+	!kde-frameworks/syntax-highlighting
 	clang? (
 		>=dev-cpp/yaml-cpp-0.6.2:=
 		|| (
@@ -107,6 +107,7 @@ src_configure() {
         local mycmakeargs=(
                 -DBUILD_PLUGIN_DRP=OFF
                 -DBUILD_PLUGIN_MCUSUPPORT=OFF
+                -DBUILD_LIBRARY_KSYNTAXHIGHLIGHTING=ON
         )
 	cmake_src_configure
 }
