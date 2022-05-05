@@ -7,7 +7,7 @@ inherit desktop pax-utils prefix rpm xdg
 
 IUSE="gnome java"
 
-BUILDID="9808"
+BUILDID="9809"
 BVER="${PV/_rc*/}-${BUILDID}"
 BVER2=${PV}-${BUILDID}
 BASIS="ooobasis4.1"
