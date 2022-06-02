@@ -29,6 +29,7 @@ RDEPEND="
 	dev-python/distro[${PYTHON_USEDEP}]
 	dev-python/python-gnupg[${PYTHON_USEDEP}]
 	dev-python/proton-client[${PYTHON_USEDEP}]
+	dev-python/python-systemd[${PYTHON_USEDEP}]
 "
 
 DEPEND="${RDEPEND}"
