@@ -27,6 +27,7 @@ Setup manually: [Custom ebuild repository](https://wiki.gentoo.org/wiki/Custom_e
 
 # random stuff
 
+ - [ProtonVPN](https://protonvpn.com) linux client for Proton VPN
  - [snooze](https://github.com/leahneukirchen/snooze) run a command at a particular time
  - [lr](https://github.com/leahneukirchen/lr) list files, recursively
  - [nq](https://github.com/leahneukirchen/nq) Unix command line queue utility
