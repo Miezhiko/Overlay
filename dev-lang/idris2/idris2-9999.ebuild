@@ -24,7 +24,7 @@ IUSE="+chez doc racket test-full"
 REQUIRED_USE="^^ ( chez racket )"
 
 RDEPEND="
-	chez? ( dev-scheme/chezscheme )
+	chez? ( dev-scheme/chez )
 	racket? ( dev-scheme/racket )
 	dev-libs/gmp
 "
@@ -32,7 +32,7 @@ DEPEND="${RDEPEND}"
 BDEPEND="
 	doc? ( dev-python/sphinx_rtd_theme )
 	test-full? (
-		dev-scheme/chezscheme
+		dev-scheme/chez
 		dev-scheme/racket
 		net-libs/nodejs
 	)
