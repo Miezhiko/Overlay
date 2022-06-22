@@ -17,7 +17,7 @@ KEYWORDS="~amd64"
 LICENSE="GPL-3"
 SLOT="0"
 
-IUSE="doc systemd drp test webengine +clang help serialterminal cvs git subversion mercurial cppcheck silversearcher"
+IUSE="systemd drp test webengine +clang help serialterminal cvs git subversion mercurial cppcheck silversearcher"
 RESTRICT="!test? ( test )"
 
 # minimum Qt version required
@@ -26,7 +26,6 @@ QT_PV="5.15:5"
 BDEPEND="
 	>=dev-qt/linguist-tools-${QT_PV}
 	virtual/pkgconfig
-	doc? ( >=dev-qt/qdoc-${QT_PV} )
 "
 CDEPEND="
 	>=dev-qt/qtconcurrent-${QT_PV}
@@ -104,11 +103,11 @@ src_prepare() {
 
 src_configure() {
 	#TEMPORARY DISABLE DRP PLUGIN
-        local mycmakeargs=(
-                -DBUILD_PLUGIN_DRP=OFF
-                -DBUILD_PLUGIN_MCUSUPPORT=OFF
-                -DBUILD_LIBRARY_KSYNTAXHIGHLIGHTING=ON
-        )
+	local mycmakeargs=(
+		-DBUILD_PLUGIN_DRP=OFF
+		-DBUILD_PLUGIN_MCUSUPPORT=OFF
+		-DBUILD_LIBRARY_KSYNTAXHIGHLIGHTING=ON
+	)
 	cmake_src_configure
 }
 
@@ -118,15 +117,4 @@ src_compile() {
 
 src_install() {
 	cmake_src_install
-
-	dodoc dist/{changes-*,known-issues}
-
-	# install documentation
-	if use doc; then
-		emake docs
-		# don't use ${PF} or the doc will not be found
-		insinto /usr/share/doc/qtcreator
-		doins share/doc/qtcreator/qtcreator{,-dev}.qch
-		docompress -x /usr/share/doc/qtcreator/qtcreator{,-dev}.qch
-	fi
 }
