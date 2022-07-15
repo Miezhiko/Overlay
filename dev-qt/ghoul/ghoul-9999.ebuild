@@ -21,7 +21,7 @@ IUSE="systemd drp test webengine +clang help serialterminal cvs git subversion m
 RESTRICT="!test? ( test )"
 
 # minimum Qt version required
-QT_PV="5.15:5"
+QT_PV="5.6:5"
 
 BDEPEND="
 	>=dev-qt/linguist-tools-${QT_PV}
