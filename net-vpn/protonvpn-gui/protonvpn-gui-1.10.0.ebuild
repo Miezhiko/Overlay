@@ -21,6 +21,8 @@ RESTRICT="primaryuri"
 
 RDEPEND="
 	x11-libs/gtk+:3
+	net-libs/webkit-gtk
+	dev-python/dbus-python[${PYTHON_USEDEP}]
 	dev-python/pygobject[${PYTHON_USEDEP}]
 	dev-python/psutil[${PYTHON_USEDEP}]
 	dev-python/pycairo[${PYTHON_USEDEP}]
