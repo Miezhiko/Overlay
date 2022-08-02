@@ -1,9 +1,9 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-inherit cmake-utils
+inherit cmake
 
 DESCRIPTION="For applications that require seamless and secure communication over HTTP"
 HOMEPAGE="https://github.com/Corvusoft/${PN}"
@@ -55,7 +55,7 @@ src_prepare() {
 			example/CMakeLists.txt || die
 	fi
 
-	cmake-utils_src_prepare
+	cmake_src_prepare
 }
 
 src_configure() {
@@ -68,5 +68,5 @@ src_configure() {
 		mycmakeargs+=( -DBUILD_${x^^}=$(usex $x ON OFF) )
 	done
 
-	cmake-utils_src_configure
+	cmake_src_configure
 }
