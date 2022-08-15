@@ -1,12 +1,12 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 DESCRIPTION="A glossy client for Matrix, written in QtQuick Controls 2 and C++."
 HOMEPAGE="https://gitlab.com/b0/spectral"
 
-inherit eutils cmake-utils
+inherit cmake
 
 if [[ ${PV} == "9999" ]]; then
 	inherit git-r3
@@ -32,13 +32,16 @@ RDEPEND="app-text/cmark
 	>dev-libs/libQuotient-0.5.1.2
 	dev-libs/libQtOlm
 	media-fonts/noto-emoji
-  dev-libs/qtkeychain"
+  dev-libs/qtkeychain
+"
+
 DEPEND="${RDEPEND}
-	>=dev-qt/qtcore-5.12"
+	>=dev-qt/qtcore-5.12
+"
 
 src_configure() {
 	local mycmakeargs=(
 		-DUSE_INTREE_LIBQMC=OFF
 	)
-	cmake-utils_src_configure
+	cmake_src_configure
 }
