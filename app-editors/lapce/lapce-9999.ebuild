@@ -1,9 +1,9 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-inherit cargo git-r3
+inherit cargo git-r3 desktop
 
 EGIT_REPO_URI="https://github.com/lapce/lapce.git"
 DESCRIPTION="Lightning-fast and Powerful Code Editor written in Rust"
@@ -25,4 +25,5 @@ src_unpack() {
 
 src_install() {
 	cargo_src_install
+	domenu "${FILESDIR}/lapce.desktop"
 }

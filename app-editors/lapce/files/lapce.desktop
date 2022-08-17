@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=Lapce
+Comment=Lapce Editor
+GenericName=Code Editor
+Exec=/usr/bin/lapce %F
+Icon=vscode
+Type=Application
+StartupNotify=false
+StartupWMClass=Code
+Categories=Utility;TextEditor;Development;IDE;
+MimeType=text/plain;inode/directory;application/x-code-workspace;
+Actions=new-empty-window;
+Keywords=lapce;
