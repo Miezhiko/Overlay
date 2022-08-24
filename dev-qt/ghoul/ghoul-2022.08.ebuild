@@ -11,8 +11,8 @@ DESCRIPTION="Lightweight IDE for C++/QML development centering around Qt"
 HOMEPAGE="https://doc.qt.io/qtcreator/"
 
 EGIT_REPO_URI="https://github.com/Miezhiko/Ghoul.git"
-EGIT_BRANCH="mawa"
-KEYWORDS=""
+EGIT_BRANCH="mawa-2022-08"
+KEYWORDS="~amd64"
 
 LICENSE="GPL-3"
 SLOT="0"
