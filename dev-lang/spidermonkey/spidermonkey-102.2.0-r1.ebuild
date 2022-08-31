@@ -193,7 +193,7 @@ src_prepare() {
 
 	use lto && rm -v "${WORKDIR}"/firefox-patches/*-LTO-Only-enable-LTO-*.patch
 
-  eapply "${FILESDIR}"/spidermonkey-102-rust.patch
+	eapply "${FILESDIR}"/spidermonkey-102-rust.patch
 	eapply "${WORKDIR}"/firefox-patches
 	eapply "${WORKDIR}"/spidermonkey-patches
 
