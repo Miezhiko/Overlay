@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="project">
+		<email>haskell@gentoo.org</email>
+		<name>Gentoo Haskell</name>
+	</maintainer>
+	<longdescription>
+		A Haskell code prettifier. For more information, see:
+		
+		&lt;https://github.com/jaspervdj/stylish-haskell/blob/master/README.markdown&gt;
+	</longdescription>
+	<use>
+		<flag name="ghc-lib">Force dependency on ghc-lib-parser even if GHC API in the ghc package is supported</flag>
+	</use>
+</pkgmetadata>
