@@ -20,10 +20,10 @@ IUSE="gui systemd"
 RESTRICT="test primaryuri" # only has dummy tests anyway
 
 RDEPEND="
-	gui? ( net-vpn/protonvpn-gui[${PYTHON_USEDEP}] )
+	gui? ( >=net-vpn/protonvpn-gui-1.11.0[${PYTHON_USEDEP}] )
 	dev-python/pythondialog[${PYTHON_USEDEP}]
 	dev-python/dbus-python[${PYTHON_USEDEP}]
-	net-vpn/protonvpn-nm-lib[${PYTHON_USEDEP}]
+	>=net-vpn/protonvpn-nm-lib-3.13.0[${PYTHON_USEDEP}]
 	systemd? ( dev-python/python-systemd[${PYTHON_USEDEP}] )
 "
 
