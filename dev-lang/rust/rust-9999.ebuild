@@ -149,7 +149,7 @@ toml_usex() {
 bootstrap_rust_version_check() {
 	# never call from pkg_pretend. eselect-rust may be not installed yet.
 	[[ ${MERGE_TYPE} == binary ]] && return
-	local rustc_wanted="1.64.0"
+	local rustc_wanted="1.63.1"
 	local rustc_toonew="2.0.0"
 	local rustc_version=( $(eselect --brief rust show 2>/dev/null) )
 	rustc_version=${rustc_version[0]#rust-bin-}
