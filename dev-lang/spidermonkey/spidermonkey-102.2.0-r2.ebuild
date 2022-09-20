@@ -7,7 +7,7 @@ EAPI="8"
 FIREFOX_PATCHSET="firefox-102esr-patches-01j.tar.xz"
 SPIDERMONKEY_PATCHSET="spidermonkey-102-patches-03j.tar.xz"
 
-LLVM_MAX_SLOT=14
+LLVM_MAX_SLOT=15
 
 PYTHON_COMPAT=( python3_{8..11} )
 PYTHON_REQ_USE="ssl,xml(+)"
@@ -71,12 +71,19 @@ IUSE="clang cpu_flags_arm_neon debug +jit lto test"
 RESTRICT="!test? ( test )"
 
 BDEPEND="${PYTHON_DEPS}
-	>=virtual/rust-1.59.0
+	>=virtual/rust-1.64.0_beta
 	virtual/pkgconfig
 	test? (
 		$(python_gen_any_dep 'dev-python/six[${PYTHON_USEDEP}]')
 	)
 	|| (
+		(
+			sys-devel/llvm:15
+			clang? (
+				sys-devel/clang:15
+				lto? ( =sys-devel/lld-15* )
+			)
+		)
 		(
 			sys-devel/llvm:14
 			clang? (

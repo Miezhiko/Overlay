@@ -2,12 +2,8 @@
 <!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
 	<maintainer type="person">
-		<email>gyakovlev@gentoo.org</email>
-		<name>Georgy Yakovlev</name>
-	</maintainer>
-	<maintainer type="project">
-		<email>rust@gentoo.org</email>
-		<name>Rust Project</name>
+		<email>Miezhiko@gmail.com</email>
+		<name>Miezhiko</name>
 	</maintainer>
 	<use>
 		<flag name="clippy">Install clippy, Rust code linter</flag>
