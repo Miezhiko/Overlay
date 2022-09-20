@@ -11,31 +11,8 @@ inherit bash-completion-r1 check-reqs estack flag-o-matic llvm multiprocessing \
 SLOT="stable/live"
 KEYWORDS=""
 
-RUST_STAGE0_VERSION="beta"
-
 DESCRIPTION="Systems programming language from Mozilla"
 HOMEPAGE="https://www.rust-lang.org/"
-
-rust_arch_uri_corrected() {
-	if [ -n "$3" ]; then
-		echo "${RUST_TOOLCHAIN_BASEURL}${2}-${1}.tar.xz -> ${3}-${1}.tar.xz"
-	else
-		echo "${RUST_TOOLCHAIN_BASEURL}${2}-${1}.tar.xz"
-	fi
-}
-
-# TODO: add more if you need...
-rust_not_all_arch_uris()
-{
-  local uris=""
-  uris+="abi_x86_64? ( elibc_glibc? ( $(rust_arch_uri_corrected x86_64-unknown-linux-gnu "$@") ) 
-                       elibc_musl?  ( $(rust_arch_uri_corrected x86_64-unknown-linux-musl "$@") ) ) "
-  echo "${uris}"
-}
-
-SRC_URI="
-	!system-bootstrap? ( $(rust_not_all_arch_uris rust-${RUST_STAGE0_VERSION}) )
-"
 
 # keep in sync with llvm ebuild of the same version as bundled one.
 ALL_LLVM_TARGETS=( AArch64 AMDGPU ARM AVR BPF Hexagon Lanai Mips MSP430
@@ -45,7 +22,7 @@ LLVM_TARGET_USEDEPS=${ALL_LLVM_TARGETS[@]/%/(-)?}
 
 LICENSE="|| ( MIT Apache-2.0 ) BSD-1 BSD-2 BSD-4 UoI-NCSA"
 
-IUSE="+clippy cpu_flags_x86_sse2 debug dist doc llvm-libunwind miri +nightly parallel-compiler profiler rls rustfmt rust-src system-bootstrap +system-llvm test wasm ${ALL_LLVM_TARGETS[*]}"
+IUSE="+clippy cpu_flags_x86_sse2 debug dist doc llvm-libunwind miri +nightly parallel-compiler profiler rls rustfmt rust-src +system-llvm test wasm ${ALL_LLVM_TARGETS[*]}"
 
 # List all the working slots in LLVM_VALID_SLOTS, newest first.
 LLVM_VALID_SLOTS=( 15 )
@@ -139,39 +116,14 @@ QA_PRESTRIPPED="
 # so we can safely silence the warning for this QA check.
 QA_EXECSTACK="usr/lib/${PN}/${PV}/lib/rustlib/*/lib*.rlib:lib.rmeta"
 
-# causes double bootstrap
 RESTRICT="test"
 
 toml_usex() {
 	usex "${1}" true false
 }
 
-bootstrap_rust_version_check() {
-	# never call from pkg_pretend. eselect-rust may be not installed yet.
-	[[ ${MERGE_TYPE} == binary ]] && return
-	local rustc_wanted="1.63.1"
-	local rustc_toonew="2.0.0"
-	local rustc_version=( $(eselect --brief rust show 2>/dev/null) )
-	rustc_version=${rustc_version[0]#rust-bin-}
-	rustc_version=${rustc_version#rust-}
-
-	[[ -z "${rustc_version}" ]] && die "Failed to determine rust version, check 'eselect rust' output"
-
-	if ver_test "${rustc_version}" -lt "${rustc_wanted}" ; then
-		eerror "Rust >=${rustc_wanted} is required"
-		eerror "please run 'eselect rust' and set correct rust version"
-		die "selected rust version is too old"
-	elif ver_test "${rustc_version}" -ge "${rustc_toonew}" ; then
-		eerror "Rust <${rustc_toonew} is required"
-		eerror "please run 'eselect rust' and set correct rust version"
-		die "selected rust version is too new"
-	else
-		einfo "Using rust ${rustc_version} to build"
-	fi
-}
-
 pre_build_checks() {
-	local M=8192
+	local M=9192
 	# multiply requirements by 1.3 if we are doing x86-multilib
 	if use amd64; then
 		M=$(( $(usex abi_x86_32 13 10) * ${M} / 10 ))
@@ -195,7 +147,6 @@ pre_build_checks() {
 		M=$(( 15 * ${M} / 10 ))
 	fi
 	eshopts_pop
-	M=$(( $(usex system-bootstrap 0 1024) + ${M} ))
 	M=$(( $(usex doc 256 0) + ${M} ))
 	CHECKREQS_DISK_BUILD=${M}M check-reqs_pkg_${EBUILD_PHASE}
 }
@@ -219,8 +170,6 @@ pkg_setup() {
 	export LIBSSH2_SYS_USE_PKG_CONFIG=1
 	export PKG_CONFIG_ALLOW_CROSS=1
 
-	use system-bootstrap && bootstrap_rust_version_check
-
 	if use system-llvm; then
 		llvm_pkg_setup
 
@@ -241,20 +190,6 @@ src_unpack() {
 	
 	cd ${S}
 	
-	if ! use system-bootstrap; then
-		local rust_stage0_root="${WORKDIR}"/rust-stage0
-		local rust_stage0_root2="${WORKDIR}"/rustc-beta-src/build/x86_64-unknown-linux-gnu/stage0
-		local codegen_backends="${WORKDIR}"/rust-beta-x86_64-unknown-linux-gnu/rustc/lib/rustlib/x86_64-unknown-linux-gnu/codegen-backends
-		local rust_stage0="rust-${RUST_STAGE0_VERSION}-$(rust_abi)"
-
-		"${WORKDIR}/${rust_stage0}"/install.sh --disable-ldconfig \
-			--without=rust-docs --destdir="${rust_stage0_root}" --prefix=/ || die
-		# NO IDEA WHAT AM I DOING
-		"${WORKDIR}/${rust_stage0}"/install.sh --disable-ldconfig \
-			--without=rust-docs --destdir="${rust_stage0_root2}" --prefix=/ || die
-		cp -rf ${codegen_backends} ${rust_stage0_root2}/lib/rustlib/x86_64-unknown-linux-gnu/ || die
-	fi
-
 	if use system-llvm; then
 		rm -rf src/llvm-project/{clang,clang-tools-extra,compiler-rt,lld,lldb,llvm}
 		rm -rf src/llvm-project/libunwind/*
@@ -316,17 +251,6 @@ src_unpack() {
 		tools="\"src\",$tools"
 	fi
 
-	local rust_stage0_root
-	if use system-bootstrap; then
-		local printsysroot
-		printsysroot="$(rustc --print sysroot || die "Can't determine rust's sysroot")"
-		rust_stage0_root="${printsysroot}"
-	else
-		rust_stage0_root="${WORKDIR}"/rust-stage0
-	fi
-	# in case of prefix it will be already prefixed, as --print sysroot returns full path
-	[[ -d ${rust_stage0_root} ]] || die "${rust_stage0_root} is not a directory"
-
 	rust_target="$(rust_abi)"
 
 	# https://bugs.gentoo.org/732632
@@ -371,9 +295,6 @@ src_unpack() {
 		build = "${rust_target}"
 		host = ["${rust_target}"]
 		target = [${rust_targets}]
-		cargo = "${rust_stage0_root}/bin/cargo"
-		rustc = "${rust_stage0_root}/bin/rustc"
-		rustfmt = "${rust_stage0_root}/bin/rustfmt"
 		docs = $(toml_usex doc)
 		compiler-docs = $(toml_usex doc)
 		#
