@@ -68,7 +68,7 @@ DEPEND="
 	system-llvm? (
 		${LLVM_DEPEND}
 		llvm-libunwind? ( sys-libs/llvm-libunwind:= )
-		>=sys-devel/clang-runtime-14.0[libcxx]
+		>=sys-devel/clang-runtime-14.0
 	)
 	!system-llvm? (
 		!llvm-libunwind? (
@@ -253,14 +253,6 @@ src_unpack() {
 
 	rust_target="$(rust_abi)"
 
-	# https://bugs.gentoo.org/732632
-	if tc-is-clang; then
-		local clang_slot="$(clang-major-version)"
-		if { has_version "sys-devel/clang:${clang_slot}[default-libcxx]" || is-flagq -stdlib=libc++; }; then
-			use_libcxx="true"
-		fi
-	fi
-
 	local cm_btype="$(usex debug DEBUG RELEASE)"
 	cat <<- _EOF_ > "${S}"/config.toml
 		changelog-seen = 2
@@ -277,7 +269,7 @@ src_unpack() {
 		link-shared =  $(toml_usex system-llvm)
 		skip-rebuild = true
 		static-libstdcpp = $(usex system-llvm false true)
-		use-libcxx =  $(toml_usex system-llvm)
+		use-libcxx = false
 
 		[llvm.build-config]
 		CMAKE_VERBOSE_MAKEFILE = "ON"
@@ -467,6 +459,17 @@ src_unpack() {
 	env $(cat "${S}"/config.env) RUST_BACKTRACE=1\
 		"${EPYTHON}" ./x.py build -vv --config="${S}"/config.toml -j$(makeopts_jobs) || die
 	)
+
+	cargo vendor --sync "${S}"/src/tools/rust-analyzer/Cargo.toml --sync "${S}"/compiler/rustc_codegen_cranelift/Cargo.toml --sync "${S}"/src/bootstrap/Cargo.toml || die "FAILED TO VENDOR!"
+	mv ${HOME}/.cargo ${S}/.cargo ||die "INSTALL VENDORING .cargo FAILED"
+
+	# can't use image here because we need src_install
+	mkdir -p "${S}"/instol || die
+  (
+	IFS=$'\n'
+	env $(cat "${S}"/config.env) DESTDIR="${S}"/instol \
+		"${EPYTHON}" ./x.py install	-vv --config="${S}"/config.toml -j$(makeopts_jobs) || die
+	)
 }
 
 src_configure() { :; }
@@ -476,11 +479,7 @@ src_compile() { :; }
 src_test() { :; }
 
 src_install() {
-	(
-	IFS=$'\n'
-	env $(cat "${S}"/config.env) DESTDIR="${D}" \
-		"${EPYTHON}" ./x.py install	-vv --config="${S}"/config.toml -j$(makeopts_jobs) || die
-	)
+	cp -prPRf "${S}"/instol/* "${D}"/ || die "INSTALL FAILED"
 
 	# bug #689562, #689160
 	rm -v "${ED}/usr/lib/${PN}/${PV}/etc/bash_completion.d/cargo" || die
