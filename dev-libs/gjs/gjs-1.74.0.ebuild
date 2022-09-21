@@ -8,9 +8,6 @@ inherit flag-o-matic gnome.org meson virtualx
 DESCRIPTION="Javascript bindings for GNOME"
 HOMEPAGE="https://wiki.gnome.org/Projects/Gjs https://gitlab.gnome.org/GNOME/gjs"
 
-SRC_URI="https://gitlab.gnome.org/GNOME/gjs/-/archive/e78966e18b8a68292bfea7132cc4a1d0d4dcc231.zip -> ${PN}.zip"
-S="${WORKDIR}/gjs-e78966e18b8a68292bfea7132cc4a1d0d4dcc231"
-
 LICENSE="MIT || ( MPL-1.1 LGPL-2+ GPL-2+ )"
 SLOT="0"
 IUSE="+cairo examples gtk readline sysprof test"
