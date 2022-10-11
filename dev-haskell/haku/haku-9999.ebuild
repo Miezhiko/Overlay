@@ -20,6 +20,7 @@ SLOT="0/${PV}"
 KEYWORDS="~amd64 ~x86"
 
 RDEPEND="dev-haskell/base-unicode-symbols:=[profile?]
+	dev-haskell/split
 	dev-haskell/parsec
 	>=dev-lang/ghc-8.0:=
 "
