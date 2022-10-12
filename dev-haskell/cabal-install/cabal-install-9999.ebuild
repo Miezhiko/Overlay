@@ -28,7 +28,7 @@ RDEPEND=">=dev-haskell/async-2.0:=
 	>=dev-haskell/echo-0.1.3:=
 	>=dev-haskell/edit-distance-0.2.2:=
 	>=dev-haskell/fail-4.9:=
-	>=dev-haskell/hackage-security-0.6.2.0:=
+	>=dev-haskell/hackage-security-9999:=
 	>=dev-haskell/hashable-1.0:=
 	>=dev-haskell/http-4000.1.5:=
 	lukko? ( >=dev-haskell/lukko-0.1:= )
@@ -78,4 +78,3 @@ src_configure() {
 		--flag=network-uri
 }
 
-CABAL_CORE_LIB_GHC_PV="PM:9.2.4 PM:9999"
