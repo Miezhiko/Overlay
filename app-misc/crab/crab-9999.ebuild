@@ -12,7 +12,7 @@ if [[ ${PV} = 9999 ]]; then
 	EGIT_BRANCH="mawa"
 else
 	SRC_URI="https://github.com/Miezhiko/crab/archive/v${PV}.tar.gz"
-	S="${WORKDIR}/Shelter-${PV}"
+	S="${WORKDIR}/crab-${PV}"
 fi
 
 RESTRICT="mirror test"
