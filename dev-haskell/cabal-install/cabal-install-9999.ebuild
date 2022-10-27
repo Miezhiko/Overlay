@@ -54,9 +54,6 @@ DEPEND="${RDEPEND}
 src_prepare() {
 	default
 
-  # NOT READY YET
-	git revert 9f7dc559d682331515692dd7b42f9abd3a087898 || die
-
 	# TODO: drop this after GHC upgrade
 	sed -i 's|process >= 1.6.15.0|process >= 1.6.13.2|g' "${S}"/cabal-install.cabal || die
 
