@@ -314,7 +314,7 @@ src_configure() {
 		-DBUILD_PLUGIN_QMLPROFILER=$(usex qml)
 		-DBUILD_PLUGIN_QMLPROJECTMANAGER=$(usex qml)
 		-DBUILD_PLUGIN_STUDIOWELCOME=$(usex qml)
-		-DWITH_QMLDOM=$(usex qml)
+		-DWITH_QMLDOM=OFF
 
 		# Don't spam "created by a different GCC executable [-Winvalid-pch]"
 		-DBUILD_WITH_PCH=NO
