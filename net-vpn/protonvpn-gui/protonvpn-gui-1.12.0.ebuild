@@ -28,7 +28,7 @@ RDEPEND="
 	dev-python/pycairo[${PYTHON_USEDEP}]
 	dev-python/jaraco-classes[${PYTHON_USEDEP}]
 	appindicator? ( dev-libs/libappindicator:3 )
-	>=net-vpn/protonvpn-nm-lib-3.13.0[${PYTHON_USEDEP}]
+	>=net-vpn/protonvpn-nm-lib-3.14.0[${PYTHON_USEDEP}]
 "
 
 DEPEND="${RDEPEND}"
