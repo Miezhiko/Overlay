@@ -58,7 +58,7 @@ REQUIRED_USE="
 "
 
 # minimum Qt version required
-QT_PV="6.3.1:6"
+QT_PV="6.4.0:6"
 
 BDEPEND="
 	>=dev-qt/qttools-${QT_PV}[linguist(+)]
@@ -314,8 +314,7 @@ src_configure() {
 		-DBUILD_PLUGIN_QMLPROFILER=$(usex qml)
 		-DBUILD_PLUGIN_QMLPROJECTMANAGER=$(usex qml)
 		-DBUILD_PLUGIN_STUDIOWELCOME=$(usex qml)
-		-DWITH_QMLDOM=OFF
-		# do usex when QT > 6.3.2
+		-DWITH_QMLDOM=$(usex qml)
 
 		# Don't spam "created by a different GCC executable [-Winvalid-pch]"
 		-DBUILD_WITH_PCH=NO
