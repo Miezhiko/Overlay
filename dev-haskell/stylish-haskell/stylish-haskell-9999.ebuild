@@ -11,6 +11,7 @@ LIVE_EBUILD=yes
 DESCRIPTION="Haskell code prettifier"
 HOMEPAGE="https://github.com/haskell/stylish-haskell"
 EGIT_REPO_URI="https://github.com/Qeenon/stylish-haskell.git"
+EGIT_BRANCH="mawa"
 
 LICENSE="BSD"
 SLOT="0/${PV}"
@@ -37,12 +38,6 @@ DEPEND="${RDEPEND}
 		>=dev-haskell/test-framework-0.4 <dev-haskell/test-framework-0.9
 		>=dev-haskell/test-framework-hunit-0.2 <dev-haskell/test-framework-hunit-0.4 )
 "
-
-src_prepare() {
-	default
-
-	sed -i 's|import qualified Distribution.PackageDescription          as Cabal|import qualified Distribution.PackageDescription          as Cabal\nimport qualified Distribution.Simple.PackageDescription          as Cabal|g' "${S}"/lib/Language/Haskell/Stylish/Config/Cabal.hs || die
-}
 
 src_configure() {
 	haskell-cabal_src_configure \
