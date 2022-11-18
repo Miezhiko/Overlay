@@ -8,7 +8,10 @@ inherit multilib-build
 DESCRIPTION="Virtual for Rust language compiler"
 
 LICENSE=""
-SLOT="0"
+
+# stupid upstream hack?
+SLOT="0/llvm-15"
+
 KEYWORDS=""
 IUSE="rustfmt"
 
