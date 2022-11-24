@@ -131,13 +131,12 @@ src_unpack() {
 		-DUSE_LTO=$(usex lto ON OFF) \
 		-DUSESYSTEMLIBS=$(usex system ON OFF) \
 		-DUSE_FMODSTUDIO=$(usex fmod ON OFF) || die "configure failed"
-}
 
-src_prepare() {
 	if ! use fork; then
 		eapply "${FILESDIR}"/alchemy-desktop.patch
 	fi
-	default
+
+	autobuild build -A 64 -c ReleaseOS --no-configure || die "build failed"
 }
 
 src_configure() {
@@ -145,7 +144,7 @@ src_configure() {
 }
 
 src_compile() {
-	autobuild build -A 64 -c ReleaseOS --no-configure || die "build failed"
+	:;
 }
 
 src_install() {
