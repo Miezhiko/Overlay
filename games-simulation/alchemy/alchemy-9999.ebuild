@@ -60,7 +60,7 @@ RDEPEND="${DEPEND}
 FMOD_DIR="${WORKDIR}/fmod"
 FMOD_VERSION_NO_DOTS=${FMOD_VERSION//./}
 FMOD_FILE="${FMOD_FILE_PATH}/fmodstudioapi${FMOD_VERSION_NO_DOTS}linux.tar.gz"
-FMOD_OUT_FILE="${FMOD_DIR}/fmodstudio-${FMOD_VERSION}-linux64-0.tar.zst"
+FMOD_OUT_FILE="${FMOD_DIR}/fmodstudio-${FMOD_VERSION}-linux64-0.tar.bz2"
 
 src_unpack() {
 	if use system; then
@@ -102,7 +102,7 @@ src_unpack() {
 	cd "${S}"
 	virtualenv ".venv" -p python3 || die "failed to create virtual env"
 	source .venv/bin/activate
-	pip3 install --upgrade autobuild -i https://git.alchemyviewer.org/api/v4/projects/54/packages/pypi/simple --extra-index-url https://pypi.org/simple || die
+	pip3 install --upgrade certifi autobuild || die
 
 	if use fmod; then
 		cd "${FMOD_DIR}"
