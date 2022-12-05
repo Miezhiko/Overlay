@@ -102,7 +102,7 @@ src_unpack() {
 	cd "${S}"
 	virtualenv ".venv" -p python3 || die "failed to create virtual env"
 	source .venv/bin/activate
-	pip3 install --upgrade certifi autobuild || die
+	pip3 install --upgrade llbase certifi autobuild || die
 
 	if use fmod; then
 		cd "${FMOD_DIR}"
