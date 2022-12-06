@@ -33,7 +33,7 @@ RDEPEND="
 	>=gnome-extra/gnome-contacts-41.0
 	>=media-gfx/eog-41.1
 	>=media-video/totem-3.38.2
-	>=x11-terms/gnome-terminal-3.42.2
+	gui-apps/gnome-console
 
 	>=gnome-extra/gnome-user-docs-41.1
 	>=gnome-extra/yelp-41.2
