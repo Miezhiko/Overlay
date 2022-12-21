@@ -11,8 +11,8 @@ inherit haskell-cabal git-r3
 
 LIVE_EBUILD=yes
 
-EGIT_REPO_URI="https://github.com/Qeenon/hackport.git"
-EGIT_BRANCH="8.0"
+EGIT_REPO_URI="https://github.com/gentoo-haskell/hackport.git"
+EGIT_BRANCH="master"
 EGIT_SUBMODULES=( '*' )
 
 S="${WORKDIR}/hackport-0.8.9999"
@@ -56,6 +56,7 @@ RDEPEND=">=dev-haskell/async-2.0:=
 	dev-haskell/xml:=
 	>=dev-haskell/zlib-0.5.3:=
 	>=dev-lang/ghc-8.4.3:=
+	>=dev-haskell/process-1.6.16:=
 "
 DEPEND="${RDEPEND}
 	>=dev-haskell/cabal-3.0
