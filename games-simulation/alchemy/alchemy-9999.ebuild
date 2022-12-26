@@ -128,8 +128,7 @@ src_unpack() {
 		-DUSE_OPENAL=ON \
 		-DEXAMPLEPLUGIN=OFF \
 		-DREVISION_FROM_VCS=ON \
-		-DUSE_DISCORD=ON \
-		-DDISCORD_CLIENTID=1053195978385146007 \
+		-DUSE_DISCORD=OFF \
 		-DUSE_LTO=$(usex lto ON OFF) \
 		-DUSESYSTEMLIBS=$(usex system ON OFF) \
 		-DUSE_FMODSTUDIO=$(usex fmod ON OFF) || die "configure failed"
