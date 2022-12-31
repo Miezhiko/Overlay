@@ -1,0 +1,32 @@
+From a1ec7f06dc62888dc388676b4434b04ed622a59b Mon Sep 17 00:00:00 2001
+From: Miezhiko <Miezhiko@gmail.com>
+Date: Thu, 10 Nov 2022 14:09:29 +0400
+Subject: [PATCH] forall
+
+Signed-off-by: Miezhiko <Miezhiko@gmail.com>
+---
+ lib/Language/Haskell/Stylish/Step/Data.hs | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/lib/Language/Haskell/Stylish/Step/Data.hs b/lib/Language/Haskell/Stylish/Step/Data.hs
+index a2db12d4..20dfdbd3 100644
+--- a/lib/Language/Haskell/Stylish/Step/Data.hs
++++ b/lib/Language/Haskell/Stylish/Step/Data.hs
+@@ -470,7 +470,7 @@ putForAll
+     :: GHC.OutputableBndrFlag s 'GHC.Parsed
+     => Bool -> [GHC.LHsTyVarBndr s GHC.GhcPs] -> P ()
+ putForAll forall ex_tvs = when forall do
+-    putText "forall"
++    putText "∀"
+     space
+     sep space $ putOutputable . GHC.unLoc <$> ex_tvs
+     dot
+@@ -504,7 +504,7 @@ putConDeclField cfg GHC.ConDeclField {..} = do
+ putType' :: Config -> GHC.LHsType GHC.GhcPs -> P ()
+ putType' cfg lty = case GHC.unLoc lty of
+     GHC.HsForAllTy GHC.NoExtField tele tp -> do
+-        putText "forall"
++        putText "∀"
+         space
+         sep space $ case tele of
+             GHC.HsForAllVis   {..} -> putOutputable . GHC.unLoc <$> hsf_vis_bndrs
