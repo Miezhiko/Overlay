@@ -20,7 +20,7 @@ SLOT="0/${PV}"
 
 EGIT_REPO_URI="https://github.com/haskell/cabal.git"
 S="${WORKDIR}"/cabal-syntax-9999/"${CABAL_PN}"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS=""
 
 RESTRICT=test # circular deps: cabal -> quickcheck -> cabal
 

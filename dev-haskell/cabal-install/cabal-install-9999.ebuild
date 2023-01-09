@@ -12,10 +12,9 @@ LIVE_EBUILD=yes
 DESCRIPTION="The command-line interface for Cabal and Hackage"
 HOMEPAGE="https://www.haskell.org/cabal/"
 EGIT_REPO_URI="https://github.com/haskell/cabal.git"
-EGIT_COMMIT="67b3c8d50144adba5d2f2b1484a7d08ab5fa13e7"
 
 S="${S}"/"${PN}"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS=""
 
 LICENSE="BSD"
 SLOT="0"

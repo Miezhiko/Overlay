@@ -15,7 +15,7 @@ HOMEPAGE="https://www.haskell.org/cabal/"
 EGIT_REPO_URI="https://github.com/haskell/cabal.git"
 
 S="${S}"/"${PN}"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS=""
 
 LICENSE="BSD"
 SLOT="0"

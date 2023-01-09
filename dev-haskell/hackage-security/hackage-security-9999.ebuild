@@ -18,7 +18,7 @@ HOMEPAGE="https://github.com/haskell/hackage-security"
 
 LICENSE="BSD"
 SLOT="0/${PV}"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS=""
 IUSE="+cabal-syntax +lukko"
 
 RDEPEND=">=dev-haskell/base16-bytestring-0.1.1:=[profile?] <dev-haskell/base16-bytestring-1.1:=[profile?]
