@@ -32,8 +32,6 @@ Setup manually: [Custom ebuild repository](https://wiki.gentoo.org/wiki/Custom_e
  - [lr](https://github.com/leahneukirchen/lr) list files, recursively
  - [nq](https://github.com/leahneukirchen/nq) Unix command line queue utility
  - [Alchemy Viewer](https://alchemyviewer.org)
- - WireShark
- - spotifyd (rust spotify demon) and spotify-qt (I don't use spotify, will drop it soon)
- - discord canary client
- - matrix clients element and spectral (with needed libraries)
  - jwm
+
+and more stuff (this list is not maintained)

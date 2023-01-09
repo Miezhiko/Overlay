@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -11,8 +11,8 @@ DESCRIPTION="Internationalized Domain Names (IDN) implementation"
 HOMEPAGE="https://www.gnu.org/software/libidn/"
 SRC_URI="
 	mirror://gnu/libidn/${MY_P}.tar.gz
-	https://dev.gentoo.org/~polynomial-c/${MY_P}-security_backports-01.tar.xz
 "
+# https://dev.gentoo.org/~polynomial-c/${MY_P}-security_backports-01.tar.xz ???
 
 LICENSE="GPL-2 GPL-3 LGPL-3"
 SLOT="1.33"
@@ -29,7 +29,7 @@ S="${WORKDIR}/${MY_P}"
 src_prepare() {
 	default
 
-	eapply "${WORKDIR}"/patches
+	# eapply "${WORKDIR}"/patches
 
 	# breaks eautoreconf
 	sed '/AM_INIT_AUTOMAKE/s@ -Werror@@' -i configure.ac || die
