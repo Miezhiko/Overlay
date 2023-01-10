@@ -113,6 +113,7 @@ RDEPEND="${CDEPEND}
 		>=dev-qt/qtwayland-${QT_PV}
 	)
 	qml? ( >=dev-qt/qtquicktimeline-${QT_PV} )
+	x11-terms/xterm
 "
 
 # qt translations must also be installed or qt-creator translations won't be loaded
