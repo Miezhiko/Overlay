@@ -66,11 +66,7 @@ BDEPEND="
 "
 
 CDEPEND="
-	<sys-devel/clang-$((LLVM_MAX_SLOT + 1)):=
-	|| (
-		sys-devel/clang:14
-		sys-devel/clang:13
-	)
+	>=sys-devel/clang-${LLVM_MAX_SLOT}:=
 	>=dev-qt/qt5compat-${QT_PV}
 	>=dev-qt/qtbase-${QT_PV}[concurrent,gui,network,sql,widgets]
 	>=dev-qt/qtdeclarative-${QT_PV}
@@ -88,7 +84,6 @@ CDEPEND="
 	serialterminal? ( >=dev-qt/qtserialport-${QT_PV} )
 	clang? (
 		>=dev-cpp/yaml-cpp-0.6.2:=
-		sys-devel/clang:14=
 	)
 	perfprofiler? (
 		app-arch/zstd
