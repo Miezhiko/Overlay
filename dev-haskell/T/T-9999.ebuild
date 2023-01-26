@@ -22,6 +22,7 @@ RDEPEND=">=dev-lang/ghc-8
 	dev-haskell/base-unicode-symbols
 	dev-haskell/executable-path
 	dev-haskell/lifted-base
-	dev-haskell/yaml"
+	dev-haskell/yaml
+	dev-haskell/time-parsers"
 
 DEPEND="${RDEPEND}"
