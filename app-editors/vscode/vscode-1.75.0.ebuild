@@ -92,6 +92,9 @@ src_install() {
 	# Cleanup
 	rm -r ./resources/app/LICENSES.chromium.html ./resources/app/LICENSE.rtf ./resources/app/licenses || die
 
+	# Disable update server
+	sed -e "/updateUrl/d" -i ./resources/app/product.json || die
+
 	# Install
 	pax-mark m code
 	insinto "/opt/${PN}"
@@ -99,10 +102,10 @@ src_install() {
 	fperms +x /opt/${PN}/{,bin/}code
 	fperms +x /opt/${PN}/chrome_crashpad_handler
 	fperms 4711 /opt/${PN}/chrome-sandbox
-	fperms 755 /opt/${PN}/resources/app/extensions/git/dist/askpass.sh
-	fperms 755 /opt/${PN}/resources/app/extensions/git/dist/askpass-empty.sh
+	fperms 755 /opt/${PN}/resources/app/extensions/git/dist/{askpass,git-editor}{,-empty}.sh
 	fperms -R +x /opt/${PN}/resources/app/out/vs/base/node
 	fperms +x /opt/${PN}/resources/app/node_modules.asar.unpacked/@vscode/ripgrep/bin/rg
+	fperms +x /opt/${PN}/resources/app/node_modules.asar.unpacked/node-pty/build/Release/spawn-helper
 	dosym "../../opt/${PN}/bin/code" "usr/bin/vscode"
 	dosym "../../opt/${PN}/bin/code" "usr/bin/code"
 	domenu "${FILESDIR}/vscode.desktop"
