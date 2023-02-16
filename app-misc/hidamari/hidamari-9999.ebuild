@@ -11,6 +11,7 @@ DESCRIPTION="Video wallpaper for Linux."
 
 # using fork for some fixes!111
 EGIT_REPO_URI="https://github.com/Qeenon/hidamari.git"
+EGIT_BRANCH="mawa"
 EGIT_SUBMODULES=()
 
 HOMEPAGE="https://github.com/Qeenon/hidamari"
