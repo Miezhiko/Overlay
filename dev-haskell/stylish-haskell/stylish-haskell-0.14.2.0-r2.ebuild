@@ -37,7 +37,10 @@ DEPEND="${RDEPEND}
 		>=dev-haskell/test-framework-hunit-0.2 <dev-haskell/test-framework-hunit-0.4 )
 "
 
-PATCHES=( "${FILESDIR}/forall.patch" )
+PATCHES=(
+	"${FILESDIR}/forall.patch"
+	"${FILESDIR}/non-unicode-arrows.patch"
+	)
 
 src_configure() {
 	haskell-cabal_src_configure \
