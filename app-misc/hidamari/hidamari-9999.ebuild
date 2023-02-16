@@ -8,8 +8,12 @@ PYTHON_COMPAT=( python3_{9..11} )
 inherit git-r3 distutils-r1 meson
 
 DESCRIPTION="Video wallpaper for Linux."
-EGIT_REPO_URI="https://github.com/jeffshee/hidamari.git"
-HOMEPAGE="https://github.com/jeffshee/hidamari"
+
+# using fork for some fixes!111
+EGIT_REPO_URI="https://github.com/Qeenon/hidamari.git"
+EGIT_SUBMODULES=()
+
+HOMEPAGE="https://github.com/Qeenon/hidamari"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -21,6 +25,7 @@ RDEPEND="
 	${DEPEND}
 	dev-libs/libappindicator
 	x11-apps/mesa-progs
+	net-misc/yt-dlp[${PYTHON_USEDEP}]
 	dev-python/pydbus[${PYTHON_USEDEP}]
 	dev-python/setproctitle[${PYTHON_USEDEP}]
 	dev-python/python-vlc[${PYTHON_USEDEP}]
