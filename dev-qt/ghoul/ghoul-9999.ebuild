@@ -69,6 +69,7 @@ CDEPEND="
 	>=sys-devel/clang-${LLVM_MAX_SLOT}:=
 	>=dev-qt/qtbase-${QT_PV}[concurrent,gui,network,sql,widgets]
 	>=dev-qt/qtdeclarative-${QT_PV}
+	dev-qt/qt5compat
 	designer? ( >=dev-qt/qttools-${QT_PV}[designer(+)] )
 	help? (
 		>=dev-qt/qttools-${QT_PV}[assistant(+)]
