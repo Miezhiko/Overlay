@@ -67,7 +67,6 @@ BDEPEND="
 
 CDEPEND="
 	>=sys-devel/clang-${LLVM_MAX_SLOT}:=
-	>=dev-qt/qt5compat-${QT_PV}
 	>=dev-qt/qtbase-${QT_PV}[concurrent,gui,network,sql,widgets]
 	>=dev-qt/qtdeclarative-${QT_PV}
 	designer? ( >=dev-qt/qttools-${QT_PV}[designer(+)] )
@@ -118,19 +117,6 @@ for x in ${PLOCALES}; do
 done
 unset x
 
-
-# FUNCTION: cmake_use_remove_addsubdirectory
-# USAGE: <flag> <subdir> <files...>
-# DESCRIPTION:
-# <flag> is the name of a flag in IUSE.
-# <subdir> is the  name of a directory called with add_subdirectory().
-# <files...> is a list of one or more qmake project files.
-#
-# This function patches <files> to remove add_subdirectory(<subdir>) from cmake
-# when <flag> is disabled, otherwise it does nothing. This can be useful to
-# avoid an automagic dependency when a subdirectory is added in cmake but the
-# corresponding feature USE flag is disabled. Similar to qt_use_disable_config()
-# from /qt5-build.eclass
 cmake_use_remove_addsubdirectory() {
 	[[ $# -ge 3 ]] || die "${FUNCNAME}() requires at least three arguments"
 	local flag=$1
@@ -153,10 +139,6 @@ pkg_setup() {
 
 src_prepare() {
 	cmake_src_prepare
-
-	# Remove automagic dep for qt6
-	sed -e "/^find_package(Qt6/,/else()/ s|if (NOT Qt6_FOUND)|if (0)|" \
-		-i cmake/FindQt5.cmake || die
 
 	# qt-creator hardcodes the CLANG_INCLUDE_DIR to the default.
 	# However, in sys-devel/clang, the directory changes with respect to
@@ -345,7 +327,7 @@ src_install() {
 		cmake_src_install doc/{qch,html}_docs
 		docinto  html
 		dodoc -r "${BUILD_DIR}"/doc/html/.
-		insinto /usr/share/qt5-doc
+		insinto /usr/share/qt6-doc
 		doins "${BUILD_DIR}"/share/doc/qtcreator/*.qch
 	fi
 }
