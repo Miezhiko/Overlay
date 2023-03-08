@@ -25,7 +25,7 @@ LICENSE="|| ( MIT Apache-2.0 ) BSD-1 BSD-2 BSD-4 UoI-NCSA"
 IUSE="+clippy cpu_flags_x86_sse2 debug dist doc llvm-libunwind miri +nightly parallel-compiler profiler rls rustfmt rust-src +system-llvm test wasm ${ALL_LLVM_TARGETS[*]}"
 
 # List all the working slots in LLVM_VALID_SLOTS, newest first.
-LLVM_VALID_SLOTS=( 15 )
+LLVM_VALID_SLOTS=( 16 )
 LLVM_MAX_SLOT="${LLVM_VALID_SLOTS[0]}"
 
 # splitting usedeps needed to avoid CI/pkgcheck's UncheckableDep limitation
