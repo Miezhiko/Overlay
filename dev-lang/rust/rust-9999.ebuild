@@ -267,7 +267,6 @@ src_unpack() {
 		experimental-targets = ""
 		link-jobs = $(makeopts_jobs)
 		link-shared =  $(toml_usex system-llvm)
-		skip-rebuild = true
 		static-libstdcpp = $(usex system-llvm false true)
 		use-libcxx = false
 
