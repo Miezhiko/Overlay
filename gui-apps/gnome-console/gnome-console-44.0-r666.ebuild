@@ -11,7 +11,7 @@ HOMEPAGE="https://gitlab.gnome.org/GNOME/console"
 LICENSE="LGPL-3+"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="test"
+IUSE="test +transparent"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
