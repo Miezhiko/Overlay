@@ -3,15 +3,17 @@ index 0462643..a364f45 100644
 --- a/lib/Language/Haskell/Stylish/Step/UnicodeSyntax.hs
 +++ b/lib/Language/Haskell/Stylish/Step/UnicodeSyntax.hs
 023-02-16 17:24:16.880284908 +0400
-@@ -22,11 +22,11 @@
- hsTyReplacements (GHC.HsFunTy xann arr _ _)
-     | GHC.HsUnrestrictedArrow GHC.NormalSyntax <- arr
-     , GHC.AddRarrowAnn (GHC.EpaSpan loc) <- GHC.anns xann =
--        Editor.replaceRealSrcSpan loc "→"
-+        Editor.replaceRealSrcSpan loc "->"
- hsTyReplacements (GHC.HsQualTy _ (Just ctx) _)
+@@ -21,11 +21,11 @@
+ hsTyReplacements :: GHC.HsType GHC.GhcPs -> Editor.Edits
+ hsTyReplacements (GHC.HsFunTy _ arr _ _)
+     | GHC.HsUnrestrictedArrow (GHC.L (GHC.TokenLoc epaLoc) GHC.HsNormalTok) <- arr=
+-        Editor.replaceRealSrcSpan (GHC.epaLocationRealSrcSpan epaLoc) "→"
++        Editor.replaceRealSrcSpan (GHC.epaLocationRealSrcSpan epaLoc) "->"
+ hsTyReplacements (GHC.HsQualTy _ ctx _)
      | Just arrow <- GHC.ac_darrow . GHC.anns . GHC.ann $ GHC.getLoc ctx
      , (GHC.NormalSyntax, GHC.EpaSpan loc) <- arrow =
 -        Editor.replaceRealSrcSpan loc "⇒"
 +        Editor.replaceRealSrcSpan loc "=>"
  hsTyReplacements _ = mempty
+
+ --------------------------------------------------------------------------------
