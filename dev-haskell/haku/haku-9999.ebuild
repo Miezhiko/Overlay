@@ -22,6 +22,7 @@ KEYWORDS="~amd64 ~x86"
 RDEPEND="dev-haskell/base-unicode-symbols:=[profile?]
 	dev-haskell/split
 	dev-haskell/parsec
+	dev-haskell/regex-tdfa
 	>=dev-lang/ghc-8.0:=
 "
 DEPEND="${RDEPEND}
