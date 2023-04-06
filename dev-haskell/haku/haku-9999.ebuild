@@ -23,6 +23,7 @@ RDEPEND="dev-haskell/base-unicode-symbols:=[profile?]
 	dev-haskell/split
 	dev-haskell/parsec
 	dev-haskell/regex-tdfa
+	dev-haskell/raw-strings-qq
 	>=dev-lang/ghc-8.0:=
 "
 DEPEND="${RDEPEND}
