@@ -9,8 +9,7 @@ DESCRIPTION="Virtual for Rust language compiler"
 
 LICENSE=""
 
-# stupid upstream hack?
-SLOT="0/llvm-15"
+SLOT="0/llvm-16"
 
 KEYWORDS=""
 IUSE="rustfmt"
