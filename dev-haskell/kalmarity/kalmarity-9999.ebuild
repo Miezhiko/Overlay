@@ -40,7 +40,6 @@ RDEPEND=">=dev-haskell/aeson-2.0.3.0:=
 	>=dev-haskell/polysemy-1.7.1.0:=
 	>=dev-haskell/polysemy-plugin-0.4.3.1:=
 	>=dev-haskell/polysemy-time-0.6.0.0:=
-	>=dev-haskell/req-3.13.0:=
 	>=dev-haskell/text-1.2.5:=
 	>=dev-haskell/text-show-3.9.7:=
 	>=dev-haskell/yaml-0.11.10.0:=
