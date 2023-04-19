@@ -16,7 +16,7 @@ while read e; do
 	fi
 	vers=${vers%.ebuild*};
 	if [[ "$vers" != "9999" ]]; then
-		relative="${DIR:2}"
+		relative="${DIR}"
 		if [[ ! " ${exceptions[*]} " =~ " ${relative} " ]]; then
 			portage="/home/gentoo-haskell/${relative}"
 			if [ -d "$portage" ]; then
@@ -29,18 +29,15 @@ while read e; do
 					fi
 					versp=${versp%.ebuild*};
 					if [[ "$versp" != "9999" ]]; then
-						if [ $(version ${versp}) -gt $(version ${vers}) ]; then
+						if [ $(version ${versp}) -lt $(version ${vers}) ]; then
 							echo "${relative}: ${versp} in portage, ${vers} in overlay!"
 						fi
 					fi
 				done < <(find "$portage" -type f -not -path '*/\.*' -name '*.ebuild')
+			else
+				echo "${relative} is missing in portage"
 			fi
 		fi
 	fi
-done < <(find . -type f -not -path '*/\.*' -name '*.ebuild')
+done < <(find dev-haskell -type f -not -path '*/\.*' -name '*.ebuild')
 
-for d in */ ; do
-	if [ -z "$(ls -A $d)" ]; then
-		echo "$d category is empty"
-	fi
-done
