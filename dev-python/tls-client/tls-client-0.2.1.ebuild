@@ -17,9 +17,13 @@ IUSE=""
 RDEPEND=""
 DEPEND="${RDEPEND}"
 
-MY_PN=tls_client
-MY_P="${MY_PN}-${PV}"
+KEYWORDS="~amd64"
+SRC_URI="https://github.com/FlorianREGAZ/Python-Tls-Client/archive/refs/tags/${PV}.tar.gz -> ${P}.tar.gz"
 
-KEYWORDS="~amd64 ~x86"
-SRC_URI="mirror://pypi/${MY_PN:0:1}/${MY_PN}/${MY_P}.tar.gz"
-S="${WORKDIR}/${MY_P}"
+S="${WORKDIR}/Python-Tls-Client-${PV}"
+
+src_install() {
+	insinto /usr/lib64
+	doins "${S}/tls_client/dependencies/tls-client-amd64.so"
+	distutils-r1_src_install
+}
