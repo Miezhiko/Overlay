@@ -7,8 +7,8 @@ PYTHON_COMPAT=( python3_{9..11} )
 
 inherit distutils-r1
 
-DESCRIPTION="command line interface and python web-api wrapper for mail.tm"
-HOMEPAGE="https://pypi.org/project/pymailtm"
+DESCRIPTION="${PN}"
+HOMEPAGE="https://pypi.org/project/${PN}"
 
 LICENSE="GPL-3.0"
 SLOT="0"
