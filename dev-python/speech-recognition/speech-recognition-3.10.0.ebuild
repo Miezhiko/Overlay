@@ -14,13 +14,11 @@ LICENSE="MIT"
 SLOT="0"
 IUSE=""
 
-RDEPEND="
-	dev-python/speech-recognition
-	dev-python/pydub"
+RDEPEND=""
 DEPEND="${RDEPEND}"
 
 KEYWORDS="~amd64 ~x86"
-MY_PN=PyPasser
+MY_PN=SpeechRecognition
 MY_P="${MY_PN}-${PV}"
 
 SRC_URI="mirror://pypi/${MY_PN:0:1}/${MY_PN}/${MY_P}.tar.gz"
