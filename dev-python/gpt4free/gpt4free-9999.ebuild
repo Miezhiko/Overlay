@@ -27,7 +27,8 @@ RDEPEND="
 	dev-python/random-username
 	dev-python/tls-client
 	dev-python/xtempmail
-	dev-python/pypasser"
+	dev-python/pypasser
+	dev-python/Faker"
 DEPEND="${RDEPEND}"
 
 KEYWORDS="~amd64 ~x86"
