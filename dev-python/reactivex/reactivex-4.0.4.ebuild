@@ -7,14 +7,14 @@ PYTHON_COMPAT=( python3_{9..11} )
 
 inherit distutils-r1
 
-DESCRIPTION="Temporary Email"
-HOMEPAGE="https://pypi.org/project/xtempmail"
+DESCRIPTION="A library for composing asynchronous and event-based programs"
+HOMEPAGE="https://pypi.org/project/reactivex"
 
 LICENSE="MIT"
 SLOT="0"
 IUSE=""
 
-RDEPEND="dev-python/reactivex"
+RDEPEND=""
 DEPEND="${RDEPEND}"
 
 KEYWORDS="~amd64 ~x86"
