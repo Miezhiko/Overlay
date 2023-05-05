@@ -8,7 +8,7 @@ PYTHON_COMPAT=( python3_{9..11} pypy3 )
 
 inherit distutils-r1 pypi
 
-SRC_URI="https://github.com/yifeikong/curl_cffi/archive/refs/tags/v0.2.1.tar.gz -> ${P}.tar.gz"
+SRC_URI="https://github.com/yifeikong/curl_cffi/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
 
 S="${WORKDIR}/curl_cffi-${PV}"
 
