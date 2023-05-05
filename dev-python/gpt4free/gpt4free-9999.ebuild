@@ -26,6 +26,7 @@ RDEPEND="
 	dev-python/curl-cffi
 	dev-python/random-username
 	dev-python/tls-client
+	dev-python/xtempmail
 	dev-python/pypasser"
 DEPEND="${RDEPEND}"
 
