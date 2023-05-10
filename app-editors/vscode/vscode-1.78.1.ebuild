@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit desktop pax-utils xdg
+inherit desktop pax-utils xdg optfeature
 
 DESCRIPTION="Multiplatform Visual Studio Code from Microsoft"
 HOMEPAGE="https://code.visualstudio.com"
@@ -64,7 +64,7 @@ RDEPEND="
 "
 
 QA_PREBUILT="
-	/opt/vscode/chrome_crashpad_handler
+  /opt/vscode/chrome_crashpad_handler
 	/opt/vscode/chrome-sandbox
 	/opt/vscode/code
 	/opt/vscode/libEGL.so
@@ -105,7 +105,6 @@ src_install() {
 	fperms 755 /opt/${PN}/resources/app/extensions/git/dist/{askpass,git-editor,ssh-askpass}{,-empty}.sh
 	fperms -R +x /opt/${PN}/resources/app/out/vs/base/node
 	fperms +x /opt/${PN}/resources/app/node_modules.asar.unpacked/@vscode/ripgrep/bin/rg
-	fperms +x /opt/${PN}/resources/app/node_modules.asar.unpacked/node-pty/build/Release/spawn-helper
 	dosym "../../opt/${PN}/bin/code" "usr/bin/vscode"
 	dosym "../../opt/${PN}/bin/code" "usr/bin/code"
 	domenu "${FILESDIR}/vscode.desktop"
@@ -117,6 +116,5 @@ src_install() {
 
 pkg_postinst() {
 	xdg_pkg_postinst
-	elog "You may want to install some additional utils, check in:"
-	elog "https://code.visualstudio.com/Docs/setup#_additional-tools"
+	optfeature "keyring support inside vscode" "gnome-base/gnome-keyring"
 }
