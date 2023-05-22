@@ -31,6 +31,7 @@ RDEPEND="
 	dev-python/Faker
 	dev-python/mailgw-temporary-email
 	dev-python/retrying
+	dev-python/names
 	dev-python/random-password-generator"
 DEPEND="${RDEPEND}"
 
