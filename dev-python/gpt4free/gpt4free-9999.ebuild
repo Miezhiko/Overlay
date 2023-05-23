@@ -37,6 +37,3 @@ DEPEND="${RDEPEND}"
 
 KEYWORDS="~amd64 ~x86"
 
-PATCHES=(
-	"${FILESDIR}/f8284d6073d1735b4cd1cd99d7cb953e72abb96e.patch"
-)
