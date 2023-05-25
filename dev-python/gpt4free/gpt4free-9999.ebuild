@@ -36,5 +36,3 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 
 KEYWORDS="~amd64 ~x86"
-
-PATCHES=( "${FILESDIR}/598.patch" )
