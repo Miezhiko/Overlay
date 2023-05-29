@@ -34,6 +34,7 @@ RDEPEND="
 	dev-python/names
 	dev-python/random-password-generator
 	dev-python/typings
+	dev-python/pymongo
 	dev-python/motor"
 DEPEND="${RDEPEND}"
 
