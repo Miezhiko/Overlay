@@ -11,8 +11,8 @@ inherit bash-completion-r1 check-reqs estack flag-o-matic llvm multiprocessing \
 SLOT="stable/live"
 KEYWORDS=""
 
-DESCRIPTION="Systems programming language from Mozilla"
-HOMEPAGE="https://www.rust-lang.org/"
+DESCRIPTION="A community fork of a language named after a plant fungus"
+HOMEPAGE="https://crablang.org"
 
 # keep in sync with llvm ebuild of the same version as bundled one.
 ALL_LLVM_TARGETS=( AArch64 AMDGPU ARM AVR BPF Hexagon Lanai Mips MSP430
@@ -80,6 +80,7 @@ DEPEND="
 RDEPEND="${DEPEND}
 	app-eselect/eselect-rust
 	sys-apps/lsb-release
+	!dev-lang/rust
 "
 
 REQUIRED_USE="|| ( ${ALL_LLVM_TARGETS[*]} )
@@ -180,7 +181,7 @@ pkg_setup() {
 }
 
 src_unpack() {
-	EGIT_REPO_URI="https://github.com/rust-lang/rust.git"
+	EGIT_REPO_URI="https://github.com/crablang/crab.git"
 	EGIT_BRANCH="master"
 	EGIT_SUBMODULES=( '*' )
 	EGIT_CHECKOUT_DIR="${WORKDIR}/${P}"
