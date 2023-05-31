@@ -480,11 +480,6 @@ src_test() { :; }
 src_install() {
 	cp -prPRf "${S}"/instol/* "${D}"/ || die "INSTALL FAILED"
 
-	# bug #689562, #689160
-	rm -v "${ED}/usr/lib/${PN}/${PV}/etc/bash_completion.d/cargo" || die
-	rmdir -v "${ED}/usr/lib/${PN}/${PV}"/etc{/bash_completion.d,} || die
-	newbashcomp src/tools/cargo/src/etc/cargo.bashcomp.sh cargo
-
 	local symlinks=(
 		cargo
 		rustc
