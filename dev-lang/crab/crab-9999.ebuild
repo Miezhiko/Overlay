@@ -460,7 +460,6 @@ src_unpack() {
 		"${EPYTHON}" ./x.py build -vv --config="${S}"/config.toml -j$(makeopts_jobs) || die
 	)
 
-	cargo vendor --sync "${S}"/src/tools/rust-analyzer/Cargo.toml --sync "${S}"/compiler/rustc_codegen_cranelift/Cargo.toml --sync "${S}"/src/bootstrap/Cargo.toml || die "FAILED TO VENDOR!"
 	mv ${HOME}/.cargo ${S}/.cargo ||die "INSTALL VENDORING .cargo FAILED"
 
 	# can't use image here because we need src_install
