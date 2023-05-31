@@ -1,6 +1,6 @@
 EAPI=7
 
-PYTHON_COMPAT=( python3_9 )
+PYTHON_COMPAT=( python3_{9..10} )
 
 inherit bash-completion-r1 distutils-r1 eutils
 
@@ -22,8 +22,6 @@ RDEPEND="
 	dev-python/pytz[${PYTHON_USEDEP}]
 	dev-python/greenlet[${PYTHON_USEDEP}]
 	>=dev-python/vine-5.0.0[${PYTHON_USEDEP}]
-	>=dev-python/click-repl-0.1.6[${PYTHON_USEDEP}]
-	>=dev-python/click-didyoumean-0.0.3[${PYTHON_USEDEP}]
 	>=net-misc/rabbitmq-server-3.8.7
 "
 
