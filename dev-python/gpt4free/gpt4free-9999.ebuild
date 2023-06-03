@@ -35,6 +35,4 @@ RDEPEND="
 	dev-python/random-password-generator"
 DEPEND="${RDEPEND}"
 
-PATCHES=( "${FILESDIR}/620.patch" )
-
 KEYWORDS="~amd64 ~x86"
