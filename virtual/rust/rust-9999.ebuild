@@ -15,4 +15,4 @@ KEYWORDS=""
 IUSE="rustfmt"
 
 BDEPEND=""
-RDEPEND="~dev-lang/crab-${PV}[rustfmt?,${MULTILIB_USEDEP}]"
+RDEPEND="~dev-lang/rust-${PV}[rustfmt?,${MULTILIB_USEDEP}]"
