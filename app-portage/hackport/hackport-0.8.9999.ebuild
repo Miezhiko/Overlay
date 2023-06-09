@@ -57,6 +57,7 @@ RDEPEND=">=dev-haskell/async-2.0:=
 	>=dev-haskell/zlib-0.5.3:=
 	>=dev-lang/ghc-8.4.3:=
 	>=dev-haskell/process-1.6.16:=
+	dev-haskell/prettyprinter
 	dev-haskell/safe-exceptions
 "
 DEPEND="${RDEPEND}
