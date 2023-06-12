@@ -89,9 +89,6 @@ src_install() {
 		die "Visual Studio Code only supports amd64, arm and arm64"
 	fi
 
-	# Cleanup
-	rm -r ./resources/app/LICENSES.chromium.html ./resources/app/LICENSE.rtf ./resources/app/licenses || die
-
 	# Disable update server
 	sed -e "/updateUrl/d" -i ./resources/app/product.json || die
 
