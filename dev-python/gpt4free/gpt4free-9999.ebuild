@@ -8,8 +8,8 @@ PYTHON_COMPAT=( python3_{9..11} )
 
 inherit distutils-r1 git-r3
 
-EGIT_REPO_URI="https://github.com/xtekky/gpt4free.git"
-EGIT_BRANCH="main"
+EGIT_REPO_URI="https://github.com/Masha/gpt4free.git"
+EGIT_BRANCH="mawa"
 SRC_URI=""
 KEYWORDS=""
 
