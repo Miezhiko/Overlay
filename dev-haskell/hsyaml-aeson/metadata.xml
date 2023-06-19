@@ -6,10 +6,10 @@
 		<name>Gentoo Haskell</name>
 	</maintainer>
 	<use>
-		<flag name="ghc-lib">Force dependency on ghc-lib-parser even if GHC API in the ghc package is supported</flag>
+		<flag name="exe">Enable @exe:yaml-test@ component</flag>
 	</use>
 	<upstream>
-		<remote-id type="hackage">stylish-haskell</remote-id>
-		<remote-id type="github">haskell/stylish-haskell</remote-id>
+		<remote-id type="hackage">HsYAML-aeson</remote-id>
+		<remote-id type="github">haskell-hvr/HsYAML-aeson</remote-id>
 	</upstream>
 </pkgmetadata>
