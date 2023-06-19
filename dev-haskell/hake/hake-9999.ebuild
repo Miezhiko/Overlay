@@ -17,7 +17,7 @@ LICENSE="LGPLv2"
 SLOT="0/${PV}"
 KEYWORDS="~amd64 ~x86"
 
-RDEPEND="dev-haskell/missingh:=[profile?]
+RDEPEND="
 	dev-haskell/base-unicode-symbols:=[profile?]
 	dev-haskell/split:=[profile?]
 	>=dev-lang/ghc-8.0:=
