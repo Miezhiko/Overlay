@@ -22,7 +22,7 @@ LLVM_TARGET_USEDEPS=${ALL_LLVM_TARGETS[@]/%/(-)?}
 
 LICENSE="|| ( MIT Apache-2.0 ) BSD-1 BSD-2 BSD-4 UoI-NCSA"
 
-IUSE="+clippy cpu_flags_x86_sse2 debug dist doc llvm-libunwind miri +nightly parallel-compiler profiler rls rustfmt rust-src +system-llvm test wasm ${ALL_LLVM_TARGETS[*]}"
+IUSE="+clippy cpu_flags_x86_sse2 debug dist doc llvm-libunwind miri +nightly parallel-compiler profiler rls rustfmt rust-src +rust-analyzer +system-llvm test wasm ${ALL_LLVM_TARGETS[*]}"
 
 # List all the working slots in LLVM_VALID_SLOTS, newest first.
 LLVM_VALID_SLOTS=( 16 )
@@ -85,6 +85,7 @@ RDEPEND="${DEPEND}
 REQUIRED_USE="|| ( ${ALL_LLVM_TARGETS[*]} )
 	miri? ( nightly )
 	parallel-compiler? ( nightly )
+	rust-analyzer? ( rust-src )
 	rls? ( rust-src )
 	test? ( ${ALL_LLVM_TARGETS[*]} )
 	wasm? ( llvm_targets_WebAssembly )
@@ -231,25 +232,13 @@ src_unpack() {
 
 	rust_targets="${rust_targets#,}"
 
-	local tools="\"cargo\","
-	if use clippy; then
-		tools="\"clippy\",$tools"
-	fi
-	if use miri; then
-		tools="\"miri\",$tools"
-	fi
-	if use profiler; then
-		tools="\"rust-demangler\",$tools"
-	fi
-	if use rls; then
-		tools="\"rls\",\"rust-analyzer\",$tools"
-	fi
-	if use rustfmt; then
-		tools="\"rustfmt\",$tools"
-	fi
-	if use rust-src; then
-		tools="\"src\",$tools"
-	fi
+	local tools='"cargo","rustdoc"'
+	use clippy && tools+=',"clippy"'
+	use miri && tools+=',"miri"'
+	use profiler && tools+=',"rust-demangler"'
+	use rustfmt && tools+=',"rustfmt"'
+	use rust-analyzer && tools+=',"rust-analyzer"'
+	use rust-src && tools+=',"src"'
 
 	rust_target="$(rust_abi)"
 
@@ -491,8 +480,8 @@ src_install() {
 	use clippy && symlinks+=( clippy-driver cargo-clippy )
 	use miri && symlinks+=( miri cargo-miri )
 	use profiler && symlinks+=( rust-demangler )
-	use rls && symlinks+=( rls )
 	use rustfmt && symlinks+=( rustfmt cargo-fmt )
+	use rust-analyzer && symlinks+=( rust-analyzer )
 
 	einfo "installing eselect-rust symlinks and paths: ${symlinks[@]}"
 	local i
@@ -528,7 +517,6 @@ src_install() {
 	rm -rf "${ED}/usr/lib/${PN}/${PV}"/*.old || die
 	rm -rf "${ED}/usr/lib/${PN}/${PV}/doc"/*.old || die
 
-	# note: eselect-rust adds EROOT to all paths below
 	cat <<-_EOF_ > "${T}/provider-${P}"
 		/usr/bin/cargo
 		/usr/bin/rustdoc
@@ -553,12 +541,12 @@ src_install() {
 	if use profiler; then
 		echo /usr/bin/rust-demangler >> "${T}/provider-${P}"
 	fi
-	if use rls; then
-		echo /usr/bin/rls >> "${T}/provider-${P}"
-	fi
 	if use rustfmt; then
 		echo /usr/bin/rustfmt >> "${T}/provider-${P}"
 		echo /usr/bin/cargo-fmt >> "${T}/provider-${P}"
+	fi
+	if use rust-analyzer; then
+		echo /usr/bin/rust-analyzer >> "${T}/provider-${P}"
 	fi
 
 	insinto /etc/env.d/rust
