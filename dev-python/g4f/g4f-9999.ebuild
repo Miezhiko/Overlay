@@ -24,7 +24,8 @@ RDEPEND="
 	dev-python/fake-useragent
 	dev-python/curl-cffi
 	dev-python/tls-client
-	dev-python/browser-cookie3"
+	dev-python/browser-cookie3
+	dev-python/quickjs"
 DEPEND="${RDEPEND}"
 
 KEYWORDS="~amd64 ~x86"
