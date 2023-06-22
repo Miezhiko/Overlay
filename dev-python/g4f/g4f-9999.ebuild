@@ -21,18 +21,10 @@ SLOT="0"
 IUSE=""
 
 RDEPEND="
-	dev-python/streamlit
 	dev-python/fake-useragent
 	dev-python/curl-cffi
-	dev-python/random-username
 	dev-python/tls-client
-	dev-python/xtempmail
-	dev-python/pypasser
-	dev-python/Faker
-	dev-python/mailgw-temporary-email
-	dev-python/retrying
-	dev-python/names
-	dev-python/random-password-generator"
+	dev-python/browser-cookie3"
 DEPEND="${RDEPEND}"
 
 KEYWORDS="~amd64 ~x86"
