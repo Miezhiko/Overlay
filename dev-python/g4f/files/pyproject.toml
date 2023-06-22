@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "g4f"
+version = "0.1.0"
+description = ""
+authors = []
+license = "GPL-3.0"
+readme = "README.md"
+packages = [{ include = "g4f" }]
+exclude = ["**/*.txt"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
