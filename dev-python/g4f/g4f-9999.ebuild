@@ -25,6 +25,7 @@ RDEPEND="
 	dev-python/curl-cffi
 	dev-python/tls-client
 	dev-python/browser-cookie3
+	dev-python/websockets
 	dev-python/quickjs"
 DEPEND="${RDEPEND}"
 
