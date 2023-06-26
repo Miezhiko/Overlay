@@ -21,6 +21,7 @@ SLOT="0"
 IUSE=""
 
 RDEPEND="
+	dev-python/execjs
 	dev-python/xtempmail
 	dev-python/pypasser
 	dev-python/Faker
