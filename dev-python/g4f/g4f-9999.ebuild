@@ -8,19 +8,26 @@ PYTHON_COMPAT=( python3_{9..11} )
 
 inherit distutils-r1 git-r3
 
-EGIT_REPO_URI="https://gitler.moe/g4f/gpt4free.git"
+EGIT_REPO_URI="https://github.com/xtekky/gpt4free.git"
 EGIT_BRANCH="main"
 SRC_URI=""
 KEYWORDS=""
 
 DESCRIPTION="${PN}"
-HOMEPAGE="https://gitler.moe/g4f/gpt4free"
+HOMEPAGE="https://github.com/xtekky/gpt4free"
 
 LICENSE="MIT"
 SLOT="0"
 IUSE=""
 
 RDEPEND="
+	dev-python/xtempmail
+	dev-python/pypasser
+	dev-python/Faker
+	dev-python/mailgw-temporary-email
+	dev-python/retrying
+	dev-python/names
+	dev-python/random-password-generator
 	dev-python/fake-useragent
 	dev-python/curl-cffi
 	dev-python/tls-client
