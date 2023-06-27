@@ -3,7 +3,7 @@
 
 EAPI=8
 
-DISTUTILS_USE_PEP517=poetry
+DISTUTILS_USE_PEP517=setuptools
 PYTHON_COMPAT=( python3_{9..11} )
 
 inherit distutils-r1 git-r3
@@ -38,9 +38,3 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 
 KEYWORDS="~amd64 ~x86"
-
-src_prepare() {
-	default
-
-	cp "${FILESDIR}/pyproject.toml" "${S}"/ || die "Failed to add pyproject"
-}
