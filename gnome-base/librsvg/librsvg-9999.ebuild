@@ -72,7 +72,28 @@ src_prepare() {
 }
 
 src_configure() {
-	:;
+	make clean
+	local myconf=(
+		--disable-static
+		--disable-debug
+		$(multilib_native_use_enable gtk-doc)
+		$(multilib_native_use_enable introspection)
+		$(multilib_native_use_enable vala)
+		--enable-pixbuf-loader
+	)
+
+	if ! multilib_is_native_abi; then
+		myconf+=(
+			# Set the rust target, which can differ from CHOST
+			RUST_TARGET="$(rust_abi)"
+			# RUST_TARGET is only honored if cross_compiling, but non-native ABIs aren't cross as
+			# far as C parts and configure auto-detection are concerned as CHOST equals CBUILD
+			cross_compiling=yes
+		)
+	fi
+
+	ECONF_SOURCE=${S} \
+	gnome2_src_configure "${myconf[@]}"
 }
 
 src_compile() {
