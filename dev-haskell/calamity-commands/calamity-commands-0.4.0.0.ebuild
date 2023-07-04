@@ -13,9 +13,10 @@ HOMEPAGE="https://github.com/simmsb/calamity"
 
 LICENSE="MIT"
 SLOT="0/${PV}"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="~amd64"
 
-RDEPEND=">=dev-haskell/megaparsec-8:=[profile?] <dev-haskell/megaparsec-10:=[profile?]
+RDEPEND="
+	>=dev-haskell/megaparsec-8:=[profile?] <dev-haskell/megaparsec-10:=[profile?]
 	>=dev-haskell/optics-0.4.1:=[profile?] <dev-haskell/optics-0.5:=[profile?]
 	>=dev-haskell/polysemy-1.5:=[profile?] <dev-haskell/polysemy-2:=[profile?]
 	>=dev-haskell/polysemy-plugin-0.3:=[profile?] <dev-haskell/polysemy-plugin-0.5:=[profile?]
