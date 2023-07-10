@@ -21,7 +21,6 @@ SLOT="0"
 IUSE=""
 
 RDEPEND="
-	dev-python/streamlit
 	dev-python/fake-useragent
 	dev-python/curl-cffi
 	dev-python/random-username
