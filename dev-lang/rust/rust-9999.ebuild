@@ -190,7 +190,7 @@ src_unpack() {
 	default
 	
 	cd ${S}
-	
+
 	if use system-llvm; then
 		rm -rf src/llvm-project/{clang,clang-tools-extra,compiler-rt,lld,lldb,llvm}
 		rm -rf src/llvm-project/libunwind/*
@@ -222,6 +222,9 @@ src_unpack() {
 	find -name '*.rs' -type f -perm /111 -exec chmod -v -x '{}' '+'
 
 	eapply "${FILESDIR}"/0002-compiler-Change-LLVM-targets.patch
+
+	# https://github.com/rust-lang/rust/pull/113529
+	eapply "${FILESDIR}"/RUST-FIX.patch
 
 	local rust_target="" rust_targets="" arch_cflags
 

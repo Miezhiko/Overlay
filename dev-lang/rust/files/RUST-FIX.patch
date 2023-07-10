@@ -1,0 +1,69 @@
+From c25c36bf183a446d6a3499528196bbdbbff9764a Mon Sep 17 00:00:00 2001
+From: Oli Scherer <git-spam-no-reply9815368754983@oli-obk.de>
+Date: Mon, 10 Jul 2023 09:33:34 +0000
+Subject: [PATCH] Permit pre-evaluated constants in simd_shuffle
+
+---
+ compiler/rustc_codegen_ssa/src/mir/constant.rs |  6 ++++++
+ tests/ui/simd/shuffle.rs                       | 18 ++++++++++++++++++
+ 2 files changed, 24 insertions(+)
+
+diff --git a/compiler/rustc_codegen_ssa/src/mir/constant.rs b/compiler/rustc_codegen_ssa/src/mir/constant.rs
+index 1c5031dfc4b4b..76092fd909fbf 100644
+--- a/compiler/rustc_codegen_ssa/src/mir/constant.rs
++++ b/compiler/rustc_codegen_ssa/src/mir/constant.rs
+@@ -67,6 +67,12 @@ impl<'a, 'tcx, Bx: BuilderMethods<'a, 'tcx>> FunctionCx<'a, 'tcx, Bx> {
+     ) -> Result<Option<ty::ValTree<'tcx>>, ErrorHandled> {
+         let uv = match constant.literal {
+             mir::ConstantKind::Unevaluated(uv, _) => uv.shrink(),
++            mir::ConstantKind::Ty(c) => match c.kind() {
++                // A constant that came from a const generic but was then used as an argument to old-style
++                // simd_shuffle (passing as argument instead of as a generic param).
++                rustc_type_ir::ConstKind::Value(valtree) => return Ok(Some(valtree)),
++                other => span_bug!(constant.span, "{other:#?}"),
++            },
+             other => span_bug!(constant.span, "{other:#?}"),
+         };
+         let uv = self.monomorphize(uv);
+diff --git a/tests/ui/simd/shuffle.rs b/tests/ui/simd/shuffle.rs
+index 3592adfdc6ad1..18c549c8d44d1 100644
+--- a/tests/ui/simd/shuffle.rs
++++ b/tests/ui/simd/shuffle.rs
+@@ -1,14 +1,21 @@
+ //run-pass
+ #![feature(repr_simd, platform_intrinsics)]
++#![allow(incomplete_features)]
++#![feature(adt_const_params)]
+ 
+ extern "platform-intrinsic" {
+     fn simd_shuffle<T, I, U>(a: T, b: T, i: I) -> U;
++    fn simd_shuffle16<T, U>(x: T, y: T, idx: [u32; 16]) -> U;
+ }
+ 
+ #[derive(Copy, Clone)]
+ #[repr(simd)]
+ struct Simd<T, const N: usize>([T; N]);
+ 
++pub unsafe fn __shuffle_vector16<const IDX: [u32; 16], T, U>(x: T, y: T) -> U {
++    simd_shuffle16(x, y, IDX)
++}
++
+ fn main() {
+     const I1: [u32; 4] = [0, 2, 4, 6];
+     const I2: [u32; 2] = [1, 5];
+@@ -21,4 +28,15 @@ fn main() {
+         let y: Simd<u8, 2> = simd_shuffle(a, b, I2);
+         assert_eq!(y.0, [1, 5]);
+     }
++    // Test that an indirection (via an unnamed constant) through a const generic parameter also works.
++    // See https://github.com/rust-lang/rust/issues/113500 for details.
++    let a = Simd::<u8, 16>([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]);
++    let b = Simd::<u8, 16>([16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]);
++    unsafe {
++        __shuffle_vector16::<
++            { [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16] },
++            Simd<u8, 16>,
++            Simd<u8, 16>,
++        >(a, b);
++    }
+ }
