@@ -21,6 +21,7 @@ SLOT="0"
 IUSE=""
 
 RDEPEND="
+	dev-python/pydantic
 	dev-python/jsonschema
 	dev-python/fake-useragent
 	dev-python/curl-cffi
