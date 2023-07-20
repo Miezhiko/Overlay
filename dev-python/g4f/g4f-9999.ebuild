@@ -38,3 +38,9 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 
 KEYWORDS="~amd64 ~x86"
+
+src_prepare() {
+	default
+	rm "${S}"/setup.py || die
+	cp "${FILESDIR}"/pyproject.toml "${S}"/ || die
+}
