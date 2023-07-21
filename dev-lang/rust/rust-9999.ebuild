@@ -223,9 +223,6 @@ src_unpack() {
 
 	eapply "${FILESDIR}"/0002-compiler-Change-LLVM-targets.patch
 
-	# https://github.com/rust-lang/rust/pull/113529
-	eapply "${FILESDIR}"/RUST-FIX.patch
-
 	local rust_target="" rust_targets="" arch_cflags
 
 	# Collect rust target names to compile standard libs for all ABIs.
