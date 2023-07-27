@@ -27,7 +27,7 @@ CODON_LLVM_DIR="${WORKDIR}/${P}/llvm-project"
 
 src_unpack() {
 	EGIT_REPO_URI="https://github.com/exaloop/codon.git"
-  EGIT_BRANCH="develop"
+    EGIT_BRANCH="develop"
 	EGIT_SUBMODULES=( '*' )
 	EGIT_CHECKOUT_DIR="${WORKDIR}/${P}"
 	git-r3_src_unpack
@@ -38,8 +38,8 @@ src_unpack() {
 	EGIT_CHECKOUT_DIR="${CODON_LLVM_DIR}"
 	git-r3_src_unpack
 
-  cd "${S}"
-  cmake -S llvm-project/llvm -B llvm-project/build -G Ninja \
+    cd "${S}"
+    cmake -S llvm-project/llvm -B llvm-project/build -G Ninja \
     -DCMAKE_BUILD_TYPE=Release \
     -DLLVM_INCLUDE_TESTS=OFF \
     -DLLVM_ENABLE_RTTI=ON \
@@ -48,20 +48,20 @@ src_unpack() {
     -DLLVM_TARGETS_TO_BUILD=all || die
 	cmake --build llvm-project/build || die
 	cmake --install llvm-project/build --prefix=llvm-project/install || die
-}
-
-src_configure() {
-	cd "${S}"
 	cmake -S . -B build -G Ninja \
 		  -DCMAKE_BUILD_TYPE=Release \
-		  -DLLVM_DIR=${CODON_LLVM_DIR}/install \
+		  -DLLVM_DIR=$(${CODON_LLVM_DIR}/install/bin/llvm-config --cmakedir) \
 		  -DCMAKE_C_COMPILER=clang \
 		  -DCMAKE_CXX_COMPILER=clang++ || die
 }
 
+src_configure() {
+    :;
+}
+
 src_compile() {
-  cd "${S}"
-	cmake --build build --config Release || die
+    cd "${S}"
+    cmake --build build --config Release || die
 }
 
 src_install() {
