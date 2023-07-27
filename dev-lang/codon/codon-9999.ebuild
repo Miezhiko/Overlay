@@ -66,5 +66,5 @@ src_compile() {
 
 src_install() {
 	cd "${S}"
-	cmake --install build --prefix=${ED} || die
+	cmake --install build --prefix=${ED}/usr || die
 }
