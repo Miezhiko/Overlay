@@ -21,6 +21,7 @@ SLOT="0"
 IUSE=""
 
 RDEPEND="
+    dev-python/js2py
 	dev-python/execjs
 	dev-python/xtempmail
 	dev-python/pypasser
