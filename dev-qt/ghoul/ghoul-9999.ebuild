@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-LLVM_MAX_SLOT=15
+LLVM_MAX_SLOT=16
 PLOCALES="cs da de fr hr ja pl ru sl uk zh-CN zh-TW"
 
 inherit cmake llvm optfeature virtualx xdg git-r3
@@ -42,7 +42,7 @@ QTCREATOR_PLUGINS=(
 	drp +minimap
 )
 
-IUSE="+clang debug doc systemd test +qml tools wayland webengine
+IUSE="+clang debug doc systemd +qml tools wayland webengine
 	${QTCREATOR_PLUGINS[@]}"
 
 RESTRICT="test"
@@ -54,7 +54,6 @@ REQUIRED_USE="
 	python? ( lsp )
 	qml? ( qmake )
 	qnx? ( remotelinux )
-	test? ( qbs qmake )
 "
 
 # minimum Qt version required
@@ -94,12 +93,8 @@ CDEPEND="
 "
 
 DEPEND="${CDEPEND}
-	test? (
-		dev-cpp/benchmark
-		dev-cpp/eigen
-		dev-libs/boost
-		>=dev-qt/qtbase-${QT_PV}[test]
-	)
+	dev-cpp/eigen
+	dev-libs/boost
 "
 
 RDEPEND="${CDEPEND}
@@ -180,7 +175,7 @@ src_prepare() {
 
 src_configure() {
 	mycmakeargs+=(
-		-DWITH_TESTS=$(usex test)
+		-DWITH_TESTS=YES
 		-DWITH_DEBUG_CMAKE=$(usex debug)
 
 		# Don't use SANITIZE_FLAGS to pass extra CXXFLAGS
@@ -318,7 +313,7 @@ src_configure() {
 }
 
 src_test() {
-	virtx cmake_src_test
+	:; # I don't need it
 }
 
 src_install() {
