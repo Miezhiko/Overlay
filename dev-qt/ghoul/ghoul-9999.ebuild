@@ -175,7 +175,6 @@ src_prepare() {
 
 src_configure() {
 	mycmakeargs+=(
-		-DWITH_TESTS=YES
 		-DWITH_DEBUG_CMAKE=$(usex debug)
 
 		# Don't use SANITIZE_FLAGS to pass extra CXXFLAGS
