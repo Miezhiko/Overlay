@@ -4,12 +4,12 @@
 EAPI="8"
 
 # Patch version
-FIREFOX_PATCHSET="firefox-102esr-patches-10j.tar.xz"
-SPIDERMONKEY_PATCHSET="spidermonkey-102-patches-05j.tar.xz"
+FIREFOX_PATCHSET="firefox-115esr-patches-04.tar.xz"
+SPIDERMONKEY_PATCHSET="spidermonkey-115-patches-01.tar.xz"
 
 LLVM_MAX_SLOT=16
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..11} )
 PYTHON_REQ_USE="ssl,xml(+)"
 
 WANT_AUTOCONF="2.1"
@@ -51,8 +51,8 @@ if [[ ${PV} == *_rc* ]] ; then
 fi
 
 PATCH_URIS=(
-	https://dev.gentoo.org/~{juippis,whissi}/mozilla/patchsets/${FIREFOX_PATCHSET}
-	https://dev.gentoo.org/~{juippis,whissi}/mozilla/patchsets/${SPIDERMONKEY_PATCHSET}
+	https://dev.gentoo.org/~juippis/mozilla/patchsets/${FIREFOX_PATCHSET}
+	https://dev.gentoo.org/~juippis/mozilla/patchsets/${SPIDERMONKEY_PATCHSET}
 )
 
 SRC_URI="${MOZ_SRC_BASE_URI}/source/${MOZ_P}.source.tar.xz -> ${MOZ_P_DISTFILES}.source.tar.xz
@@ -61,7 +61,7 @@ SRC_URI="${MOZ_SRC_BASE_URI}/source/${MOZ_P}.source.tar.xz -> ${MOZ_P_DISTFILES}
 DESCRIPTION="SpiderMonkey is Mozilla's JavaScript engine written in C and C++"
 HOMEPAGE="https://spidermonkey.dev https://firefox-source-docs.mozilla.org/js/index.html "
 
-KEYWORDS="~amd64 ~arm ~arm64 ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
+KEYWORDS="~amd64"
 
 SLOT="$(ver_cut 1)"
 LICENSE="MPL-2.0"
@@ -73,19 +73,25 @@ RESTRICT="!test? ( test )"
 BDEPEND="${PYTHON_DEPS}
 	|| (
 		(
-			sys-devel/llvm:15
+			sys-devel/llvm:16
 			clang? (
-				sys-devel/clang:15
-				virtual/rust:0/llvm-15
-				lto? ( sys-devel/lld:15 )
+				|| (
+					sys-devel/lld:16
+					sys-devel/mold
+				)
+				sys-devel/clang:16
+				virtual/rust:0/llvm-16
 			)
 		)
 		(
-			sys-devel/llvm:16
+			sys-devel/llvm:15
 			clang? (
-				sys-devel/clang:16
-				virtual/rust:0/llvm-16
-				lto? ( sys-devel/lld:16 )
+				|| (
+					sys-devel/lld:15
+					sys-devel/mold
+				)
+				sys-devel/clang:15
+				virtual/rust:0/llvm-15
 			)
 		)
 	)
@@ -94,7 +100,7 @@ BDEPEND="${PYTHON_DEPS}
 	test? (
 		$(python_gen_any_dep 'dev-python/six[${PYTHON_USEDEP}]')
 	)"
-DEPEND=">=dev-libs/icu-71.1:=
+DEPEND=">=dev-libs/icu-73.1:=
 	dev-libs/nspr
 	sys-libs/readline:0=
 	sys-libs/zlib"
@@ -119,7 +125,7 @@ llvm_check_deps() {
 			return 1
 		fi
 
-		if use lto ; then
+		if ! tc-ld-is-mold ; then
 			if ! has_version -b "sys-devel/lld:${LLVM_SLOT}" ; then
 				einfo "sys-devel/lld:${LLVM_SLOT} is missing! Cannot use LLVM slot ${LLVM_SLOT} ..." >&2
 				return 1
@@ -134,6 +140,40 @@ python_check_deps() {
 	if use test ; then
 		python_has_version "dev-python/six[${PYTHON_USEDEP}]"
 	fi
+}
+
+# This is a straight copypaste from toolchain-funcs.eclass's 'tc-ld-is-lld', and is temporarily
+# placed here until toolchain-funcs.eclass gets an official support for mold linker.
+# Please see:
+# https://github.com/gentoo/gentoo/pull/28366 ||
+# https://github.com/gentoo/gentoo/pull/28355
+tc-ld-is-mold() {
+	local out
+
+	# Ensure ld output is in English.
+	local -x LC_ALL=C
+
+	# First check the linker directly.
+	out=$($(tc-getLD "$@") --version 2>&1)
+	if [[ ${out} == *"mold"* ]] ; then
+		return 0
+	fi
+
+	# Then see if they're selecting mold via compiler flags.
+	# Note: We're assuming they're using LDFLAGS to hold the
+	# options and not CFLAGS/CXXFLAGS.
+	local base="${T}/test-tc-linker"
+	cat <<-EOF > "${base}.c"
+	int main() { return 0; }
+	EOF
+	out=$($(tc-getCC "$@") ${CFLAGS} ${CPPFLAGS} ${LDFLAGS} -Wl,--version "${base}.c" -o "${base}" 2>&1)
+	rm -f "${base}"*
+	if [[ ${out} == *"mold"* ]] ; then
+		return 0
+	fi
+
+	# No mold here!
+	return 1
 }
 
 pkg_pretend() {
@@ -158,7 +198,7 @@ pkg_setup() {
 
 		llvm_pkg_setup
 
-		if use clang && use lto ; then
+		if use clang && use lto && tc-ld-is-lld ; then
 			local version_lld=$(ld.lld --version 2>/dev/null | awk '{ print $2 }')
 			[[ -n ${version_lld} ]] && version_lld=$(ver_cut 1 "${version_lld}")
 			[[ -z ${version_lld} ]] && die "Failed to read ld.lld version!"
@@ -200,6 +240,10 @@ src_prepare() {
 
 	use lto && rm -v "${WORKDIR}"/firefox-patches/*-LTO-Only-enable-LTO-*.patch
 
+	if ! use ppc64; then
+		rm -v "${WORKDIR}"/firefox-patches/*ppc64*.patch || die
+	fi
+
 	eapply "${WORKDIR}"/firefox-patches
 	eapply "${WORKDIR}"/spidermonkey-patches
 
@@ -224,7 +268,6 @@ src_prepare() {
 	mkdir "${MOZJS_BUILDDIR}" || die
 
 	popd &>/dev/null || die
-	eautoconf
 }
 
 src_configure() {
@@ -238,14 +281,20 @@ src_configure() {
 	if use clang; then
 		# Force clang
 		einfo "Enforcing the use of clang due to USE=clang ..."
+
+		local version_clang=$(clang --version 2>/dev/null | grep -F -- 'clang version' | awk '{ print $3 }')
+		[[ -n ${version_clang} ]] && version_clang=$(ver_cut 1 "${version_clang}")
+		[[ -z ${version_clang} ]] && die "Failed to read clang version!"
+
 		if tc-is-gcc; then
 			have_switched_compiler=yes
 		fi
 		AR=llvm-ar
-		CC=${CHOST}-clang
-		CXX=${CHOST}-clang++
+		CC=${CHOST}-clang-${version_clang}
+		CXX=${CHOST}-clang++-${version_clang}
 		NM=llvm-nm
 		RANLIB=llvm-ranlib
+
 	elif ! use clang && ! tc-is-gcc ; then
 		# Force gcc
 		have_switched_compiler=yes
@@ -263,7 +312,8 @@ src_configure() {
 		strip-unsupported-flags
 	fi
 
-	# Ensure we use correct toolchain
+	# Ensure we use correct toolchain,
+	# AS is used in a non-standard way by upstream, #bmo1654031
 	export HOST_CC="$(tc-getBUILD_CC)"
 	export HOST_CXX="$(tc-getBUILD_CXX)"
 	export AS="$(tc-getCC) -c"
@@ -282,7 +332,9 @@ src_configure() {
 		--disable-jemalloc
 		--disable-smoosh
 		--disable-strip
+		--disable-rust-simd
 
+		--enable-project=js
 		--enable-readline
 		--enable-release
 		--enable-shared-js
@@ -301,13 +353,11 @@ src_configure() {
 	if use debug; then
 		myeconfargs+=( --disable-optimize )
 		myeconfargs+=( --enable-debug-symbols )
+		myeconfargs+=( --enable-real-time-tracing )
 	else
 		myeconfargs+=( --enable-optimize )
 		myeconfargs+=( --disable-debug-symbols )
-	fi
-
-	if ! use x86 && [[ ${CHOST} != armv*h* ]] ; then
-		myeconfargs+=( --enable-rust-simd )
+		myeconfargs+=( --disable-real-time-tracing )
 	fi
 
 	# Modifications to better support ARM, bug 717344
@@ -324,8 +374,13 @@ src_configure() {
 	# Tell build system that we want to use LTO
 	if use lto ; then
 		if use clang ; then
-			myeconfargs+=( --enable-linker=lld )
+			if tc-ld-is-mold ; then
+				myeconfargs+=( --enable-linker=mold )
+			else
+				myeconfargs+=( --enable-linker=lld )
+			fi
 			myeconfargs+=( --enable-lto=cross )
+
 		else
 			myeconfargs+=( --enable-linker=bfd )
 			myeconfargs+=( --enable-lto=full )
@@ -366,12 +421,6 @@ src_test() {
 	fi
 
 	cp "${FILESDIR}"/spidermonkey-${SLOT}-known-test-failures.txt "${T}"/known_failures.list || die
-
-	if [[ $(tc-endian) == "big" ]] ; then
-		echo "non262/extensions/clone-errors.js" >> "${T}"/known_failures.list
-		echo "test262/built-ins/Date/UTC/fp-evaluation-order.js" >> "${T}"/known_failures.list
-		echo "test262/built-ins/TypedArray/prototype/set/typedarray-arg-set-values-same-buffer-other-type.js" >> "${T}"/known_failures.list
-	fi
 
 	${EPYTHON} \
 		"${S}"/tests/jstests.py -d -s -t 1800 --wpt=disabled --no-progress \
