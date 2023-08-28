@@ -30,6 +30,7 @@ RDEPEND="
 	dev-python/requests[${PYTHON_USEDEP}]
 	sci-libs/tokenizers[${PYTHON_USEDEP}]
 	dev-python/tqdm[${PYTHON_USEDEP}]
+	sci-libs/safetensors[${PYTHON_USEDEP}]
 "
 
 distutils_enable_tests pytest
