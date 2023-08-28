@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{9..12} )
 
 inherit bash-completion-r1 check-reqs estack flag-o-matic llvm multiprocessing \
 	multilib multilib-build python-any-r1 rust-toolchain toolchain-funcs git-r3
@@ -22,7 +22,7 @@ LLVM_TARGET_USEDEPS=${ALL_LLVM_TARGETS[@]/%/(-)?}
 
 LICENSE="|| ( MIT Apache-2.0 ) BSD-1 BSD-2 BSD-4 UoI-NCSA"
 
-IUSE="+clippy cpu_flags_x86_sse2 debug dist doc llvm-libunwind miri +nightly parallel-compiler profiler rls rustfmt rust-src +rust-analyzer +system-llvm test wasm ${ALL_LLVM_TARGETS[*]}"
+IUSE="+clippy cpu_flags_x86_sse2 debug dist doc llvm-libunwind miri parallel-compiler profiler rls rustfmt rust-src +rust-analyzer +system-llvm test wasm ${ALL_LLVM_TARGETS[*]}"
 
 # List all the working slots in LLVM_VALID_SLOTS, newest first.
 LLVM_VALID_SLOTS=( 16 )
@@ -313,7 +313,7 @@ src_unpack() {
 		incremental = false
 		default-linker = "$(tc-getCC)"
 		parallel-compiler = $(toml_usex parallel-compiler)
-		channel = "$(usex nightly nightly stable)"
+		channel = "nightly"
 		description = "gentoo"
 		rpath = false
 		verbose-tests = false
