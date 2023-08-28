@@ -83,8 +83,6 @@ RDEPEND="${DEPEND}
 "
 
 REQUIRED_USE="|| ( ${ALL_LLVM_TARGETS[*]} )
-	miri? ( nightly )
-	parallel-compiler? ( nightly )
 	rust-analyzer? ( rust-src )
 	rls? ( rust-src )
 	test? ( ${ALL_LLVM_TARGETS[*]} )
