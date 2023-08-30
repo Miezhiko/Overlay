@@ -42,8 +42,8 @@
 
 case ${EAPI} in
 	# eutils is for eqawarn
-	6|7) inherit eutils ;;
-	8) ;;
+	6) inherit eutils ;;
+	7|8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
