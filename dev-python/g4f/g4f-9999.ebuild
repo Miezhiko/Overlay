@@ -35,7 +35,8 @@ RDEPEND="
 	dev-python/tls-client
 	dev-python/browser-cookie3
 	dev-python/websockets
-	dev-python/quickjs"
+	dev-python/quickjs
+	dev-python/httpx"
 DEPEND="${RDEPEND}"
 
 KEYWORDS="~amd64 ~x86"
