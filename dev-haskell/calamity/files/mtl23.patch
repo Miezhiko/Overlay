@@ -1,0 +1,24 @@
+From 7aaead888b356d6f8be73bac564491d12557d7ec Mon Sep 17 00:00:00 2001
+From: Miezhiko <Miezhiko@gmail.com>
+Date: Wed, 13 Sep 2023 16:26:51 +0400
+Subject: [PATCH] on mtl 2.3+ Control.Monad.State.Lazy is not exporting (when)
+
+Signed-off-by: Miezhiko <Miezhiko@gmail.com>
+---
+ Calamity/Internal/BoundedStore.hs | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/Calamity/Internal/BoundedStore.hs b/calamity/Calamity/Internal/BoundedStore.hs
+index 524301e..3119e3d 100644
+--- a/Calamity/Internal/BoundedStore.hs
++++ b/Calamity/Internal/BoundedStore.hs
+@@ -12,7 +12,8 @@ module Calamity.Internal.BoundedStore (
+ 
+ import Calamity.Internal.Utils (unlessM, whenM)
+ import Calamity.Types.Snowflake (HasID (getID), HasID', Snowflake)
+-import Control.Monad.State.Lazy (execState, when)
++import Control.Monad.State.Lazy (execState)
++import Control.Monad (when)
+ import Data.Default.Class (Default (..))
+ import Data.HashMap.Strict (HashMap)
+ import Data.HashMap.Strict qualified as H
