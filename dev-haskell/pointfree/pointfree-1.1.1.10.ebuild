@@ -15,6 +15,11 @@ LICENSE="MIT"
 SLOT="0/${PV}"
 KEYWORDS="~amd64 ~x86"
 
+CABAL_CHDEPS=(
+	'base >= 4.5 && < 4.17' 'base >= 4.5 && < 5'
+	'transformers < 0.6' 'transformers < 0.7'
+)
+
 RDEPEND=">=dev-haskell/haskell-src-exts-1.20:=[profile?] <dev-haskell/haskell-src-exts-1.24:=[profile?]
 	>=dev-lang/ghc-8.8.1:=
 "
@@ -24,9 +29,3 @@ DEPEND="${RDEPEND}
 		>=dev-haskell/quickcheck-2.11 <dev-haskell/quickcheck-2.15 )
 "
 
-src_prepare() {
-	default
-
-	cabal_chdeps \
-		'base >= 4.5 && < 4.17' 'base >= 4.5 && < 5'
-}
