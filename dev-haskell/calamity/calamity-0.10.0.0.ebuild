@@ -68,7 +68,7 @@ PATCHES=(
 
 src_install() {
 	# no idea, dirty hack...
-	sed -i 's/-fplugin=Polysemy.Plugin//g' "${S}/calamity-commands.cabal" || die
+	sed -i 's/-fplugin=Polysemy.Plugin//g' "${S}/calamity.cabal" || die
 	haskell-cabal_src_install || die
 }
 
