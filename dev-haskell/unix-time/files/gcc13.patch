@@ -1,0 +1,23 @@
+From 5f16566e1d29aa213fec58905edb4ad6670218c3 Mon Sep 17 00:00:00 2001
+From: Miezhiko <Miezhiko@gmail.com>
+Date: Wed, 13 Sep 2023 11:08:34 +0400
+Subject: [PATCH] cbits/conv.c: _BSD_SOURCE is deprecated use _DEFAULT_SOURCE
+
+Signed-off-by: Miezhiko <Miezhiko@gmail.com>
+---
+ cbits/conv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cbits/conv.c b/cbits/conv.c
+index b624f97..6e73321 100644
+--- a/cbits/conv.c
++++ b/cbits/conv.c
+@@ -4,7 +4,7 @@
+ /* Linux cheats AC_CHECK_FUNCS(strptime_l), sigh. */
+ #define THREAD_SAFE 0
+ #define _XOPEN_SOURCE
+-#define _BSD_SOURCE
++#define _DEFAULT_SOURCE
+ #elif HAVE_STRPTIME_L
+ #define THREAD_SAFE 1
+ #define _GNU_SOURCE
