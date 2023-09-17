@@ -10,6 +10,7 @@ inherit distutils-r1 git-r3
 
 EGIT_REPO_URI="https://github.com/xtekky/gpt4free.git"
 EGIT_BRANCH="main"
+EGIT_COMMIT="ac581361da1804e24d73c725cbf10e26716cb3f2"
 SRC_URI=""
 KEYWORDS=""
 
