@@ -5,7 +5,7 @@ EAPI=8
 
 PYTHON_COMPAT=( python3_{8..11} )
 
-DISTUTILS_USE_SETUPTOOLS=rdepend
+DISTUTILS_USE_PEP517=setuptools
 
 inherit distutils-r1 desktop xdg
 
@@ -29,6 +29,7 @@ RDEPEND="
 	dev-python/jaraco-classes[${PYTHON_USEDEP}]
 	appindicator? ( dev-libs/libappindicator:3 )
 	>=net-vpn/protonvpn-nm-lib-3.14.0[${PYTHON_USEDEP}]
+	!net-vpn/protonvpn-cli
 "
 
 DEPEND="${RDEPEND}"

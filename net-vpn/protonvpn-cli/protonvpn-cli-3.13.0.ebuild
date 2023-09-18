@@ -5,7 +5,7 @@ EAPI=8
 
 PYTHON_COMPAT=( python3_{8..11} )
 
-DISTUTILS_USE_SETUPTOOLS=rdepend
+DISTUTILS_USE_PEP517=setuptools
 
 inherit distutils-r1
 
@@ -16,11 +16,11 @@ SRC_URI="https://github.com/ProtonVPN/linux-cli/archive/refs/tags/${PV}.tar.gz -
 LICENSE="GPL-3"
 KEYWORDS="~amd64"
 SLOT="0"
-IUSE="gui systemd"
+IUSE="systemd"
 RESTRICT="test primaryuri" # only has dummy tests anyway
 
 RDEPEND="
-	gui? ( >=net-vpn/protonvpn-gui-1.11.0[${PYTHON_USEDEP}] )
+	!net-vpn/protonvpn-gui
 	dev-python/pythondialog[${PYTHON_USEDEP}]
 	dev-python/dbus-python[${PYTHON_USEDEP}]
 	>=net-vpn/protonvpn-nm-lib-3.13.0[${PYTHON_USEDEP}]
