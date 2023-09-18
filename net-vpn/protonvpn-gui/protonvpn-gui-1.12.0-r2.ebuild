@@ -17,7 +17,7 @@ LICENSE="GPL-3"
 KEYWORDS="~amd64"
 SLOT="0"
 IUSE="appindicator"
-RESTRICT="primaryuri"
+RESTRICT="primaryuri test"
 
 RDEPEND="
 	x11-libs/gtk+:3
