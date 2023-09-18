@@ -3,11 +3,11 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{8..10} )
+PYTHON_COMPAT=( python3_{8..11} )
 
 DISTUTILS_USE_SETUPTOOLS=rdepend
 
-inherit distutils-r1 desktop
+inherit distutils-r1 desktop xdg
 
 DESCRIPTION="Official ProtonVPN Linux app"
 HOMEPAGE="https://protonvpn.com https://github.com/ProtonVPN/linux-app"
@@ -41,4 +41,14 @@ src_install() {
 	domenu protonvpn.desktop
 	doicon -s scalable protonvpn_gui/assets/icons/protonvpn-logo.png
 	distutils-r1_src_install
+}
+
+pkg_postrm() {
+	xdg_desktop_database_update
+	xdg_icon_cache_update
+}
+
+pkg_postinst() {
+	xdg_desktop_database_update
+	vxdg_icon_cache_update
 }
