@@ -16,11 +16,6 @@ LICENSE="GPL-2"
 SLOT="0/${PV}"
 KEYWORDS="~amd64"
 
-CABAL_CHDEPS=(
-	'optparse-applicative >=0.13 && <0.18' 'optparse-applicative >=0.13 && <0.19'
-	'mtl >=1.1 && <2.3' 'mtl >=1.1 && <2.4'
-)
-
 RDEPEND=">=app-text/pandoc-3.0:=[profile?] <app-text/pandoc-3.2:=[profile?]
 	>=dev-haskell/data-default-0.4:=[profile?] <dev-haskell/data-default-0.8:=[profile?]
 	>=dev-haskell/gitrev-1.3.1:=[profile?] <dev-haskell/gitrev-1.4:=[profile?]
@@ -41,6 +36,10 @@ DEPEND="${RDEPEND}
 	>=dev-haskell/cabal-3.0.0.0
 	test? ( >=dev-haskell/hspec-2.4.4 <dev-haskell/hspec-3 )
 "
+
+PATCHES=(
+	"${FILESDIR}/404.patch"
+)
 
 src_configure() {
 	haskell-cabal_src_configure \
