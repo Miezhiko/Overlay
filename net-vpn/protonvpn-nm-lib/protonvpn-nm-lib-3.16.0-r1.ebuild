@@ -37,3 +37,8 @@ DEPEND="${RDEPEND}"
 S="${WORKDIR}/${P}"
 
 DOCS=( README.md )
+
+src_prepare() {
+	rm -r "${S}/tests" || die
+	distutils-r1_src_prepare
+}
