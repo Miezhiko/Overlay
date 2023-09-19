@@ -99,7 +99,7 @@ DEPEND="${CDEPEND}
 
 RDEPEND="${CDEPEND}
 	wayland? (
-		>=dev-qt/qtbase-${QT_PV}[egl]
+		>=dev-qt/qtbase-${QT_PV}
 		>=dev-qt/qtwayland-${QT_PV}
 	)
 	qml? ( >=dev-qt/qtquicktimeline-${QT_PV} )
