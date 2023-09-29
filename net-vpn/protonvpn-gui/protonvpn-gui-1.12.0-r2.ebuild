@@ -44,12 +44,3 @@ src_install() {
 	distutils-r1_src_install
 }
 
-pkg_postrm() {
-	xdg_desktop_database_update
-	xdg_icon_cache_update
-}
-
-pkg_postinst() {
-	xdg_desktop_database_update
-	vxdg_icon_cache_update
-}
