@@ -69,12 +69,3 @@ src_install() {
 	make_wrapper_my myoffice-spreadsheet "QT_PLUGIN_PATH=/opt/myoffice-standard-home-edition/lib/ /opt/myoffice-standard-home-edition/MyOffice\ Spreadsheet\ Home\ Edition.sh"
 }
 
-pkg_postrm() {
-	xdg_desktop_database_update
-	xdg_icon_cache_update
-}
-
-pkg_postinst() {
-	xdg_desktop_database_update
-	vxdg_icon_cache_update
-}
