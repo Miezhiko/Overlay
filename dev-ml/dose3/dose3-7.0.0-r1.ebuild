@@ -28,6 +28,7 @@ RDEPEND="
 	>=dev-ml/re-1.2.2:=[ocamlopt=]
 	dev-ml/parmap:=[ocamlopt=]
 	>=dev-ml/camlzip-1.08:=[ocamlopt=]
+	dev-ml/camlbz2
 	dev-ml/ocaml-expat:=[ocamlopt=]
 	dev-ml/xml-light:=[ocamlopt=]
 	app-arch/rpm
