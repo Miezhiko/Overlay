@@ -28,7 +28,6 @@ RDEPEND="
 	>=dev-ml/re-1.2.2:=[ocamlopt=]
 	dev-ml/parmap:=[ocamlopt=]
 	>=dev-ml/camlzip-1.08:=[ocamlopt=]
-	>=dev-ml/camlbz2-0.7.0:=
 	dev-ml/ocaml-expat:=[ocamlopt=]
 	dev-ml/xml-light:=[ocamlopt=]
 	app-arch/rpm
@@ -42,6 +41,8 @@ QA_FLAGS_IGNORED='.*'
 
 src_prepare() {
 	default
+	
+	eapply "${FILESDIR}/nobz.patch"
 
 	sed -i \
 	    -e 's|dose3.common extlib zip bz2|dose3.common extlib zip camlbz2|g' \

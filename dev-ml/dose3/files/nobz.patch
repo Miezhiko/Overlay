@@ -1,0 +1,194 @@
+From c9290a209cc5278ffa39b7216eb206eb81a68546 Mon Sep 17 00:00:00 2001
+From: Johannes Schauer Marin Rodrigues <josch@mister-muffin.de>
+Date: Mon, 8 Feb 2021 09:19:00 +0100
+Subject: [PATCH 1/3] avoid dependency on zip and bz2 ocaml modules
+
+---
+ src/extra/input.ml | 31 +++++++------------------------
+ 1 file changed, 7 insertions(+), 24 deletions(-)
+
+diff --git a/src/extra/input.ml b/src/extra/input.ml
+index a2e5e27a..eae0735d 100644
+--- a/src/extra/input.ml
++++ b/src/extra/input.ml
+@@ -18,17 +18,12 @@ include Util.Logging (struct
+ end)
+ 
+ let gzip_open_file file =
+-  let ch = Gzip.open_in file in
+-  let input_char ch =
+-    try Gzip.input_char ch with End_of_file -> raise IO.No_more_input
+-  in
+-  let read ch =
+-    try Gzip.input ch with End_of_file -> raise IO.No_more_input
+-  in
++  let ch = Unix.open_process_in ("zcat " ^ file) in
++  let read ch = try input ch with End_of_file -> raise IO.No_more_input in
+   IO.create_in
+     ~read:(fun () -> input_char ch)
+     ~input:(read ch)
+-    ~close:(fun () -> Gzip.close_in ch)
++    ~close:(fun () -> close_in ch)
+ 
+ let xz_open_file file =
+   let ch = Unix.open_process_in ("xzcat " ^ file) in
+@@ -39,24 +34,12 @@ let xz_open_file file =
+     ~close:(fun () -> close_in ch)
+ 
+ let bzip_open_file file =
+-  (* workaround to avoid segfault :
+-   * http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=602170 *)
+-  let _ = Bz2.version in
+-  let s = Bytes.create 1 in
+-  let ch = Bz2.open_in (open_in file) in
+-  let input_char ch =
+-    try
+-      ignore (Bz2.read ch s 0 1) ;
+-      Bytes.get s 0
+-    with End_of_file -> raise IO.No_more_input
+-  in
+-  let read ch s pos len =
+-    try Bz2.read ch s pos len with End_of_file -> raise IO.No_more_input
+-  in
++  let ch = Unix.open_process_in ("bzcat " ^ file) in
++  let read ch = try input ch with End_of_file -> raise IO.No_more_input in
+   IO.create_in
+     ~read:(fun () -> input_char ch)
+-    ~input:(fun x -> read ch x)
+-    ~close:(fun () -> Bz2.close_in ch)
++    ~input:(read ch)
++    ~close:(fun () -> close_in ch)
+ 
+ let std_open_file file = IO.input_channel (open_in file)
+ 
+-- 
+GitLab
+
+
+From a5155e9d3ccf8b6c885d5232e2123a82cb97292c Mon Sep 17 00:00:00 2001
+From: Johannes Schauer Marin Rodrigues <josch@mister-muffin.de>
+Date: Mon, 8 Feb 2021 09:20:44 +0100
+Subject: [PATCH 2/3] src/common/input.ml: quote the arguments to
+ open_process_in
+
+We cannot use open_process_args_in because that would require ocaml
+4.08
+---
+ src/extra/input.ml | 42 +++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 39 insertions(+), 3 deletions(-)
+
+diff --git a/src/extra/input.ml b/src/extra/input.ml
+index eae0735d..6316ee95 100644
+--- a/src/extra/input.ml
++++ b/src/extra/input.ml
+@@ -17,8 +17,44 @@ include Util.Logging (struct
+   let label = "dose_common.input"
+ end)
+ 
++(*
++exception Executable_not_found of string
++
++(* once we can use ocaml 4.08 we can replace Unix.open_process_in with
++ * Unix.open_process_args_in like this:
++ * let ch = Unix.open_process_args_in (which "zcat") [| "zcat"; file |] in
++ * this avoids spawning /bin/sh and avoids having to quote the arguments
++ * *)
++let which name =
++  if String.exists name Filename.dir_sep then
++    try
++      Unix.access name [Unix.X_OK] ;
++      name
++    with Unix.Unix_error _ -> raise (Executable_not_found name)
++  else
++    let paths =
++      try String.nsplit (Sys.getenv "PATH") ":" with Not_found -> []
++    in
++    let paths =
++      match paths with
++      | [] -> ["/usr/sbin"; "/usr/bin"; "/sbin"; "/bin"]
++      | x -> x
++    in
++    let paths =
++      List.filter_map
++        (fun p ->
++          let path = Filename.concat p name in
++          try
++            Unix.access path [Unix.X_OK] ;
++            Some path
++          with Unix.Unix_error _ -> None)
++        paths
++    in
++    match paths with [] -> raise (Executable_not_found name) | x :: _ -> x
++ *)
++
+ let gzip_open_file file =
+-  let ch = Unix.open_process_in ("zcat " ^ file) in
++  let ch = Unix.open_process_in (Filename.quote_command "zcat" [file]) in
+   let read ch = try input ch with End_of_file -> raise IO.No_more_input in
+   IO.create_in
+     ~read:(fun () -> input_char ch)
+@@ -26,7 +62,7 @@ let gzip_open_file file =
+     ~close:(fun () -> close_in ch)
+ 
+ let xz_open_file file =
+-  let ch = Unix.open_process_in ("xzcat " ^ file) in
++  let ch = Unix.open_process_in (Filename.quote_command "xzcat" [file]) in
+   let read ch = try input ch with End_of_file -> raise IO.No_more_input in
+   IO.create_in
+     ~read:(fun () -> input_char ch)
+@@ -34,7 +70,7 @@ let xz_open_file file =
+     ~close:(fun () -> close_in ch)
+ 
+ let bzip_open_file file =
+-  let ch = Unix.open_process_in ("bzcat " ^ file) in
++  let ch = Unix.open_process_in (Filename.quote_command "bzcat" [file]) in
+   let read ch = try input ch with End_of_file -> raise IO.No_more_input in
+   IO.create_in
+     ~read:(fun () -> input_char ch)
+-- 
+GitLab
+
+
+From 94616d874fb61af0dc000c187d998a141942a205 Mon Sep 17 00:00:00 2001
+From: josch <j.schauer@email.de>
+Date: Tue, 9 Feb 2021 10:19:01 +0000
+Subject: [PATCH 3/3] Apply 3 suggestion(s) to 1 file(s)
+
+---
+ src/extra/input.ml | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/extra/input.ml b/src/extra/input.ml
+index 6316ee95..22d0ead3 100644
+--- a/src/extra/input.ml
++++ b/src/extra/input.ml
+@@ -54,7 +54,7 @@ let which name =
+  *)
+ 
+ let gzip_open_file file =
+-  let ch = Unix.open_process_in (Filename.quote_command "zcat" [file]) in
++  let ch = Unix.open_process_in ("zcat " ^ Filename.quote file) in
+   let read ch = try input ch with End_of_file -> raise IO.No_more_input in
+   IO.create_in
+     ~read:(fun () -> input_char ch)
+@@ -62,7 +62,7 @@ let gzip_open_file file =
+     ~close:(fun () -> close_in ch)
+ 
+ let xz_open_file file =
+-  let ch = Unix.open_process_in (Filename.quote_command "xzcat" [file]) in
++  let ch = Unix.open_process_in ("xzcat " ^ Filename.quote file) in
+   let read ch = try input ch with End_of_file -> raise IO.No_more_input in
+   IO.create_in
+     ~read:(fun () -> input_char ch)
+@@ -70,7 +70,7 @@ let xz_open_file file =
+     ~close:(fun () -> close_in ch)
+ 
+ let bzip_open_file file =
+-  let ch = Unix.open_process_in (Filename.quote_command "bzcat" [file]) in
++  let ch = Unix.open_process_in ("bzcat " ^ Filename.quote file) in
+   let read ch = try input ch with End_of_file -> raise IO.No_more_input in
+   IO.create_in
+     ~read:(fun () -> input_char ch)
+-- 
+GitLab
+
