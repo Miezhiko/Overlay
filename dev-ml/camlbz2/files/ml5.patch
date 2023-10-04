@@ -1,0 +1,347 @@
+From 0b7afdffe58c61f3b4da1d8377a473eff35b5057 Mon Sep 17 00:00:00 2001
+From: Kate <kit.ty.kate@disroot.org>
+Date: Thu, 14 Jul 2022 12:12:59 +0100
+Subject: [PATCH 1/3] Replace deprecated names with current ones
+
+Co-authored-by: 2BitSalute <2BitSalute@gmail.com>
+---
+ src/bz2_stubs.c | 58 ++++++++++++++++++++++++-------------------------
+ 1 file changed, 29 insertions(+), 29 deletions(-)
+
+diff --git a/src/bz2_stubs.c b/src/bz2_stubs.c
+index 546f7bc..b0995f4 100644
+--- a/src/bz2_stubs.c
++++ b/src/bz2_stubs.c
+@@ -46,19 +46,19 @@ static void mlbz_error(int bzerror, char *msg, value chan, int read_str)
+       mlbz_writeclose(chan) ;
+     switch(bzerror){
+     case BZ_PARAM_ERROR :
+-      invalid_argument(msg) ; break ;
++      caml_invalid_argument(msg) ; break ;
+     case BZ_MEM_ERROR : 
+-      raise_out_of_memory() ; break ;
++      caml_raise_out_of_memory() ; break ;
+     case BZ_DATA_ERROR :
+     case BZ_DATA_ERROR_MAGIC :
+-      raise_constant(*caml_named_value("mlbz_data_exn")) ; break ;
++      caml_raise_constant(*caml_named_value("mlbz_data_exn")) ; break ;
+     case BZ_IO_ERROR :
+-      raise_with_string(*caml_named_value("mlbz_io_exn"), 
++      caml_raise_with_string(*caml_named_value("mlbz_io_exn"),
+ 			strerror(errno)) ; break ;
+     case BZ_UNEXPECTED_EOF :
+-      raise_constant(*caml_named_value("mlbz_eof_exn")) ; break ;
++      caml_raise_constant(*caml_named_value("mlbz_eof_exn")) ; break ;
+     default :
+-      failwith(msg) ;
++      caml_failwith(msg) ;
+     }
+   }
+ }
+@@ -71,7 +71,7 @@ static void mlbz_error(int bzerror, char *msg, value chan, int read_str)
+ static value Val_twoptr(FILE * ptr1, BZFILE * ptr2)
+ {
+   value result;
+-  result= alloc_small(3, Abstract_tag);
++  result= caml_alloc_small(3, Abstract_tag);
+   Field(result, 0) = (value) ptr1 ; 
+   Field(result, 1) = (value) ptr2 ; 
+   Field(result, 2) = Val_false ;     /* flag for the eof state */
+@@ -102,7 +102,7 @@ static FILE * stream_of_channel(value chan, const char * mode)
+ 
+ value mlbz_version(value unit)
+ {
+-  return copy_string(BZ_P(bzlibVersion())) ;
++  return caml_copy_string(BZ_P(bzlibVersion())) ;
+ }
+ 
+ /* INPUT FUNCTIONS */
+@@ -119,7 +119,7 @@ value mlbz_readopen(value small, value unused, value chan)
+     c_small = Bool_val(Field(small, 0)) ;
+   if(Is_block(unused)){
+     c_unused  = Bytes_val(Field(unused, 0)) ;
+-    c_nunused = string_length(Field(unused, 0));
++    c_nunused = caml_string_length(Field(unused, 0));
+   }
+   c_chan = stream_of_channel(chan, "rb") ;
+   bz_chan = BZ_P(bzReadOpen)(&bzerror, c_chan, c_small, 0, c_unused, c_nunused) ;
+@@ -136,10 +136,10 @@ value mlbz_read(value chan, value buf, value pos, value len)
+   int c_len = Int_val(len);
+   
+   if(Bz_eof(chan))
+-    raise_end_of_file() ;    
+-  if((c_len + c_pos > string_length(buf))
++    caml_raise_end_of_file() ;
++  if((c_len + c_pos > caml_string_length(buf))
+      || (c_len < 0) || (c_pos < 0))
+-    invalid_argument("Bz.read") ;
++    caml_invalid_argument("Bz.read") ;
+   c_buf = Bytes_val(buf) + c_pos ;
+   res = BZ_P(bzRead)(&bzerror, Bzfile_val(chan), c_buf, c_len) ;
+   if(bzerror == BZ_STREAM_END)
+@@ -170,7 +170,7 @@ value mlbz_readgetunused(value chan)
+   int nunused ;
+   BZ_P(bzReadGetUnused)(&bzerror, Bzfile_val(chan), &unused, &nunused) ;
+   mlbz_error(bzerror, "Bz.read_get_unused: not at end of stream", chan, 1) ;
+-  result = alloc_string(nunused) ;
++  result = caml_alloc_string(nunused) ;
+   memcpy(Bytes_val(result), unused, nunused) ;
+   return result;
+ }
+@@ -198,9 +198,9 @@ value mlbz_write(value chan, value buf, value pos, value len)
+   unsigned char *c_buf ;
+   int c_pos = Int_val(pos) ;
+   int c_len = Int_val(len) ;
+-  if((c_len + c_pos > string_length(buf))
++  if((c_len + c_pos > caml_string_length(buf))
+      || (c_len < 0) || (c_pos < 0))
+-    invalid_argument("Bz.write") ;
++    caml_invalid_argument("Bz.write") ;
+   c_buf = Bytes_val(buf) + c_pos ;
+   BZ_P(bzWrite)(&bzerror, Bzfile_val(chan), c_buf, c_len) ;
+   mlbz_error(bzerror, "Bz.write", chan, 0) ;
+@@ -237,13 +237,13 @@ value mlbz_compress(value block, value src, value pos, value len)
+     c_block = Int_val(Field(block, 0)) ;
+   if(c_block < 1 || c_block > 9
+      || c_pos < 0 || c_len < 0
+-     || c_pos + c_len > string_length(src))
+-    invalid_argument("Bz.compress") ;
++     || c_pos + c_len > caml_string_length(src))
++    caml_invalid_argument("Bz.compress") ;
+   src_buf = (char *)(Bytes_val(src) + c_pos);
+   dst_buf_len = c_len * 1.01 + 600 ;
+   dst_buf = malloc(dst_buf_len) ;
+   if(dst_buf == NULL)
+-    raise_out_of_memory();
++    caml_raise_out_of_memory();
+   while(1) {
+     dst_len = dst_buf_len;
+     r = BZ_P(bzBuffToBuffCompress)(dst_buf, &dst_len, src_buf, c_len, c_block, 0, 0) ;
+@@ -255,15 +255,15 @@ value mlbz_compress(value block, value src, value pos, value len)
+       new_buf = realloc(dst_buf, dst_buf_len);
+       if(new_buf == NULL) {
+ 	free(dst_buf);
+-	raise_out_of_memory();
++	caml_raise_out_of_memory();
+       }
+       dst_buf = new_buf;
+     } else {
+       free(dst_buf);
+-      raise_out_of_memory();
++      caml_raise_out_of_memory();
+     }
+   }
+-  result = alloc_string(dst_len);
++  result = caml_alloc_string(dst_len);
+   memcpy(Bytes_val(result), dst_buf, dst_len);
+   free(dst_buf);
+   return result ;
+@@ -282,13 +282,13 @@ value mlbz_uncompress(value small, value src, value pos, value len)
+   if(Is_block(small))
+     c_small = Bool_val(Field(small, 0)) ;
+   if(c_pos < 0 || c_len < 0
+-     || c_pos + c_len > string_length(src))
+-    invalid_argument("Bz.uncompress") ;
++     || c_pos + c_len > caml_string_length(src))
++    caml_invalid_argument("Bz.uncompress") ;
+   src_buf = (char *)(Bytes_val(src) + c_pos);
+   dst_buf_len = c_len * 2 ;
+   dst_buf = malloc(dst_buf_len) ;
+   if(dst_buf == NULL)
+-    raise_out_of_memory();
++    caml_raise_out_of_memory();
+   while(1) {
+     dst_len = dst_buf_len;
+     r = BZ_P(bzBuffToBuffDecompress)(dst_buf, &dst_len, src_buf, c_len, c_small, 0) ;
+@@ -302,21 +302,21 @@ value mlbz_uncompress(value small, value src, value pos, value len)
+ 	new_buf = realloc(dst_buf, dst_buf_len);
+ 	if(new_buf == NULL) {
+ 	  free(dst_buf);
+-	  raise_out_of_memory();
++	  caml_raise_out_of_memory();
+ 	}
+ 	dst_buf = new_buf;
+       } break ;
+       case BZ_MEM_ERROR :
+ 	free(dst_buf) ;
+-	raise_out_of_memory() ;
++	caml_raise_out_of_memory() ;
+       case BZ_DATA_ERROR :
+       case BZ_DATA_ERROR_MAGIC :
+-	raise_constant(*caml_named_value("mlbz_data_exn")) ; 
++	caml_raise_constant(*caml_named_value("mlbz_data_exn")) ;
+       case BZ_UNEXPECTED_EOF :
+-	raise_constant(*caml_named_value("mlbz_eof_exn")) ;
++	caml_raise_constant(*caml_named_value("mlbz_eof_exn")) ;
+       }
+   }
+-  result = alloc_string(dst_len);
++  result = caml_alloc_string(dst_len);
+   memcpy(Bytes_val(result), dst_buf, dst_len);
+   free(dst_buf);
+   return result ;
+-- 
+GitLab
+
+
+From fa627d33fddc4faa1646952650d757cabf21e4bf Mon Sep 17 00:00:00 2001
+From: Kate <kit.ty.kate@disroot.org>
+Date: Thu, 14 Jul 2022 12:19:27 +0100
+Subject: [PATCH 2/3] Fix dune installation
+
+---
+ camlbz2.opam => bz2.opam | 1 +
+ dune-project             | 6 +++---
+ src/dune                 | 4 +++-
+ 3 files changed, 7 insertions(+), 4 deletions(-)
+ rename camlbz2.opam => bz2.opam (98%)
+
+diff --git a/camlbz2.opam b/bz2.opam
+similarity index 98%
+rename from camlbz2.opam
+rename to bz2.opam
+index b3cd609..ef50dc7 100644
+--- a/camlbz2.opam
++++ b/bz2.opam
+@@ -14,6 +14,7 @@ doc: "https://irill.gitlab.io/camlbz2"
+ bug-reports: "https://gitlab.com/irill/camlbz2/issues/"
+ depends: [
+   "dune" {>= "2.8"}
++  "conf-libbz2"
+   "stdlib-shims"
+   "odoc" {with-doc}
+ ]
+diff --git a/dune-project b/dune-project
+index 696a2f7..800887f 100644
+--- a/dune-project
++++ b/dune-project
+@@ -12,8 +12,8 @@
+ (documentation "https://irill.gitlab.io/camlbz2")
+ 
+ (package
+  (name camlbz2)
+  (synopsis "CamlBZ2 OCaml bindings for the libbz2")
+  (description "This is CamlBZ2, OCaml bindings for the libbz2 (AKA, bzip2)(de)compression library.")
+- (depends "stdlib-shims")
++ (depends "conf-libbz2" "stdlib-shims")
+ )
+diff --git a/src/dune b/src/dune
+index 05dd149..a1d3f3d 100644
+--- a/src/dune
++++ b/src/dune
+@@ -1,8 +1,10 @@
+ (library
+- (name bz2)
++ (public_name camlbz2)
+  (synopsis
+   "This is CamlBZ2, OCaml bindings for the libbz2 (AKA, bzip2) (de)compression library.")
+  (libraries stdlib-shims)
++ (c_library_flags -lbz2)
+  (foreign_stubs
+   (language c)
++  (flags :standard -D BZ_PREFIX)
+   (names bz2_stubs)))
+-- 
+GitLab
+
+
+From 9c4e7fef63a3fdb49fbcffc84058ecc30e9b23f3 Mon Sep 17 00:00:00 2001
+From: Kate <kit.ty.kate@disroot.org>
+Date: Sat, 23 Jul 2022 18:16:03 +0100
+Subject: [PATCH 3/3] Fix CI
+
+---
+ .gitlab-ci.yml | 47 ++++++++++++++++++++++++-----------------------
+ 1 file changed, 24 insertions(+), 23 deletions(-)
+
+diff --git a/.gitlab-ci.yml b/.gitlab-ci.yml
+index 87a4ae1..8dca980 100644
+--- a/.gitlab-ci.yml
++++ b/.gitlab-ci.yml
+@@ -6,7 +6,7 @@ stages:
+   - build
+ 
+ .build_template: &build_definition
+-  image: ocaml/opam2
++  image: ocaml/opam
+   stage: build
+   cache:
+     key: "$CI_COMMIT_REF_SLUG"
+@@ -21,36 +21,34 @@ stages:
+   tags:
+     - gitlab-org
+   script:
++    - sudo ln -f /usr/bin/opam-2.2 /usr/bin/opam
+     - sudo apt-get update
+-    - sudo apt-get install libbz2-dev -y
+-    - opam init
+-    - opam remote set-url default git://github.com/ocaml/opam-repository.git
+-    - opam depext -iy dune.2.8.2
+-    - opam install . --dry-run --deps-only --locked --with-test --with-doc --yes | awk '/-> installed/{print $3}' | xargs opam depext -iy
+-    - dune build .
++    - opam remote set-url default https://github.com/ocaml/opam-repository.git
++    - opam install . --deps-only --with-test --with-doc
++    - dune build
+     - opam clean
+ 
+ build:
+   <<: *build_definition
+-  image: ocaml/opam2
++  image: ocaml/opam
+ 
+ build403:
+   <<: *build_definition
+-  image: ocaml/opam2:4.03
++  image: ocaml/opam:debian-ocaml-4.03
+ 
+ # make the linting a separate job because:
+ #   - installing ocamlformat and dependencies from opam takes 5 minutes
+ #   - avoiding to taint the build environment with additional packages
+ lint:
+-  image: ocaml/opam2
++  image: ocaml/opam
+   stage: build
+   script:
++    - sudo ln -f /usr/bin/opam-2.2 /usr/bin/opam
+     - sudo apt-get update
+-    - opam init
+-    - opam remote set-url default git://github.com/ocaml/opam-repository.git
++    - opam remote set-url default https://github.com/ocaml/opam-repository.git
+       # rebuild .opam to check whether the file in git matches what is
+       # generated by dune
+-    - opam depext -iy dune.2.8.2 ocamlformat
++    - opam install dune ocamlformat
+     - dune build camlbz2.opam
+     - git diff --exit-code
+       # check whether source code complies with ocamlformat
+@@ -61,14 +59,17 @@ opam-debian:
+   image: ocaml/opam:debian
+   stage: build
+   script:
+-    - opam remote set-url default git://github.com/ocaml/opam-repository.git
+-    - opam pin add -yn .
+-    - opam depext -uiy --with-test camlbz2
++    - sudo ln -f /usr/bin/opam-2.2 /usr/bin/opam
++    - opam remote set-url default https://github.com/ocaml/opam-repository.git
++    - opam pin add -n .
++    - opam install --with-test camlbz2
+ 
+-opam-alpine:
+-  image: ocaml/opam:alpine
+-  stage: build
+-  script:
+-    - opam remote set-url default git://github.com/ocaml/opam-repository.git
+-    - opam pin add -yn .
+-    - opam depext -uiy --with-test camlbz2
++#opam-alpine:
++#  image: ocaml/opam:alpine
++#  stage: build
++#  script:
++#    - sudo apk add git
++#    - sudo ln -f /usr/bin/opam-2.2 /usr/bin/opam
++#    - opam remote set-url default https://github.com/ocaml/opam-repository.git
++#    - opam pin add -n .
++#    - opam install --with-test camlbz2
+-- 
+GitLab
+
