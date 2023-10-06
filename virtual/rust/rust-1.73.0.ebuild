@@ -11,7 +11,7 @@ LICENSE=""
 
 SLOT="0/llvm-17"
 
-KEYWORDS=""
+KEYWORDS="~amd64"
 IUSE="rustfmt"
 
 BDEPEND=""
