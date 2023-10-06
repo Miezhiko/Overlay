@@ -8,7 +8,6 @@ inherit dune
 DESCRIPTION="opam client libraries"
 HOMEPAGE="https://opam.ocaml.org/ https://github.com/ocaml/opam"
 SRC_URI="https://github.com/ocaml/opam/archive/${PV/_/-}.tar.gz -> opam-${PV}.tar.gz"
-SRC_URI+=" https://dev.gentoo.org/~sam/distfiles/dev-ml/opam/opam-2.1.0-dose3-6.patch.xz"
 S="${WORKDIR}/opam-${PV/_/-}"
 
 LICENSE="LGPL-2.1"
@@ -27,8 +26,6 @@ RDEPEND="
 "
 DEPEND="${RDEPEND}"
 BDEPEND="test? ( sys-apps/bubblewrap )"
-
-PATCHES=( "${WORKDIR}"/opam-2.1.0-dose3-6.patch )
 
 src_prepare() {
 	default
