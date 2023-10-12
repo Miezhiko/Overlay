@@ -20,6 +20,9 @@ RDEPEND="${DEPEND}"
 
 src_unpack() {
 	git-r3_src_unpack
+	cd "${WORKDIR}/${P}"
+	cargo update
+	cd "${WORKDIR}"
 	cargo_live_src_unpack
 }
 
