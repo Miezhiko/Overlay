@@ -15,7 +15,7 @@ SLOT="0"
 IUSE=""
 KEYWORDS="~amd64 ~x86"
 
-DEPEND=">=dev-lang/rust-1.62.0[rls]"
+DEPEND=">=dev-lang/rust-1.70.0"
 RDEPEND="${DEPEND}"
 
 src_unpack() {
