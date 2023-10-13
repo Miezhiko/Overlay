@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#!/bin/bash
-
 process_directory() {
   local dir="$1"
   for file in "$dir"/*; do
