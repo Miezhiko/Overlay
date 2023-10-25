@@ -14,7 +14,7 @@ LIVE_EBUILD=yes
 
 DESCRIPTION="Unofficial OpenAI servant types"
 HOMEPAGE="https://github.com/agrafix/openai-hs#readme"
-EGIT_REPO_URI="https://github.com/Masha/openai-hs.git"
+EGIT_REPO_URI="https://github.com/agrafix/openai-hs.git"
 
 LICENSE="BSD"
 SLOT="0/${PV}"

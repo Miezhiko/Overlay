@@ -13,7 +13,7 @@ LIVE_EBUILD=yes
 
 DESCRIPTION="Unofficial OpenAI client"
 HOMEPAGE="https://github.com/agrafix/openai-hs#readme"
-EGIT_REPO_URI="https://github.com/Masha/${PN}.git"
+EGIT_REPO_URI="https://github.com/agrafix/${PN}.git"
 
 LICENSE="BSD"
 SLOT="0/${PV}"
