@@ -3,36 +3,20 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{9..12} )
 
 inherit git-r3 python-any-r1 desktop xdg wrapper
 
 DESCRIPTION="Alchemy SL Viewer"
 HOMEPAGE="https://alchemyviewer.org"
-IUSE="fork fmod kde lto system"
-
-REQUIRED_USE="system? ( fork )"
+IUSE="fork fmod kde lto"
 
 SLOT="0"
 KEYWORDS="~amd64"
 LICENSE="GPL-2-with-Linden-Lab-FLOSS-exception"
 
 BDEPEND="${BDEPEND}
-	dev-util/cmake
-	system? (
-		dev-cpp/abseil-cpp
-		dev-libs/boost
-		media-libs/freealut
-		dev-libs/glh
-		dev-libs/uriparser
-		media-libs/openjpeg[static-libs]
-		net-libs/nghttp2[cxx,static-libs]
-		media-libs/libwebp
-		app-text/hunspell[static-libs]
-		dev-libs/libndofdev
-		dev-libs/collada-dom
-		x11-libs/pango
-	)"
+	dev-util/cmake"
 
 DEPEND="${DEPEND}
 	media-libs/libpng
@@ -63,10 +47,6 @@ FMOD_FILE="${FMOD_FILE_PATH}/fmodstudioapi${FMOD_VERSION_NO_DOTS}linux.tar.gz"
 FMOD_OUT_FILE="${FMOD_DIR}/fmodstudio-${FMOD_VERSION}-linux64-0.tar.bz2"
 
 src_unpack() {
-	if use system; then
-		ewarn "system USE flag is experimental and not ready! (Work in progress)"
-	fi
-
 	if use lto; then
 		ewarn "LTO only works fine with clang and will lead to problems with GCC!"
 	fi
@@ -130,7 +110,7 @@ src_unpack() {
 		-DREVISION_FROM_VCS=ON \
 		-DUSE_DISCORD=OFF \
 		-DUSE_LTO=$(usex lto ON OFF) \
-		-DUSESYSTEMLIBS=$(usex system ON OFF) \
+		-DUSESYSTEMLIBS=OFF \
 		-DUSE_FMODSTUDIO=$(usex fmod ON OFF) || die "configure failed"
 
 	if ! use fork; then
