@@ -162,7 +162,6 @@ RESTRICT="test"
 VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/rust.asc
 
 PATCHES=(
-	"${FILESDIR}"/1.72.0-bump-libc-deps-to-0.2.146.patch
 	"${FILESDIR}"/1.70.0-ignore-broken-and-non-applicable-tests.patch
 	"${FILESDIR}"/1.62.1-musl-dynamic-linking.patch
 	"${FILESDIR}"/1.67.0-doc-wasm.patch
@@ -288,7 +287,7 @@ esetup_unwind_hack() {
 
 src_prepare() {
 	# Clear vendor checksums for crates that we patched to bump libc.
-	for i in addr2line-0.20.0 bstr cranelift-jit crossbeam-channel elasticlunr-rs handlebars icu_locid libffi \
+	for i in addr2line addr2line-0.19.0 bstr cranelift-jit crossbeam-channel elasticlunr-rs handlebars icu_locid libffi pin-project-lite \
 		terminal_size tracing-tree; do
 		clear_vendor_checksums "${i}"
 	done

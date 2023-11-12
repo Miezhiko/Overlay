@@ -36,7 +36,11 @@ RDEPEND="
 	dev-python/browser-cookie3
 	dev-python/websockets
 	dev-python/quickjs
-	dev-python/httpx"
+	dev-python/httpx
+	dev-python/mmh3
+	dev-python/py-arkose-token-generator
+	dev-python/asyncstdlib
+	"
 DEPEND="${RDEPEND}"
 
 KEYWORDS="~amd64 ~x86"
