@@ -40,6 +40,7 @@ RDEPEND="
 	dev-python/mmh3
 	dev-python/py-arkose-token-generator
 	dev-python/asyncstdlib
+	dev-python/async_property
 	"
 DEPEND="${RDEPEND}"
 
