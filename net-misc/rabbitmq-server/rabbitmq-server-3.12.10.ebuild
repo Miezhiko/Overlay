@@ -14,7 +14,7 @@ SRC_URI="https://github.com/rabbitmq/rabbitmq-server/releases/download/v${PV}/${
 
 LICENSE="MPL-2.0"
 SLOT="0"
-KEYWORDS="amd64 ~arm64 x86"
+KEYWORDS="~amd64 ~arm64 ~x86"
 RESTRICT="test"
 
 # See https://www.rabbitmq.com/which-erlang.html for Erlang version
@@ -22,21 +22,18 @@ RESTRICT="test"
 RDEPEND="
 	acct-group/rabbitmq
 	acct-user/rabbitmq
-	>=dev-lang/erlang-25.0[ssl]
+	>=dev-lang/erlang-25.0[ssl] <dev-lang/erlang-26.2
 "
-DEPEND="${RDEPEND}
+DEPEND="
+	${RDEPEND}
 	app-arch/zip
 	app-arch/unzip
 	app-text/docbook-xml-dtd:4.5
 	app-text/xmlto
-	>=dev-lang/elixir-1.13.4
+	>=dev-lang/elixir-1.13.4 <dev-lang/elixir-1.16.0
 	dev-libs/libxslt
-	$(python_gen_any_dep 'dev-python/simplejson[${PYTHON_USEDEP}]')
+	${PYTHON_DEPS}
 "
-
-python_check_deps() {
-	python_has_version -d "dev-python/simplejson[${PYTHON_USEDEP}]"
-}
 
 pkg_setup() {
 	python-any-r1_pkg_setup
@@ -83,4 +80,12 @@ src_install() {
 	# create the mnesia directory
 	diropts -m 0770 -o rabbitmq -g rabbitmq
 	keepdir /var/lib/rabbitmq/mnesia
+}
+
+pkg_preinst() {
+	if [[ -n ${REPLACING_VERSIONS} ]] && ver_test ${REPLACING_VERSIONS} -lt 3.12; then
+		elog "Upgrading to RabbitMQ 3.12 requires all feature flags"
+		elog "from 3.11 to be enabled. If any feature flags are not"
+		elog "enabled, the node will refuse to start."
+	fi
 }
