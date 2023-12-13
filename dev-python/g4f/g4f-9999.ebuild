@@ -51,4 +51,6 @@ src_prepare() {
 	default
 	rm "${S}"/setup.py || die
 	cp "${FILESDIR}"/pyproject.toml "${S}"/ || die
+	# diesable debug stuff
+	sed -i 's|True|False|g' "${S}/g4f/debug.py" || die
 }
