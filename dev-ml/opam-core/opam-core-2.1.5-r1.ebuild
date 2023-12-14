@@ -5,13 +5,14 @@ EAPI=8
 
 # We are opam
 OPAM_INSTALLER_DEP=" "
-inherit opam
+inherit opam dune
 
 DESCRIPTION="Core libraries for opam"
 HOMEPAGE="https://opam.ocaml.org/ https://github.com/ocaml/opam"
 SRC_URI="https://github.com/ocaml/opam/archive/${PV/_/-}.tar.gz -> opam-${PV}.tar.gz"
 S="${WORKDIR}/opam-${PV}"
 OPAM_INSTALLER="${S}/opam-installer"
+IUSE="ocamlopt"
 
 LICENSE="LGPL-2.1"
 SLOT="0/${PV}"
@@ -37,7 +38,10 @@ src_prepare() {
 	EOF
 }
 
+src_configure() {
+	econf --disable-checks
+}
+
 src_compile() {
-	emake -j1 opam-installer
-	emake -j1 ${PN}.install
+	dune build -p ${PN} -j 1 || die
 }
