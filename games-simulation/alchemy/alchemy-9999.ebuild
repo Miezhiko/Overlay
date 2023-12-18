@@ -38,7 +38,7 @@ RDEPEND="${DEPEND}
 # register or login
 # FMOD Engine -> Linux -> Download
 # mv ~/Downloads/fmod* /var/tmp/
-: ${FMOD_VERSION:="2.02.19"}
+: ${FMOD_VERSION:="2.02.20"}
 : ${FMOD_FILE_PATH="/var/tmp"}
 
 FMOD_DIR="${WORKDIR}/fmod"
