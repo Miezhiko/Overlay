@@ -29,6 +29,43 @@ src_configure() {
 	:
 }
 
+make_wrapper_no_exec() {
+	local wrapper=$1 bin=$2 chdir=$3 libdir=$4 path=$5
+	local tmpwrapper="${T}/tmp.wrapper.${wrapper##*/}"
+
+	(
+	echo '#!/bin/sh'
+	if [[ -n ${libdir} ]] ; then
+		local var
+		if [[ ${CHOST} == *-darwin* ]] ; then
+			var=DYLD_LIBRARY_PATH
+		else
+			var=LD_LIBRARY_PATH
+		fi
+		sed 's/^X//' <<-EOF || die
+			if [ "\${${var}+set}" = "set" ] ; then
+			X	export ${var}="\${${var}}:${EPREFIX}${libdir}"
+			else
+			X	export ${var}="${EPREFIX}${libdir}"
+			fi
+		EOF
+	fi
+	[[ -n ${chdir} ]] && printf 'cd "%s" &&\n' "${EPREFIX}${chdir}"
+	printf '%s "$@"\n' "${bin/#\//${EPREFIX}/}"
+	) > "${tmpwrapper}"
+	chmod go+rx "${tmpwrapper}"
+
+	if [[ -n ${path} ]] ; then
+		(
+		exeopts -m 0755
+		exeinto "${path}"
+		newexe "${tmpwrapper}" "${wrapper}"
+		) || die
+	else
+		newbin "${tmpwrapper}" "${wrapper}"
+	fi
+}
+
 src_install() {
 	cd "${S}" || die
 	IDRIS_DIR=$(/usr/bin/idris2 --libdir)
@@ -41,5 +78,7 @@ src_install() {
 	cp -r "${S}/build/ttc"/* "${PKG_DIR}" || die # installing binaries
 	cp -r "${S}/src"/* "${PKG_DIR}" || die # installing sources
 
-	dosym "/usr/lib/idris2/bin/${PN}" "/usr/bin/${PN}"
+	# use wrapper script instead of symlink for IDRIS2_PREFIX env
+	# dosym "/usr/lib/idris2/bin/${PN}" "/usr/bin/${PN}"
+	make_wrapper_no_exec ${PN} "IDRIS2_PREFIX=$(idris2 --prefix) /usr/lib/idris2/bin/idris2-lsp"
 }

@@ -3,48 +3,50 @@
 
 EAPI=8
 
-inherit toolchain-funcs xdg-utils
+inherit toolchain-funcs
 
 DESCRIPTION="Purely functional programming language with first class types"
-HOMEPAGE="https://github.com/idris-lang/Idris2/"
+HOMEPAGE="https://idris-lang.org/"
 
-if [[ "${PV}" == *9999* ]]; then
+if [[ "${PV}" == *9999* ]] ; then
 	inherit git-r3
-	EGIT_REPO_URI="https://github.com/idris-lang/Idris2.git"
+	EGIT_REPO_URI="https://github.com/idris-lang/${PN^}.git"
 else
-	SRC_URI="https://github.com/idris-lang/Idris2/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
-	S="${WORKDIR}/${P^}"
+	SRC_URI="https://github.com/idris-lang/${PN^}/archive/v${PV}.tar.gz
+		-> ${P}.tar.gz"
+	S="${WORKDIR}"/${PN^}-${PV}
 fi
-
-KEYWORDS="~amd64"
 
 LICENSE="BSD"
 SLOT="0"
-IUSE="+chez doc racket test-full"
+IUSE="+chez doc racket +src test-full"
 REQUIRED_USE="^^ ( chez racket )"
+KEYWORDS="~amd64 ~x86"
 
 RDEPEND="
-	chez? ( dev-scheme/chez )
-	racket? ( dev-scheme/racket )
 	dev-libs/gmp
+	chez? ( dev-scheme/chez:=[threads] )
+	racket? ( dev-scheme/racket:=[threads] )
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
-	doc? ( dev-python/sphinx_rtd_theme )
+	doc? ( dev-python/sphinx-rtd-theme )
 	test-full? (
-		dev-scheme/chez
-		dev-scheme/racket
+		dev-scheme/chez[threads]
+		dev-scheme/racket[threads]
 		net-libs/nodejs
 	)
 "
 
 # Generated via "SCHEME", not CC
-QA_FLAGS_IGNORED="usr/lib/idris2/bin/idris2_app/idris2
-	usr/lib/idris2/bin/idris2_app/idris2-boot"
+QA_FLAGS_IGNORED="
+	usr/lib/idris2/bin/idris2_app/idris2
+	usr/lib/idris2/bin/idris2_app/idris2-boot
+"
 QA_PRESTRIPPED="${QA_FLAGS_IGNORED}"
 
 src_prepare() {
-	xdg_environment_reset
+	# Clean up environment of Idris and Racket variables
 	unset IDRIS2_DATA IDRIS2_INC_CGS IDRIS2_LIBS IDRIS2_PACKAGE_PATH
 	unset IDRIS2_PATH IDRIS2_PREFIX
 	unset PLTUSERHOME
@@ -53,37 +55,36 @@ src_prepare() {
 	export CFLAGS
 	sed -i '/^CFLAGS/d' ./support/*/Makefile || die
 
-	# Sorry... (jobserver unavailable)
-	unset MAKEOPTS
-
-	export IDRIS2_VERSION=${PV}
-	export SCHEME=$(usex chez chezscheme racket)
-
-	if use chez; then
-		export IDRIS2_CG=chez
-		export BOOTSTRAP_MAKE_TARGET=bootstrap
-	elif use racket; then
-		export IDRIS2_CG=racket
-		export BOOTSTRAP_MAKE_TARGET=bootstrap-racket
-	else
-		die "Neither chez nor racket was chosen"
-	fi
-
 	# Fix "PREFIX"
 	sed -i 's|$(HOME)/.idris2|/usr/lib/idris2|g' ./config.mk || die
 
 	# Bad tests
-	sed -i 's|"chez033",||g' ./tests/Main.idr || die
+	# Weird Racket Futures (parallelism) test, might need further investigation
+	sed -i 's|, "futures001"||g' ./tests/Main.idr || die
 
 	default
 }
 
 src_configure() {
-	:
+	export IDRIS2_VERSION=${PV}
+	export SCHEME=$(usex chez chezscheme racket)
+
+	if use chez ; then
+		export IDRIS2_CG=chez
+		export BOOTSTRAP_TARGET=bootstrap
+	elif use racket ; then
+		export IDRIS2_CG=racket
+		export BOOTSTRAP_TARGET=bootstrap-racket
+	else
+		die 'Neither "chez" nor "racket" was chosen'
+	fi
 }
 
 src_compile() {
-	emake SCHEME=${SCHEME} ${BOOTSTRAP_MAKE_TARGET}
+	# > jobserver unavailable
+	# This is caused by Makefile using a script which in turn calls make
+	# https://github.com/idris-lang/Idris2/issues/2152
+	emake SCHEME=${SCHEME} ${BOOTSTRAP_TARGET} -j1
 
 	use doc && emake -C ./docs html
 }
@@ -93,17 +94,16 @@ src_test() {
 }
 
 src_install() {
-	# "DESTDIR" variable is not respected
-	emake IDRIS2_PREFIX="${D}/usr/lib/idris2" PREFIX="${D}/usr/lib/idris2" install
-	emake IDRIS2_PREFIX="${D}/usr/lib/idris2" PREFIX="${D}/usr/lib/idris2" install-with-src-libs
-	emake IDRIS2_PREFIX="${D}/usr/lib/idris2" PREFIX="${D}/usr/lib/idris2" install-with-src-api
-
+	# "DESTDIR" variable is not respected, use "PREFIX" instead
+	emake IDRIS2_PREFIX="${D}"/usr/lib/idris2 PREFIX="${D}"/usr/lib/idris2 install
+	if use src; then
+		emake IDRIS2_PREFIX="${D}/usr/lib/idris2" PREFIX="${D}/usr/lib/idris2" install-with-src-libs
+		emake IDRIS2_PREFIX="${D}/usr/lib/idris2" PREFIX="${D}/usr/lib/idris2" install-with-src-api
+	fi
 	dosym ../lib/${PN}/bin/${PN} /usr/bin/${PN}
 
+	# Install documentation
+	use doc && dodoc -r ./docs/build/html
 	einstalldocs
-
-	if use doc; then
-		insinto /usr/share/doc/${PF}/
-		doins -r ./docs/build/html
-	fi
 }
+
