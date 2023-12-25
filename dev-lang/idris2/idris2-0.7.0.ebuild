@@ -97,8 +97,9 @@ src_install() {
 	# "DESTDIR" variable is not respected, use "PREFIX" instead
 	emake IDRIS2_PREFIX="${D}"/usr/lib/idris2 PREFIX="${D}"/usr/lib/idris2 install
 	if use src; then
-		emake IDRIS2_PREFIX="${D}/usr/lib/idris2" PREFIX="${D}/usr/lib/idris2" \
-			install-with-src-libs install-with-src-api
+		emake IDRIS2_PREFIX="${D}/usr/lib/idris2" PREFIX="${D}/usr/lib/idris2" install-with-src-libs
+		# not sure
+		# emake IDRIS2_PREFIX="${D}/usr/lib/idris2" PREFIX="${D}/usr/lib/idris2" install-with-src-api
 	fi
 	dosym ../lib/${PN}/bin/${PN} /usr/bin/${PN}
 
