@@ -15,7 +15,7 @@ KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
 SLOT="0"
 IUSE=""
 
-RDEPEND=""
+RDEPEND="dev-libs/libfmt"
 DEPEND="${RDEPEND}
 	dev-util/cmake
 	"
@@ -48,10 +48,10 @@ src_unpack() {
 	cmake --build llvm-project/build || die
 	cmake --install llvm-project/build --prefix=llvm-project/install || die
 	cmake -S . -B build -G Ninja \
-		  -DCMAKE_BUILD_TYPE=Release \
-		  -DLLVM_DIR=$(${CODON_LLVM_DIR}/install/bin/llvm-config --cmakedir) \
-		  -DCMAKE_C_COMPILER=clang \
-		  -DCMAKE_CXX_COMPILER=clang++ || die
+		-DCMAKE_BUILD_TYPE=Release \
+		-DLLVM_DIR=$(${CODON_LLVM_DIR}/install/bin/llvm-config --cmakedir) \
+		-DCMAKE_C_COMPILER=clang \
+		-DCMAKE_CXX_COMPILER=clang++ || die
 }
 
 src_configure() {
@@ -66,4 +66,8 @@ src_compile() {
 src_install() {
 	cd "${S}"
 	cmake --install build --prefix=${ED}/usr || die
+	rm -rf "${ED}/usr/include/fmt"
+	# TODO: get_libdir for 32bit etc
+	rm -rf "${ED}/usr/lib64/cmake/fmt"
+	rm -f  "${ED}/usr/lib64/pkgconfig/fmt.pc"
 }
