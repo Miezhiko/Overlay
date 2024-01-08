@@ -111,11 +111,6 @@ DEPEND="
 		${LLVM_DEPEND}
 		llvm-libunwind? ( sys-libs/llvm-libunwind:= )
 	)
-	!system-llvm? (
-		!llvm-libunwind? (
-			elibc_musl? ( sys-libs/libunwind:= )
-		)
-	)
 "
 
 RDEPEND="${DEPEND}
@@ -163,7 +158,6 @@ VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/rust.asc
 
 PATCHES=(
 	"${FILESDIR}"/1.70.0-ignore-broken-and-non-applicable-tests.patch
-	"${FILESDIR}"/1.62.1-musl-dynamic-linking.patch
 	"${FILESDIR}"/1.67.0-doc-wasm.patch
 )
 
@@ -467,13 +461,6 @@ src_configure() {
 				llvm-config = "$(get_llvm_prefix "${LLVM_MAX_SLOT}")/bin/llvm-config"
 			_EOF_
 		fi
-		# by default librustc_target/spec/linux_musl_base.rs sets base.crt_static_default = true;
-		# but we patch it and set to false here as well
-		if use elibc_musl; then
-			cat <<- _EOF_ >> "${S}"/config.toml
-				crt-static = false
-			_EOF_
-		fi
 	done
 	if use wasm; then
 		cat <<- _EOF_ >> "${S}"/config.toml
@@ -535,11 +522,6 @@ src_configure() {
 		if use system-llvm; then
 			cat <<- _EOF_ >> "${S}"/config.toml
 				llvm-config = "$(get_llvm_prefix "${LLVM_MAX_SLOT}")/bin/llvm-config"
-			_EOF_
-		fi
-		if [[ "${cross_toolchain}" == *-musl* ]]; then
-			cat <<- _EOF_ >> "${S}"/config.toml
-				musl-root = "$(${cross_toolchain}-gcc -print-sysroot)/usr"
 			_EOF_
 		fi
 
