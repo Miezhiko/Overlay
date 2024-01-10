@@ -22,7 +22,7 @@ else
 	KEYWORDS="~amd64"
 fi
 
-RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).0"
+RUST_STAGE0_VERSION="1.$(($(ver_cut 2) - 1)).1"
 
 DESCRIPTION="Systems programming language from Mozilla"
 HOMEPAGE="https://www.rust-lang.org/"
@@ -159,6 +159,7 @@ VERIFY_SIG_OPENPGP_KEY_PATH=${BROOT}/usr/share/openpgp-keys/rust.asc
 PATCHES=(
 	"${FILESDIR}"/1.70.0-ignore-broken-and-non-applicable-tests.patch
 	"${FILESDIR}"/1.67.0-doc-wasm.patch
+	"${FILESDIR}"/119582.patch
 )
 
 S="${WORKDIR}/${MY_P}-src"
@@ -341,7 +342,7 @@ src_configure() {
 
 	local cm_btype="$(usex debug DEBUG RELEASE)"
 	cat <<- _EOF_ > "${S}"/config.toml
-		changelog-seen = 2
+		change-id = 116881
 		[llvm]
 		download-ci-llvm = false
 		optimize = $(toml_usex !debug)
@@ -405,6 +406,7 @@ src_configure() {
 		mandir = "share/man"
 		[rust]
 		# https://github.com/rust-lang/rust/issues/54872
+		codegen-units = 1
 		codegen-units-std = 1
 		optimize = true
 		debug = $(toml_usex debug)
