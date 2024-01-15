@@ -16,7 +16,7 @@ KEYWORDS="~amd64"
 LICENSE="GPL-2-with-Linden-Lab-FLOSS-exception"
 
 BDEPEND="${BDEPEND}
-	dev-util/cmake"
+	dev-build/cmake"
 
 DEPEND="${DEPEND}
 	media-libs/libpng
