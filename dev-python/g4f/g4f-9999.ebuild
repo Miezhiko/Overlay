@@ -10,6 +10,7 @@ inherit distutils-r1 git-r3
 
 EGIT_REPO_URI="https://github.com/xtekky/gpt4free.git"
 EGIT_BRANCH="main"
+EGIT_COMMIT="691fac6db61cf91afbe9abe45e8bd3d47f985e01"
 SRC_URI=""
 KEYWORDS=""
 
@@ -42,6 +43,7 @@ RDEPEND="
 	dev-python/asyncstdlib
 	dev-python/async_property
 	dev-python/undetected-chromedriver
+	dev-python/beautifulsoup4
 	"
 DEPEND="${RDEPEND}"
 
