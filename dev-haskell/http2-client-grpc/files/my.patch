@@ -1,0 +1,26 @@
+diff --git a/http2-client-grpc.cabal b/http2-client-grpc.cabal
+index ab9afdf..d90d09a 100644
+--- a/http2-client-grpc.cabal
++++ b/http2-client-grpc.cabal
+@@ -1,5 +1,5 @@
+ name:                http2-client-grpc
+-version:             0.8.0.0
++version:             0.8.0.1
+ synopsis:            Implement gRPC-over-HTTP2 clients.
+ description:         A gRPC over http2-client.
+ homepage:            https://github.com/haskell-grpc-native/http2-grpc-haskell/blob/master/http2-client-grpc/README.md
+@@ -25,11 +25,11 @@ library
+                      , data-default-class >= 0.1 && <0.2
+                      , lifted-async >= 0.10 && < 0.11
+                      , lifted-base >= 0.2 && < 0.3
+-                     , http2 >= 3.0 && < 3.1
++                     , http2 >= 3.0 && < 5
+                      , http2-client >= 0.10 && < 0.11
+                      , http2-grpc-types >= 0.5 && < 0.6
+-                     , text >= 1.2 && < 1.3
+-                     , tls >= 1.4 && < 1.6
++                     , text >= 1.2 && < 3
++                     , tls >= 1.4 && < 1.9
+                      , network >= 2.6 && < 4
+   default-language:    Haskell2010
+ 

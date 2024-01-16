@@ -1,0 +1,561 @@
+From f4db12b4f08f93f388ae8f845da30ff68260af67 Mon Sep 17 00:00:00 2001
+From: Rebecca Turner <rbt@sent.as>
+Date: Fri, 3 Nov 2023 13:01:02 -0700
+Subject: [PATCH 01/13] Support http2-4
+
+---
+ src/Network/HTTP2/Client/RawConnection.hs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/Network/HTTP2/Client/RawConnection.hs b/src/Network/HTTP2/Client/RawConnection.hs
+index 315367f4..64cda642 100644
+--- a/src/Network/HTTP2/Client/RawConnection.hs
++++ b/src/Network/HTTP2/Client/RawConnection.hs
+@@ -17,7 +17,7 @@ import           Data.ByteString (ByteString)
+ import qualified Data.ByteString as ByteString
+ import           Data.ByteString.Lazy (fromChunks)
+ import           Data.Monoid ((<>))
+-import qualified Network.HTTP2 as HTTP2
++import qualified Network.HTTP2.Frame as HTTP2
+ import           Network.Socket hiding (recv)
+ import           Network.Socket.ByteString
+ import qualified Network.TLS as TLS
+
+From 72a73f911cd4236b332bff60149f109fa0cd2abb Mon Sep 17 00:00:00 2001
+From: Rebecca Turner <rbt@sent.as>
+Date: Fri, 3 Nov 2023 13:01:36 -0700
+Subject: [PATCH 02/13] Update http2 version bounds
+
+---
+ http2-client.cabal | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/http2-client.cabal b/http2-client.cabal
+index 2ff14e3d..cf107ccd 100644
+--- a/http2-client.cabal
++++ b/http2-client.cabal
+@@ -27,7 +27,7 @@ library
+                      , bytestring >= 0.10 && < 0.12
+                      , containers >= 0.5 && < 0.7
+                      , deepseq >= 1.4 && < 1.5
+-                     , http2 >= 1.6 && < 4
++                     , http2 >= 4.0 && < 5
+                      , lifted-async >= 0.10 && < 0.11
+                      , lifted-base >= 0.2 && < 0.3
+                      , mtl >= 2.2 && < 2.4
+
+From 99eaa8b5941039dac313deedefee4c1f279cfc92 Mon Sep 17 00:00:00 2001
+From: Rebecca Turner <rbt@sent.as>
+Date: Fri, 3 Nov 2023 13:02:20 -0700
+Subject: [PATCH 03/13] Update tls bound
+
+---
+ http2-client.cabal | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/http2-client.cabal b/http2-client.cabal
+index cf107ccd..9526e68a 100644
+--- a/http2-client.cabal
++++ b/http2-client.cabal
+@@ -34,7 +34,7 @@ library
+                      , network >= 2.6 && < 3.2
+                      , stm >= 2.4 && < 2.6
+                      , time >= 1.8 && < 1.13
+-                     , tls >= 1.4 && < 1.9
++                     , tls >= 1.4 && < 1.10
+                      , transformers-base >= 0.4 && < 0.5
+   default-language:    Haskell2010
+ 
+
+From 372740d6bbb269b76bb5a20618258c64e7858f07 Mon Sep 17 00:00:00 2001
+From: Rebecca Turner <rbt@sent.as>
+Date: Fri, 3 Nov 2023 13:17:41 -0700
+Subject: [PATCH 04/13] Update imports
+
+---
+ http2-client.cabal                          | 2 +-
+ src/Network/HTTP2/Client.hs                 | 2 +-
+ src/Network/HTTP2/Client/Channels.hs        | 2 +-
+ src/Network/HTTP2/Client/Dispatch.hs        | 2 +-
+ src/Network/HTTP2/Client/FrameConnection.hs | 4 ++--
+ src/Network/HTTP2/Client/Helpers.hs         | 2 +-
+ 6 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/http2-client.cabal b/http2-client.cabal
+index 9526e68a..7c562afe 100644
+--- a/http2-client.cabal
++++ b/http2-client.cabal
+@@ -27,7 +27,7 @@ library
+                      , bytestring >= 0.10 && < 0.12
+                      , containers >= 0.5 && < 0.7
+                      , deepseq >= 1.4 && < 1.5
+-                     , http2 >= 4.0 && < 5
++                     , http2 >= 4.2 && < 5
+                      , lifted-async >= 0.10 && < 0.11
+                      , lifted-base >= 0.2 && < 0.3
+                      , mtl >= 2.2 && < 2.4
+diff --git a/src/Network/HTTP2/Client.hs b/src/Network/HTTP2/Client.hs
+index f8f02890..b7429d15 100644
+--- a/src/Network/HTTP2/Client.hs
++++ b/src/Network/HTTP2/Client.hs
+@@ -57,7 +57,7 @@ import qualified Data.ByteString as ByteString
+ import           Data.IORef.Lifted (newIORef, atomicModifyIORef', readIORef)
+ import           Data.Maybe (fromMaybe)
+ import           Network.HPACK as HPACK
+-import           Network.HTTP2 as HTTP2
++import           Network.HTTP2.Frame as HTTP2
+ import           Network.Socket (HostName, PortNumber)
+ import           Network.TLS (ClientParams)
+ 
+diff --git a/src/Network/HTTP2/Client/Channels.hs b/src/Network/HTTP2/Client/Channels.hs
+index 6b750233..45dd9d9d 100644
+--- a/src/Network/HTTP2/Client/Channels.hs
++++ b/src/Network/HTTP2/Client/Channels.hs
+@@ -11,7 +11,7 @@ module Network.HTTP2.Client.Channels (
+ 
+ import           Control.Concurrent.Chan.Lifted (Chan, readChan, newChan, writeChan)
+ import           Control.Exception.Lifted (Exception, throwIO)
+-import           Network.HTTP2 (StreamId, FrameHeader, FramePayload, FrameTypeId, framePayloadToFrameTypeId, streamId)
++import           Network.HTTP2.Frame (StreamId, FrameHeader, FramePayload, FrameTypeId, framePayloadToFrameTypeId, streamId)
+ 
+ import           Network.HTTP2.Client.Exceptions
+ 
+diff --git a/src/Network/HTTP2/Client/Dispatch.hs b/src/Network/HTTP2/Client/Dispatch.hs
+index 41bdd0da..ba0da68d 100644
+--- a/src/Network/HTTP2/Client/Dispatch.hs
++++ b/src/Network/HTTP2/Client/Dispatch.hs
+@@ -14,7 +14,7 @@ import qualified Data.IntMap as IntMap
+ import           GHC.Exception (Exception)
+ import           Network.HPACK as HPACK
+ import qualified Network.HPACK.Token as HPACK
+-import           Network.HTTP2 as HTTP2
++import           Network.HTTP2.Frame as HTTP2
+ 
+ import           Network.HTTP2.Client.Channels
+ import           Network.HTTP2.Client.Exceptions
+diff --git a/src/Network/HTTP2/Client/FrameConnection.hs b/src/Network/HTTP2/Client/FrameConnection.hs
+index 530caf8f..6fec7817 100644
+--- a/src/Network/HTTP2/Client/FrameConnection.hs
++++ b/src/Network/HTTP2/Client/FrameConnection.hs
+@@ -22,8 +22,8 @@ import           Control.Exception.Lifted (bracket)
+ import           Control.Concurrent.MVar.Lifted (newMVar, takeMVar, putMVar)
+ import           Control.Monad ((>=>), void, when)
+ import qualified Data.ByteString as ByteString
+-import           Network.HTTP2 (FrameHeader(..), FrameFlags, FramePayload, HTTP2Error, encodeInfo, decodeFramePayload)
+-import qualified Network.HTTP2 as HTTP2
++import           Network.HTTP2.Frame (FrameHeader(..), FrameFlags, FramePayload, HTTP2Error, encodeInfo, decodeFramePayload)
++import qualified Network.HTTP2.Frame as HTTP2
+ import           Network.Socket (HostName, PortNumber)
+ import qualified Network.TLS as TLS
+ 
+diff --git a/src/Network/HTTP2/Client/Helpers.hs b/src/Network/HTTP2/Client/Helpers.hs
+index 66192ec3..575fe260 100644
+--- a/src/Network/HTTP2/Client/Helpers.hs
++++ b/src/Network/HTTP2/Client/Helpers.hs
+@@ -21,7 +21,7 @@ module Network.HTTP2.Client.Helpers (
+   ) where
+ 
+ import           Data.Time.Clock (UTCTime, getCurrentTime)
+-import qualified Network.HTTP2 as HTTP2
++import qualified Network.HTTP2.Frame as HTTP2
+ import qualified Network.HPACK as HPACK
+ import           Data.ByteString (ByteString)
+ import qualified Data.ByteString as ByteString
+
+From df9383385b043019e090e32a842fac1796a93aa2 Mon Sep 17 00:00:00 2001
+From: Rebecca Turner <rbt@sent.as>
+Date: Fri, 3 Nov 2023 13:20:06 -0700
+Subject: [PATCH 05/13] Version bounds
+
+---
+ http2-client.cabal | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/http2-client.cabal b/http2-client.cabal
+index 7c562afe..59a2a8c4 100644
+--- a/http2-client.cabal
++++ b/http2-client.cabal
+@@ -27,7 +27,7 @@ library
+                      , bytestring >= 0.10 && < 0.12
+                      , containers >= 0.5 && < 0.7
+                      , deepseq >= 1.4 && < 1.5
+-                     , http2 >= 4.2 && < 5
++                     , http2 >= 4.1 && < 5
+                      , lifted-async >= 0.10 && < 0.11
+                      , lifted-base >= 0.2 && < 0.3
+                      , mtl >= 2.2 && < 2.4
+
+From 0e7720c8fcdcac0c22024cda62e8c1b3c4588eea Mon Sep 17 00:00:00 2001
+From: Rebecca Turner <rbt@sent.as>
+Date: Fri, 3 Nov 2023 13:25:39 -0700
+Subject: [PATCH 06/13] Move import...
+
+---
+ src/Network/HTTP2/Client/FrameConnection.hs | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/Network/HTTP2/Client/FrameConnection.hs b/src/Network/HTTP2/Client/FrameConnection.hs
+index 6fec7817..cc75c5d7 100644
+--- a/src/Network/HTTP2/Client/FrameConnection.hs
++++ b/src/Network/HTTP2/Client/FrameConnection.hs
+@@ -22,7 +22,8 @@ import           Control.Exception.Lifted (bracket)
+ import           Control.Concurrent.MVar.Lifted (newMVar, takeMVar, putMVar)
+ import           Control.Monad ((>=>), void, when)
+ import qualified Data.ByteString as ByteString
+-import           Network.HTTP2.Frame (FrameHeader(..), FrameFlags, FramePayload, HTTP2Error, encodeInfo, decodeFramePayload)
++import           Network.HTTP2.Client (HTTP2Error)
++import           Network.HTTP2.Frame (FrameHeader(..), FrameFlags, FramePayload, encodeInfo, decodeFramePayload)
+ import qualified Network.HTTP2.Frame as HTTP2
+ import           Network.Socket (HostName, PortNumber)
+ import qualified Network.TLS as TLS
+
+From cde0ea865ec8ae7bdd368f54dda33c104d4dba84 Mon Sep 17 00:00:00 2001
+From: Rebecca Turner <rbt@sent.as>
+Date: Fri, 3 Nov 2023 13:30:50 -0700
+Subject: [PATCH 07/13] FrameTypeId -> FrameType
+
+---
+ src/Network/HTTP2/Client/Channels.hs | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/Network/HTTP2/Client/Channels.hs b/src/Network/HTTP2/Client/Channels.hs
+index 45dd9d9d..2644b45d 100644
+--- a/src/Network/HTTP2/Client/Channels.hs
++++ b/src/Network/HTTP2/Client/Channels.hs
+@@ -11,7 +11,7 @@ module Network.HTTP2.Client.Channels (
+ 
+ import           Control.Concurrent.Chan.Lifted (Chan, readChan, newChan, writeChan)
+ import           Control.Exception.Lifted (Exception, throwIO)
+-import           Network.HTTP2.Frame (StreamId, FrameHeader, FramePayload, FrameTypeId, framePayloadToFrameTypeId, streamId)
++import           Network.HTTP2.Frame (StreamId, FrameHeader, FramePayload, FrameType, framePayloadToFrameType, streamId)
+ 
+ import           Network.HTTP2.Client.Exceptions
+ 
+@@ -42,5 +42,5 @@ whenFrameElse test (fHead, fPayload) handleTrue handleFalse = do
+ hasStreamId :: StreamId -> FrameHeader -> FramePayload -> Bool
+ hasStreamId sid h _ = streamId h == sid
+ 
+-hasTypeId :: [FrameTypeId] -> FrameHeader -> FramePayload -> Bool
+-hasTypeId tids _ p = framePayloadToFrameTypeId p `elem` tids
++hasTypeId :: [FrameType] -> FrameHeader -> FramePayload -> Bool
++hasTypeId tids _ p = framePayloadToFrameType p `elem` tids
+
+From 298503136029e59d2f03fab18dcaa8b97b26bf5b Mon Sep 17 00:00:00 2001
+From: Rebecca Turner <rbt@sent.as>
+Date: Fri, 3 Nov 2023 13:32:39 -0700
+Subject: [PATCH 08/13] HTTP2Error
+
+---
+ src/Network/HTTP2/Client/Dispatch.hs | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/Network/HTTP2/Client/Dispatch.hs b/src/Network/HTTP2/Client/Dispatch.hs
+index ba0da68d..0423faf9 100644
+--- a/src/Network/HTTP2/Client/Dispatch.hs
++++ b/src/Network/HTTP2/Client/Dispatch.hs
+@@ -1,5 +1,6 @@
+ {-# LANGUAGE FlexibleContexts #-}
+ {-# LANGUAGE BangPatterns #-}
++{-# LANGUAGE PackageImports #-}
+ module Network.HTTP2.Client.Dispatch where
+ 
+ import           Control.Exception (throwIO)
+@@ -15,6 +16,7 @@ import           GHC.Exception (Exception)
+ import           Network.HPACK as HPACK
+ import qualified Network.HPACK.Token as HPACK
+ import           Network.HTTP2.Frame as HTTP2
++import           "http2" Network.HTTP2.Client (HTTP2Error)
+ 
+ import           Network.HTTP2.Client.Channels
+ import           Network.HTTP2.Client.Exceptions
+
+From e23d4b5513e44db4eb608e0685771c159e386c2f Mon Sep 17 00:00:00 2001
+From: Rebecca Turner <rbt@sent.as>
+Date: Fri, 3 Nov 2023 13:35:44 -0700
+Subject: [PATCH 09/13] more package imports
+
+---
+ src/Network/HTTP2/Client/FrameConnection.hs | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/src/Network/HTTP2/Client/FrameConnection.hs b/src/Network/HTTP2/Client/FrameConnection.hs
+index cc75c5d7..c0c686ce 100644
+--- a/src/Network/HTTP2/Client/FrameConnection.hs
++++ b/src/Network/HTTP2/Client/FrameConnection.hs
+@@ -1,7 +1,8 @@
+ {-# LANGUAGE FlexibleContexts #-}
+ {-# LANGUAGE OverloadedStrings #-}
+-{-# LANGUAGE RecordWildCards  #-}
+-{-# LANGUAGE RankNTypes  #-}
++{-# LANGUAGE RecordWildCards #-}
++{-# LANGUAGE RankNTypes #-}
++{-# LANGUAGE PackageImports #-}
+ 
+ module Network.HTTP2.Client.FrameConnection (
+       Http2FrameConnection(..)
+@@ -22,7 +23,7 @@ import           Control.Exception.Lifted (bracket)
+ import           Control.Concurrent.MVar.Lifted (newMVar, takeMVar, putMVar)
+ import           Control.Monad ((>=>), void, when)
+ import qualified Data.ByteString as ByteString
+-import           Network.HTTP2.Client (HTTP2Error)
++import           "http2" Network.HTTP2.Client (HTTP2Error)
+ import           Network.HTTP2.Frame (FrameHeader(..), FrameFlags, FramePayload, encodeInfo, decodeFramePayload)
+ import qualified Network.HTTP2.Frame as HTTP2
+ import           Network.Socket (HostName, PortNumber)
+
+From 636069403923d50cf29184247fbb72719486853e Mon Sep 17 00:00:00 2001
+From: Rebecca Turner <rbt@sent.as>
+Date: Fri, 3 Nov 2023 13:38:31 -0700
+Subject: [PATCH 10/13] less package imports
+
+---
+ src/Network/HTTP2/Client.hs                 | 6 +++---
+ src/Network/HTTP2/Client/Dispatch.hs        | 4 +---
+ src/Network/HTTP2/Client/FrameConnection.hs | 8 +++-----
+ 3 files changed, 7 insertions(+), 11 deletions(-)
+
+diff --git a/src/Network/HTTP2/Client.hs b/src/Network/HTTP2/Client.hs
+index b7429d15..d848bffc 100644
+--- a/src/Network/HTTP2/Client.hs
++++ b/src/Network/HTTP2/Client.hs
+@@ -606,7 +606,7 @@ handleRSTStep d (fh, payload) = do
+             error $ "expecting RSTFrame but got " ++ show payload
+ 
+ dispatchFramesStep
+-  :: (FrameHeader, Either HTTP2Error FramePayload)
++  :: (FrameHeader, Either FrameDecodeError FramePayload)
+   -> Dispatch
+   -> ClientIO ()
+ dispatchFramesStep (fh,_) d = do
+@@ -615,7 +615,7 @@ dispatchFramesStep (fh,_) d = do
+     atomicModifyIORef' (_dispatchMaxStreamId d) (\n -> (max n sid, ()))
+ 
+ finalizeFramesStep
+-  :: (FrameHeader, Either HTTP2Error FramePayload)
++  :: (FrameHeader, Either FrameDecodeError FramePayload)
+   -> Dispatch
+   -> ClientIO ()
+ finalizeFramesStep (fh,_) d = do
+@@ -697,7 +697,7 @@ data HPACKLoopDecision =
+   | OpenPushPromise !StreamId !StreamId
+ 
+ data HPACKStepResult =
+-    WaitContinuation !((FrameHeader, Either HTTP2Error FramePayload) -> ClientIO HPACKStepResult)
++    WaitContinuation !((FrameHeader, Either FrameDecodeError FramePayload) -> ClientIO HPACKStepResult)
+   | FailedHeaders !FrameHeader !StreamId ErrorCode
+   | FinishedWithHeaders !FrameHeader !StreamId (IO HeaderList)
+   | FinishedWithPushPromise !FrameHeader !StreamId !StreamId (IO HeaderList)
+diff --git a/src/Network/HTTP2/Client/Dispatch.hs b/src/Network/HTTP2/Client/Dispatch.hs
+index 0423faf9..2dc00234 100644
+--- a/src/Network/HTTP2/Client/Dispatch.hs
++++ b/src/Network/HTTP2/Client/Dispatch.hs
+@@ -1,6 +1,5 @@
+ {-# LANGUAGE FlexibleContexts #-}
+ {-# LANGUAGE BangPatterns #-}
+-{-# LANGUAGE PackageImports #-}
+ module Network.HTTP2.Client.Dispatch where
+ 
+ import           Control.Exception (throwIO)
+@@ -16,12 +15,11 @@ import           GHC.Exception (Exception)
+ import           Network.HPACK as HPACK
+ import qualified Network.HPACK.Token as HPACK
+ import           Network.HTTP2.Frame as HTTP2
+-import           "http2" Network.HTTP2.Client (HTTP2Error)
+ 
+ import           Network.HTTP2.Client.Channels
+ import           Network.HTTP2.Client.Exceptions
+ 
+-type DispatchChan = FramesChan HTTP2Error
++type DispatchChan = FramesChan FrameDecodeError
+ 
+ -- | A fallback handler for frames.
+ type FallBackFrameHandler = (FrameHeader, FramePayload) -> ClientIO ()
+diff --git a/src/Network/HTTP2/Client/FrameConnection.hs b/src/Network/HTTP2/Client/FrameConnection.hs
+index c0c686ce..03eeb5ef 100644
+--- a/src/Network/HTTP2/Client/FrameConnection.hs
++++ b/src/Network/HTTP2/Client/FrameConnection.hs
+@@ -2,7 +2,6 @@
+ {-# LANGUAGE OverloadedStrings #-}
+ {-# LANGUAGE RecordWildCards #-}
+ {-# LANGUAGE RankNTypes #-}
+-{-# LANGUAGE PackageImports #-}
+ 
+ module Network.HTTP2.Client.FrameConnection (
+       Http2FrameConnection(..)
+@@ -23,8 +22,7 @@ import           Control.Exception.Lifted (bracket)
+ import           Control.Concurrent.MVar.Lifted (newMVar, takeMVar, putMVar)
+ import           Control.Monad ((>=>), void, when)
+ import qualified Data.ByteString as ByteString
+-import           "http2" Network.HTTP2.Client (HTTP2Error)
+-import           Network.HTTP2.Frame (FrameHeader(..), FrameFlags, FramePayload, encodeInfo, decodeFramePayload)
++import           Network.HTTP2.Frame (FrameHeader(..), FrameFlags, FramePayload, FrameDecodeError, encodeInfo, decodeFramePayload)
+ import qualified Network.HTTP2.Frame as HTTP2
+ import           Network.Socket (HostName, PortNumber)
+ import qualified Network.TLS as TLS
+@@ -68,11 +66,11 @@ sendBackToBack :: Http2FrameClientStream -> [(FrameFlags -> FrameFlags, FramePay
+ sendBackToBack client payloads = _sendFrames client (pure payloads)
+ 
+ data Http2ServerStream = Http2ServerStream {
+-    _nextHeaderAndFrame :: ClientIO (FrameHeader, Either HTTP2Error FramePayload)
++    _nextHeaderAndFrame :: ClientIO (FrameHeader, Either FrameDecodeError FramePayload)
+   }
+ 
+ -- | Waits for the next frame from the server.
+-next :: Http2FrameConnection -> ClientIO (FrameHeader, Either HTTP2Error FramePayload)
++next :: Http2FrameConnection -> ClientIO (FrameHeader, Either FrameDecodeError FramePayload)
+ next = _nextHeaderAndFrame . _serverStream
+ 
+ -- | Adds framing around a 'RawHttp2Connection'.
+
+From 068eeda87aee26efe93a79e621f7188dcbe85987 Mon Sep 17 00:00:00 2001
+From: Rebecca Turner <rbt@sent.as>
+Date: Fri, 3 Nov 2023 14:47:51 -0700
+Subject: [PATCH 11/13] fromErrorCodeId -> fromErrorCode
+
+---
+ src/Network/HTTP2/Client.hs | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/Network/HTTP2/Client.hs b/src/Network/HTTP2/Client.hs
+index d848bffc..a61be588 100644
+--- a/src/Network/HTTP2/Client.hs
++++ b/src/Network/HTTP2/Client.hs
+@@ -599,7 +599,7 @@ handleRSTStep d (fh, payload) = do
+     case payload of
+         (RSTStreamFrame err) -> lift $ do
+             chan <- fmap _streamStateEvents <$> lookupStreamState d sid
+-            let msg = StreamErrorEvent fh (HTTP2.fromErrorCodeId err)
++            let msg = StreamErrorEvent fh (HTTP2.fromErrorCode err)
+             maybe (return ()) (flip writeChan msg) chan
+             closeReleaseStream d sid
+         _ ->
+
+From e9393c4116f874114d9347c1cd5a10cc987d2366 Mon Sep 17 00:00:00 2001
+From: Rebecca Turner <rbt@sent.as>
+Date: Fri, 3 Nov 2023 14:52:14 -0700
+Subject: [PATCH 12/13] ErrorCodeId -> ErrorCode
+
+---
+ src/Network/HTTP2/Client.hs          | 16 ++++++++--------
+ src/Network/HTTP2/Client/Dispatch.hs |  2 +-
+ 2 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/src/Network/HTTP2/Client.hs b/src/Network/HTTP2/Client.hs
+index a61be588..f9610953 100644
+--- a/src/Network/HTTP2/Client.hs
++++ b/src/Network/HTTP2/Client.hs
+@@ -166,7 +166,7 @@ data Http2Client = Http2Client {
+   -- is provided. Only the first call to this IO will return if a reply is
+   -- received. Hence we recommend wrapping this IO in an Async (e.g., with
+   -- @race (threadDelay timeout)@.)
+-  , _goaway           :: ErrorCodeId -> ByteString -> ClientIO ()
++  , _goaway           :: ErrorCode -> ByteString -> ClientIO ()
+   -- ^ Sends a GOAWAY.
+   , _startStream      :: forall a. StreamStarter a
+   -- ^ Spawns new streams. See 'StreamStarter'.
+@@ -188,7 +188,7 @@ data Http2Client = Http2Client {
+ data InitHttp2Client = InitHttp2Client {
+     _initPing                :: ByteString -> ClientIO (ClientIO (FrameHeader, FramePayload))
+   , _initSettings            :: SettingsList -> ClientIO (ClientIO (FrameHeader, FramePayload))
+-  , _initGoaway              :: ErrorCodeId -> ByteString -> ClientIO ()
++  , _initGoaway              :: ErrorCode -> ByteString -> ClientIO ()
+   , _initStartStream         :: forall a. StreamStarter a
+   , _initIncomingFlowControl :: IncomingFlowControl
+   , _initOutgoingFlowControl :: OutgoingFlowControl
+@@ -224,7 +224,7 @@ linkAsyncs client =
+ -- | Synonym of '_goaway'.
+ --
+ -- https://github.com/http2/http2-spec/pull/366
+-_gtfo :: Http2Client -> ErrorCodeId -> ByteString -> ClientIO ()
++_gtfo :: Http2Client -> ErrorCode -> ByteString -> ClientIO ()
+ _gtfo = _goaway
+ 
+ -- | Opaque proof that a client stream was initialized.
+@@ -243,7 +243,7 @@ data Http2Stream = Http2Stream {
+   -- Usually, this is the only call needed to build an '_initStream'.
+   , _prio         :: Priority -> ClientIO ()
+   -- ^ Changes the PRIORITY of this stream.
+-  , _rst          :: ErrorCodeId -> ClientIO ()
++  , _rst          :: ErrorCode -> ClientIO ()
+   -- ^ Resets this stream with a RST frame. You should not use this stream past this call.
+   , _waitEvent    :: ClientIO StreamEvent
+   -- ^ Waits for the next event on the stream.
+@@ -721,7 +721,7 @@ dispatchHPACKFramesStep (fh,fp) (DispatchHPACK{..}) =
+     sid :: StreamId
+     sid = HTTP2.streamId fh
+ 
+-    go :: FrameHeader -> HPACKLoopDecision -> Either ErrorCodeId ByteString -> HPACKStepResult
++    go :: FrameHeader -> HPACKLoopDecision -> Either ErrorCode ByteString -> HPACKStepResult
+     go curFh decision (Right buffer) =
+         if not $ HTTP2.testEndHeader (HTTP2.flags curFh)
+         then WaitContinuation $ \frame -> do
+@@ -743,7 +743,7 @@ dispatchHPACKFramesStep (fh,fp) (DispatchHPACK{..}) =
+             OpenPushPromise parentSid newSid ->
+                 FinishedWithPushPromise curFh parentSid newSid (decodeHeader _dispatchHPACKDynamicTable buffer)
+     go curFh _ (Left err) =
+-        FailedHeaders curFh sid (HTTP2.fromErrorCodeId err)
++        FailedHeaders curFh sid (HTTP2.fromErrorCode err)
+ 
+ 
+ newIncomingFlowControl
+@@ -892,13 +892,13 @@ sendDataFrame
+ sendDataFrame s flagmod dat = do
+     sendOne s flagmod (DataFrame dat)
+ 
+-sendResetFrame :: Http2FrameClientStream -> ErrorCodeId -> ClientIO ()
++sendResetFrame :: Http2FrameClientStream -> ErrorCode -> ClientIO ()
+ sendResetFrame s err = do
+     sendOne s id (RSTStreamFrame err)
+ 
+ sendGTFOFrame
+   :: Http2FrameClientStream
+-     -> StreamId -> ErrorCodeId -> ByteString -> ClientIO ()
++     -> StreamId -> ErrorCode -> ByteString -> ClientIO ()
+ sendGTFOFrame s lastStreamId err errStr = do
+     sendOne s id (GoAwayFrame lastStreamId err errStr)
+ 
+diff --git a/src/Network/HTTP2/Client/Dispatch.hs b/src/Network/HTTP2/Client/Dispatch.hs
+index 2dc00234..c7870780 100644
+--- a/src/Network/HTTP2/Client/Dispatch.hs
++++ b/src/Network/HTTP2/Client/Dispatch.hs
+@@ -29,7 +29,7 @@ ignoreFallbackHandler :: FallBackFrameHandler
+ ignoreFallbackHandler = const $ pure ()
+ 
+ -- | An exception thrown when the server sends a GoAwayFrame.
+-data RemoteSentGoAwayFrame = RemoteSentGoAwayFrame !StreamId !ErrorCodeId !ByteString
++data RemoteSentGoAwayFrame = RemoteSentGoAwayFrame !StreamId !ErrorCode !ByteString
+   deriving Show
+ instance Exception RemoteSentGoAwayFrame
+ 
+
+From e11d70a358b81bec1b00e4be2fae6922b4d497c6 Mon Sep 17 00:00:00 2001
+From: Rebecca Turner <rbt@sent.as>
+Date: Fri, 3 Nov 2023 14:57:23 -0700
+Subject: [PATCH 13/13] ErrorCode
+
+---
+ src/Network/HTTP2/Client.hs | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/Network/HTTP2/Client.hs b/src/Network/HTTP2/Client.hs
+index f9610953..687bc354 100644
+--- a/src/Network/HTTP2/Client.hs
++++ b/src/Network/HTTP2/Client.hs
+@@ -599,7 +599,7 @@ handleRSTStep d (fh, payload) = do
+     case payload of
+         (RSTStreamFrame err) -> lift $ do
+             chan <- fmap _streamStateEvents <$> lookupStreamState d sid
+-            let msg = StreamErrorEvent fh (HTTP2.fromErrorCode err)
++            let msg = StreamErrorEvent fh err
+             maybe (return ()) (flip writeChan msg) chan
+             closeReleaseStream d sid
+         _ ->
+@@ -743,7 +743,7 @@ dispatchHPACKFramesStep (fh,fp) (DispatchHPACK{..}) =
+             OpenPushPromise parentSid newSid ->
+                 FinishedWithPushPromise curFh parentSid newSid (decodeHeader _dispatchHPACKDynamicTable buffer)
+     go curFh _ (Left err) =
+-        FailedHeaders curFh sid (HTTP2.fromErrorCode err)
++        FailedHeaders curFh sid err
+ 
+ 
+ newIncomingFlowControl
