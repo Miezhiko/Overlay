@@ -4,13 +4,16 @@
 EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{9..12} )
 
 inherit distutils-r1 git-r3
 
 EGIT_REPO_URI="https://github.com/xtekky/gpt4free.git"
 EGIT_BRANCH="main"
-EGIT_COMMIT="691fac6db61cf91afbe9abe45e8bd3d47f985e01"
+
+# in case if something is broken
+#EGIT_COMMIT="691fac6db61cf91afbe9abe45e8bd3d47f985e01"
+
 SRC_URI=""
 KEYWORDS=""
 
