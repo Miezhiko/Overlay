@@ -17,7 +17,7 @@ IUSE=""
 
 RDEPEND="dev-libs/libfmt"
 DEPEND="${RDEPEND}
-	dev-util/cmake
+	dev-build/cmake
 	"
 
 RESTRICT=test
