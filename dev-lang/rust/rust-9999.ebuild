@@ -51,8 +51,8 @@ BDEPEND="${PYTHON_DEPS}
 		>=sys-devel/clang-3.5
 	)
 	!system-llvm? (
-		>=dev-util/cmake-3.13.4
-		dev-util/ninja
+		>=dev-build/cmake-3.13.4
+		dev-build/ninja
 	)
 	test? ( sys-devel/gdb )
 "
