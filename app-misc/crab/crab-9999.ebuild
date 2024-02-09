@@ -20,17 +20,5 @@ LICENSE="GPLv3"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
-
 DEPEND=""
 
-src_configure() {
-	:;
-}
-
-src_compile() {
-	:;
-}
-
-src_install() {
-	dobin "${S}/crab"
-}
