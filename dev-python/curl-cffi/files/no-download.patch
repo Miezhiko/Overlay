@@ -1,0 +1,39 @@
+diff --git a/Makefile b/Makefile
+--- Makefile
++++ Makefile
+@@ -2,33 +2,14 @@
+ SHELL := bash
+ VERSION := 0.6.0b9
+ CURL_VERSION := curl-8.1.1
+ 
+-.preprocessed: curl_cffi/include/curl/curl.h
++.preprocessed:
+ 	touch .preprocessed
+ 
+ curl_cffi/const.py: curl_cffi/include
+ 	python preprocess/generate_consts.py $(CURL_VERSION)
+ 
+-$(CURL_VERSION):
+-	curl -L "https://curl.se/download/$(CURL_VERSION).tar.xz" \
+-		-o "$(CURL_VERSION).tar.xz"
+-	tar -xf $(CURL_VERSION).tar.xz
+-
+-curl-impersonate-$(VERSION)/chrome/patches: $(CURL_VERSION)
+-	curl -L "https://github.com/yifeikong/curl-impersonate/archive/refs/tags/v$(VERSION).tar.gz" \
+-		-o "curl-impersonate-$(VERSION).tar.gz"
+-	tar -xf curl-impersonate-$(VERSION).tar.gz
+-
+-# TODO add the headers to sdist package
+-curl_cffi/include/curl/curl.h: curl-impersonate-$(VERSION)/chrome/patches
+-	cd $(CURL_VERSION)
+-	for p in $</curl-*.patch; do patch -p1 < ../$$p; done
+-	# Re-generate the configure script
+-	autoreconf -fi
+-	mkdir -p ../curl_cffi/include/curl
+-	cp -R include/curl/* ../curl_cffi/include/curl/
+-
+ preprocess: .preprocessed
+ 	@echo preprocess
+ 
+ upload: dist/*.whl
+

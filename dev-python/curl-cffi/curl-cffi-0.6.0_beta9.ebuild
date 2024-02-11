@@ -4,11 +4,12 @@
 EAPI=8
 
 PYPI_NO_NORMALIZE=1
-PYTHON_COMPAT=( python3_{9..11} pypy3 )
+PYTHON_COMPAT=( python3_{9..12} pypy3 )
+DISTUTILS_USE_PEP517=setuptools
 
 inherit distutils-r1 pypi
 
-SRC_URI="https://github.com/yifeikong/curl_cffi/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
+SRC_URI="https://github.com/yifeikong/curl_cffi/archive/refs/tags/v0.6.0b9.tar.gz -> ${P}.tar.gz"
 
 S="${WORKDIR}/curl_cffi-${PV}"
 
@@ -19,6 +20,12 @@ LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 
-RDEPEND="<net-misc/curl-impersonate-0.6.0"
+RDEPEND=">=net-misc/curl-impersonate-0.6.0"
 BDEPEND="dev-python/cffi"
 
+S="${WORKDIR}/curl_cffi-0.6.0b9"
+
+PATCHES=(
+	"${FILESDIR}/no-download.patch"
+	"${FILESDIR}/no-download_setup.patch"
+)
