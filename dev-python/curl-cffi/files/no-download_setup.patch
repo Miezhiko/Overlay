@@ -1,6 +1,6 @@
 diff --git a/setup.py b/setup.py
---- setup.py
-+++ setup.py
+--- a/setup.py
++++ b/setup.py
 @@ -22,55 +22,10 @@
  
          return python, abi, plat

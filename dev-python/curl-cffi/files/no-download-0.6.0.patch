@@ -1,0 +1,25 @@
+diff --git a/Makefile b/Makefile
+--- Makefile
++++ Makefile
+@@ -4,19 +4,9 @@
+ # this is the upstream libcurl-impersonate version
+ VERSION := 0.6.0
+ CURL_VERSION := curl-8.1.1
+ 
+-$(CURL_VERSION):
+-	curl -L "https://curl.se/download/$(CURL_VERSION).tar.xz" \
+-		-o "$(CURL_VERSION).tar.xz"
+-	tar -xf $(CURL_VERSION).tar.xz
+-
+-curl-impersonate-$(VERSION)/chrome/patches: $(CURL_VERSION)
+-	curl -L "https://github.com/yifeikong/curl-impersonate/archive/refs/tags/v$(VERSION).tar.gz" \
+-		-o "curl-impersonate-$(VERSION).tar.gz"
+-	tar -xf curl-impersonate-$(VERSION).tar.gz
+-
+-.preprocessed: curl-impersonate-$(VERSION)/chrome/patches
++.preprocessed:
+ 	cd $(CURL_VERSION)
+ 	for p in $</curl-*.patch; do patch -p1 < ../$$p; done
+ 	# Re-generate the configure script
+ 	autoreconf -fi
+
