@@ -16,7 +16,7 @@ SRC_URI="https://master.dl.sourceforge.net/project/math-atlas/Developer%20%28uns
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~x86 -linux ~x86-linux"
+KEYWORDS="~amd64 ~x86"
 IUSE="doc fortran generic lapack static-libs threads"
 
 RDEPEND=""
