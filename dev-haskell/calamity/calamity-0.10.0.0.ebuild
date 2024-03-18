@@ -15,7 +15,13 @@ LICENSE="MIT"
 SLOT="0/${PV}"
 KEYWORDS="~amd64"
 
-RDEPEND=">=dev-haskell/aeson-2.0:=[profile?] <dev-haskell/aeson-2.2:=[profile?]
+CABAL_CHDEPS=(
+	'text                  >=1.2     && <2.1' 'text >=2.0 && <2.2'
+	'aeson                 >=2.0     && <2.2' 'aeson                 >=2.0     && <2.3'
+	'websockets            >=0.12    && <0.13' 'websockets            >=0.12    && <0.14'
+)
+
+RDEPEND=">=dev-haskell/aeson-2.0:=[profile?] <dev-haskell/aeson-2.3:=[profile?]
 	>=dev-haskell/aeson-optics-1.2:=[profile?] <dev-haskell/aeson-optics-2:=[profile?]
 	>=dev-haskell/async-2.2:=[profile?] <dev-haskell/async-3:=[profile?]
 	>=dev-haskell/calamity-commands-0.4:=[profile?] <dev-haskell/calamity-commands-0.5:=[profile?]
@@ -31,7 +37,7 @@ RDEPEND=">=dev-haskell/aeson-2.0:=[profile?] <dev-haskell/aeson-2.2:=[profile?]
 	>=dev-haskell/di-polysemy-0.2:=[profile?] <dev-haskell/di-polysemy-0.3:=[profile?]
 	>=dev-haskell/focus-1.0:=[profile?] <dev-haskell/focus-2:=[profile?]
 	>=dev-haskell/hashable-1.2:=[profile?] <dev-haskell/hashable-2:=[profile?]
-	>=dev-haskell/http-api-data-0.4.3:=[profile?] <dev-haskell/http-api-data-0.6:=[profile?]
+	>=dev-haskell/http-api-data-0.4.3:=[profile?] <dev-haskell/http-api-data-0.7:=[profile?]
 	>=dev-haskell/http-client-0.5:=[profile?] <dev-haskell/http-client-0.8:=[profile?]
 	>=dev-haskell/http-date-0.0.8:=[profile?] <dev-haskell/http-date-0.1:=[profile?]
 	>=dev-haskell/http-types-0.12:=[profile?] <dev-haskell/http-types-0.13:=[profile?]
@@ -47,7 +53,7 @@ RDEPEND=">=dev-haskell/aeson-2.0:=[profile?] <dev-haskell/aeson-2.2:=[profile?]
 	>=dev-haskell/scientific-0.3:=[profile?] <dev-haskell/scientific-0.4:=[profile?]
 	>=dev-haskell/stm-chans-3.0:=[profile?] <dev-haskell/stm-chans-4:=[profile?]
 	>=dev-haskell/stm-containers-1.1:=[profile?] <dev-haskell/stm-containers-2:=[profile?]
-	>=dev-haskell/text-1.2:=[profile?] <dev-haskell/text-2.1:=[profile?]
+	>=dev-haskell/text-2.0:=[profile?] <dev-haskell/text-2.2:=[profile?]
 	>=dev-haskell/text-show-3.8:=[profile?] <dev-haskell/text-show-4:=[profile?]
 	>=dev-haskell/tls-1.7:=[profile?] <dev-haskell/tls-2:=[profile?]
 	>=dev-haskell/typerep-map-0.5:=[profile?] <dev-haskell/typerep-map-0.7:=[profile?]
@@ -55,7 +61,7 @@ RDEPEND=">=dev-haskell/aeson-2.0:=[profile?] <dev-haskell/aeson-2.2:=[profile?]
 	>=dev-haskell/unboxing-vector-0.2:=[profile?] <dev-haskell/unboxing-vector-0.3:=[profile?]
 	>=dev-haskell/unordered-containers-0.2:=[profile?] <dev-haskell/unordered-containers-0.3:=[profile?]
 	>=dev-haskell/vector-0.12:=[profile?] <dev-haskell/vector-0.14:=[profile?]
-	>=dev-haskell/websockets-0.12:=[profile?] <dev-haskell/websockets-0.13:=[profile?]
+	>=dev-haskell/websockets-0.12:=[profile?] <dev-haskell/websockets-0.14:=[profile?]
 	>=dev-lang/ghc-8.10.6:=
 "
 DEPEND="${RDEPEND}

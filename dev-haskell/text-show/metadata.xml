@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="project">
+		<email>haskell@gentoo.org</email>
+		<name>Gentoo Haskell</name>
+	</maintainer>
+	<use>
+		<flag name="integer-gmp">When building with a version of GHC older than 9.0,
+depend on the @integer-gmp@ library. You can disable
+this if you do not wish to link against GMP, but at the
+expense of having a slower @TextShow Natural@ instance.</flag>
+	</use>
+	<upstream>
+		<remote-id type="hackage">text-show</remote-id>
+		<remote-id type="github">RyanGlScott/text-show</remote-id>
+	</upstream>
+</pkgmetadata>

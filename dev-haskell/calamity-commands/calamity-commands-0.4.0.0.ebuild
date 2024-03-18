@@ -15,11 +15,15 @@ LICENSE="MIT"
 SLOT="0/${PV}"
 KEYWORDS="~amd64"
 
+CABAL_CHDEPS=(
+	'text >=1.2 && <2.1' 'text >=2.0 && <2.2'
+)
+
 RDEPEND=">=dev-haskell/megaparsec-8:=[profile?] <dev-haskell/megaparsec-10:=[profile?]
 	>=dev-haskell/optics-0.4.1:=[profile?] <dev-haskell/optics-0.5:=[profile?]
 	>=dev-haskell/polysemy-1.5:=[profile?] <dev-haskell/polysemy-2:=[profile?]
 	>=dev-haskell/polysemy-plugin-0.3:=[profile?] <dev-haskell/polysemy-plugin-0.5:=[profile?]
-	>=dev-haskell/text-1.2:=[profile?] <dev-haskell/text-2.1:=[profile?]
+	>=dev-haskell/text-2.0:=[profile?] <dev-haskell/text-2.2:=[profile?]
 	>=dev-haskell/text-show-3.8:=[profile?] <dev-haskell/text-show-4:=[profile?]
 	>=dev-haskell/unordered-containers-0.2:=[profile?] <dev-haskell/unordered-containers-0.3:=[profile?]
 	>=dev-lang/ghc-8.10.6:=
