@@ -25,7 +25,7 @@ RDEPEND=">=dev-haskell/aeson-1.4.1.0:=[profile?] <dev-haskell/aeson-3:=[profile?
 	>=dev-haskell/lens-4.17:=[profile?] <dev-haskell/lens-5.3:=[profile?]
 	>=dev-haskell/servant-0.20:=[profile?] <dev-haskell/servant-0.21:=[profile?]
 	>=dev-haskell/string-conversions-0.4.0.1:=[profile?] <dev-haskell/string-conversions-0.5:=[profile?]
-	>=dev-haskell/text-1.2.3.0:=[profile?] <dev-haskell/text-2.1:=[profile?]
+	>=dev-haskell/text-1.2.3.0:=[profile?] <dev-haskell/text-2.2:=[profile?]
 	>=dev-haskell/universe-base-1.1.1:=[profile?] <dev-haskell/universe-base-1.2:=[profile?]
 	>=dev-haskell/unordered-containers-0.2.9.0:=[profile?] <dev-haskell/unordered-containers-0.3:=[profile?]
 	>=dev-lang/ghc-8.10.6:=
