@@ -16,13 +16,13 @@ SLOT="0/${PV}"
 KEYWORDS="~amd64"
 
 CABAL_CHDEPS=(
-	'aeson                 >=2.0     && <2.2'  'aeson                 >=2.0     && <2.3'
+	'aeson                 >=2.0     && <2.2'  'aeson                 >=2.2     && <2.3'
 	'text                  >=1.2     && <2.1'  'text                  >=2.0 && <2.2'
 	'websockets            >=0.12    && <0.13' 'websockets            >=0.12    && <0.14'
 	'http-api-data         >=0.4.3   && <0.6'  'http-api-data         >=0.4.3   && <0.7'
 )
 
-RDEPEND=">=dev-haskell/aeson-2.0:=[profile?] <dev-haskell/aeson-2.3:=[profile?]
+RDEPEND=">=dev-haskell/aeson-2.2:=[profile?] <dev-haskell/aeson-2.3:=[profile?]
 	>=dev-haskell/aeson-optics-1.2:=[profile?] <dev-haskell/aeson-optics-2:=[profile?]
 	>=dev-haskell/async-2.2:=[profile?] <dev-haskell/async-3:=[profile?]
 	>=dev-haskell/calamity-commands-0.4:=[profile?] <dev-haskell/calamity-commands-0.5:=[profile?]
