@@ -33,9 +33,6 @@ src_compile() {
 src_install() {
 	cargo_src_install
 
-	local DOCS=( CHANGELOG.md README.md doc/lsd.md )
-	einstalldocs
-
 	newbashcomp "${T}"/shell_completions/lsd.bash lsd
 
 	insinto /usr/share/fish/vendor_completions.d
