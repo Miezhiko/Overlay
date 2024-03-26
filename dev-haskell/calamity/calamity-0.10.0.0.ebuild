@@ -16,10 +16,10 @@ SLOT="0/${PV}"
 KEYWORDS="~amd64"
 
 CABAL_CHDEPS=(
-	'text                  >=1.2     && <2.1' 'text >=2.0 && <2.2'
-	'aeson                 >=2.0     && <2.2' 'aeson                 >=2.0     && <2.3'
+	'aeson                 >=2.0     && <2.2'  'aeson                 >=2.0     && <2.3'
+	'text                  >=1.2     && <2.1'  'text                  >=2.0 && <2.2'
 	'websockets            >=0.12    && <0.13' 'websockets            >=0.12    && <0.14'
-	'http-api-data         >=0.4.3   && <0.6' 'http-api-data         >=0.4.3   && <0.7'
+	'http-api-data         >=0.4.3   && <0.6'  'http-api-data         >=0.4.3   && <0.7'
 )
 
 RDEPEND=">=dev-haskell/aeson-2.0:=[profile?] <dev-haskell/aeson-2.3:=[profile?]
@@ -72,6 +72,11 @@ DEPEND="${RDEPEND}
 PATCHES=(
 	"${FILESDIR}/mtl23.patch"
 )
+
+src_prepare() {
+	haskell-cabal_src_prepare
+	sed -i 's/Aeson.KeyValue kv/Aeson.KeyValue e kv/g' "${S}/Calamity/Internal/Utils.hs" || die
+}
 
 src_install() {
 	# no idea, dirty hack...
