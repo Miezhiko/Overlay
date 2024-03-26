@@ -45,7 +45,6 @@ RDEPEND=">=dev-haskell/aeson-2.0.3.0:=
 	>=dev-haskell/yaml-0.11.10.0:=
 	dev-haskell/hw-kafka-client
 	dev-haskell/pointfree
-	dev-haskell/openai-hs
 	>=dev-lang/ghc-9.2.4:=
 "
 DEPEND="${RDEPEND}
