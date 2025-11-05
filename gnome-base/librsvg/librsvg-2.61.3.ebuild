@@ -61,10 +61,6 @@ QA_FLAGS_IGNORED="
 	usr/lib.*/librsvg.*
 "
 
-PATCHES=(
-	"${FILESDIR}/0001-xml-Treat-user-stop-errors-as-successful-parses.patch"
-)
-
 my_live_src_unpack() {
 	debug-print-function ${FUNCNAME} "$@"
 
