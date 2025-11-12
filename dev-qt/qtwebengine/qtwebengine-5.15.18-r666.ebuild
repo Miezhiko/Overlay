@@ -170,9 +170,12 @@ src_prepare() {
 		fi
 	done < <(find src/3rdparty/chromium/third_party/perfetto -name "*.h" -o -name "*.cc")
 
-    # Patch WebRTC task_queue_base.h for GCC 13+
+    # Patch WebRTC headers for GCC 13+
     if ! grep -q '#include <cstdint>' "src/3rdparty/chromium/third_party/webrtc/api/task_queue/task_queue_base.h"; then
         sed -i '1i #include <cstdint>' "src/3rdparty/chromium/third_party/webrtc/api/task_queue/task_queue_base.h" || die
+    fi
+    if ! grep -q '#include <cstdint>' "src/3rdparty/chromium/third_party/webrtc/api/fec_controller.h"; then
+        sed -i '1i #include <cstdint>' "src/3rdparty/chromium/third_party/webrtc/api/fec_controller.h" || die
     fi
 
     while IFS= read -r file; do
