@@ -170,20 +170,21 @@ src_prepare() {
 		fi
 	done < <(find src/3rdparty/chromium/third_party/perfetto -name "*.h" -o -name "*.cc")
 
-    # Patch WebRTC headers for GCC 13+
-    if ! grep -q '#include <cstdint>' "src/3rdparty/chromium/third_party/webrtc/api/task_queue/task_queue_base.h"; then
-        sed -i '1i #include <cstdint>' "src/3rdparty/chromium/third_party/webrtc/api/task_queue/task_queue_base.h" || die
-    fi
-    if ! grep -q '#include <cstdint>' "src/3rdparty/chromium/third_party/webrtc/api/fec_controller.h"; then
-        sed -i '1i #include <cstdint>' "src/3rdparty/chromium/third_party/webrtc/api/fec_controller.h" || die
-    fi
+    # Fix missing cstdint include in WebRTC for GCC 13+
+	while IFS= read -r file; do
+		if grep -q 'uint8_t\|uint16_t\|uint32_t\|uint64_t' "$file" && \
+		   ! grep -q '#include <cstdint>' "$file"; then
+			sed -i '1i #include <cstdint>' "$file" || die
+		fi
+	done < <(find src/3rdparty/chromium/third_party/webrtc -name "*.h" -o -name "*.cc")
 
-    while IFS= read -r file; do
-        if grep -q 'uint8_t\|uint16_t\|uint32_t\|uint64_t' "$file" && \
-           ! grep -q '#include <cstdint>' "$file"; then
-            sed -i '1i #include <cstdint>' "$file" || die
-        fi
-    done < <(find src/3rdparty/chromium/net/tools/huffman_trie -name "*.h" -o -name "*.cc")
+	# Fix missing cstdint include in net/tools/huffman_trie for GCC 13+
+	while IFS= read -r file; do
+		if grep -q 'uint8_t\|uint16_t\|uint32_t\|uint64_t' "$file" && \
+		   ! grep -q '#include <cstdint>' "$file"; then
+			sed -i '1i #include <cstdint>' "$file" || die
+		fi
+	done < <(find src/3rdparty/chromium/net/tools/huffman_trie -name "*.h" -o -name "*.cc")
 
 	# We need to make sure this integrates well into Qt 5.15.3 installation.
 	# Otherwise revdeps fail w/o heavy changes. This is the simplest way to do it.
