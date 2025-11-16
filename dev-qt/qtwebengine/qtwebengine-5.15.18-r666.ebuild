@@ -170,13 +170,23 @@ src_prepare() {
 		fi
 	done < <(find src/3rdparty/chromium/third_party/perfetto -name "*.h" -o -name "*.cc")
 
-    # Fix missing cstdint include in WebRTC for GCC 13+
+    # Fix missing cstdint/stdint.h include in WebRTC for GCC 13+
 	while IFS= read -r file; do
-		if grep -q 'uint8_t\|uint16_t\|uint32_t\|uint64_t' "$file" && \
-		   ! grep -q '#include <cstdint>' "$file"; then
-			sed -i '1i #include <cstdint>' "$file" || die
+		if grep -q 'uint8_t\|uint16_t\|uint32_t\|uint64_t' "$file"; then
+			# Check file extension to determine if it's C or C++
+			if [[ "$file" == *.c ]]; then
+				# C files need stdint.h
+				if ! grep -q '#include <stdint.h>' "$file"; then
+					sed -i '1i #include <stdint.h>' "$file" || die
+				fi
+			else
+				# C++ files (.cc, .cpp, .h) need cstdint
+				if ! grep -q '#include <cstdint>\|#include <stdint.h>' "$file"; then
+					sed -i '1i #include <cstdint>' "$file" || die
+				fi
+			fi
 		fi
-	done < <(find src/3rdparty/chromium/third_party/webrtc -name "*.h" -o -name "*.cc")
+	done < <(find src/3rdparty/chromium/third_party/webrtc -name "*.h" -o -name "*.cc" -o -name "*.c")
 
 	# Fix missing cstdint include in net/tools/huffman_trie for GCC 13+
 	while IFS= read -r file; do
