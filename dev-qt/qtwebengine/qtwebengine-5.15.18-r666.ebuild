@@ -170,17 +170,24 @@ src_prepare() {
 		fi
 	done < <(find src/3rdparty/chromium/third_party/perfetto -name "*.h" -o -name "*.cc")
 
-    # Fix missing cstdint/stdint.h include in WebRTC for GCC 13+
+    # Fix missing stdint.h/cstdint include in WebRTC for GCC 13+
 	while IFS= read -r file; do
 		if grep -q 'uint8_t\|uint16_t\|uint32_t\|uint64_t' "$file"; then
-			# Check file extension to determine if it's C or C++
-			if [[ "$file" == *.c ]]; then
-				# C files need stdint.h
+			# For .h files in directories with .c files, use stdint.h (C-compatible)
+			# For .c files, use stdint.h
+			# For .cc/.cpp files, use cstdint
+			if [[ "$file" == *.c ]] || [[ "$file" == */signal_processing/include/*.h ]]; then
+				# C files and signal_processing headers need stdint.h
 				if ! grep -q '#include <stdint.h>' "$file"; then
 					sed -i '1i #include <stdint.h>' "$file" || die
 				fi
+			elif [[ "$file" == *.cc ]] || [[ "$file" == *.cpp ]]; then
+				# C++ implementation files need cstdint
+				if ! grep -q '#include <cstdint>\|#include <stdint.h>' "$file"; then
+					sed -i '1i #include <cstdint>' "$file" || die
+				fi
 			else
-				# C++ files (.cc, .cpp, .h) need cstdint
+				# Other .h files: use cstdint by default, but check if used by C files
 				if ! grep -q '#include <cstdint>\|#include <stdint.h>' "$file"; then
 					sed -i '1i #include <cstdint>' "$file" || die
 				fi
