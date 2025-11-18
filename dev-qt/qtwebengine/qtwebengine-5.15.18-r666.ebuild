@@ -171,23 +171,45 @@ src_prepare() {
 	done < <(find src/3rdparty/chromium/third_party/perfetto -name "*.h" -o -name "*.cc")
 
     # Fix missing stdint.h/cstdint include in WebRTC for GCC 13+
+	# First pass: identify all .h files that are included by .c files
+	local c_included_headers=()
+	while IFS= read -r cfile; do
+		while IFS= read -r header; do
+			c_included_headers+=("$header")
+		done < <(grep -h '^#include "' "$cfile" 2>/dev/null | sed 's/^#include "\(.*\)"/\1/' | while read hfile; do
+			find "$(dirname "$cfile")" -name "$(basename "$hfile")" 2>/dev/null
+		done)
+	done < <(find src/3rdparty/chromium/third_party/webrtc -name "*.c")
+
+	# Second pass: patch files with appropriate header
 	while IFS= read -r file; do
 		if grep -q 'uint8_t\|uint16_t\|uint32_t\|uint64_t' "$file"; then
-			# For .h files in directories with .c files, use stdint.h (C-compatible)
-			# For .c files, use stdint.h
-			# For .cc/.cpp files, use cstdint
-			if [[ "$file" == *.c ]] || [[ "$file" == */signal_processing/include/*.h ]]; then
-				# C files and signal_processing headers need stdint.h
+			local use_stdint=0
+
+			# C files always use stdint.h
+			if [[ "$file" == *.c ]]; then
+				use_stdint=1
+			# Check if this header is included by any C file
+			elif [[ "$file" == *.h ]]; then
+				for cheader in "${c_included_headers[@]}"; do
+					if [[ "$file" == "$cheader" ]] || [[ "$(basename "$file")" == "$(basename "$cheader")" ]]; then
+						use_stdint=1
+						break
+					fi
+				done
+				# Also use stdint.h for common signal processing headers
+				if [[ "$file" == */signal_processing/* ]] || [[ "$file" == */isac/* ]]; then
+					use_stdint=1
+				fi
+			fi
+
+			if [[ $use_stdint -eq 1 ]]; then
+				# Use stdint.h for C compatibility
 				if ! grep -q '#include <stdint.h>' "$file"; then
 					sed -i '1i #include <stdint.h>' "$file" || die
 				fi
-			elif [[ "$file" == *.cc ]] || [[ "$file" == *.cpp ]]; then
-				# C++ implementation files need cstdint
-				if ! grep -q '#include <cstdint>\|#include <stdint.h>' "$file"; then
-					sed -i '1i #include <cstdint>' "$file" || die
-				fi
 			else
-				# Other .h files: use cstdint by default, but check if used by C files
+				# Use cstdint for C++ files
 				if ! grep -q '#include <cstdint>\|#include <stdint.h>' "$file"; then
 					sed -i '1i #include <cstdint>' "$file" || die
 				fi
