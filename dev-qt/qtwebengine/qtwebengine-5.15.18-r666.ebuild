@@ -180,6 +180,14 @@ src_prepare() {
 		fi
 	done < <(find src/3rdparty/chromium/third_party/webrtc -type f \( -name "*.h" -o -name "*.cc" -o -name "*.c" \))
 
+	# Additional fix for specific WebRTC API headers that need cstdint
+	while IFS= read -r file; do
+		if grep -q 'int64_t' "$file" && \
+		   ! grep -q '#include <cstdint>' "$file"; then
+			sed -i '1i #include <cstdint>' "$file" || die
+		fi
+	done < <(find src/3rdparty/chromium/third_party/webrtc/api -type f \( -name "*.h" -o -name "*.hh" \) | grep -E '(network_state_predictor|goog_cc|transport)')
+
 	# Fix missing cstdint include in net/tools/huffman_trie for GCC 13+
 	while IFS= read -r file; do
 		if grep -q 'uint8_t\|uint16_t\|uint32_t\|uint64_t' "$file" && \
