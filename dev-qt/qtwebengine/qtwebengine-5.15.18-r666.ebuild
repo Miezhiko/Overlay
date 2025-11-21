@@ -196,6 +196,14 @@ src_prepare() {
 		fi
 	done < <(find src/3rdparty/chromium/net/tools/huffman_trie -name "*.h" -o -name "*.cc")
 
+    # Fix missing cstdint includes in GPU headers
+	while IFS= read -r file; do
+		if grep -q 'uint8_t\|uint16_t\|uint32_t\|uint64_t\|int64_t' "$file" && \
+		   ! grep -q '#include <cstdint>' "$file"; then
+			sed -i '1i #include <cstdint>' "$file" || die
+		fi
+	done < <(find src/3rdparty/chromium/gpu -type f \( -name "*.h" -o -name "*.hh" \))
+
 	# We need to make sure this integrates well into Qt 5.15.3 installation.
 	# Otherwise revdeps fail w/o heavy changes. This is the simplest way to do it.
 	# See also: https://www.qt.io/blog/building-qt-webengine-against-other-qt-versions
