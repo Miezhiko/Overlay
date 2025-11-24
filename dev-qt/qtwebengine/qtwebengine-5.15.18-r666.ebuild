@@ -212,13 +212,29 @@ src_prepare() {
     	fi
     done < <(find src/3rdparty/chromium/third_party/woff2 -name "*.h" -o -name "*.cc")
 
-	# Fix missing cstdint include in pdfium for GCC 13+
+	# 1. C++ code: inject <cstdint> into C++ headers (*.h, *.hh) that use uintXX_t but lack the include
+	#    Exclude known C-only subtrees to avoid contamination
 	while IFS= read -r file; do
 		if grep -q 'uint8_t\|uint16_t\|uint32_t\|uint64_t\|int8_t\|int16_t\|int32_t\|int64_t' "$file" && \
 		   ! grep -q '#include <cstdint>' "$file"; then
 			sed -i '1i #include <cstdint>' "$file" || die
 		fi
-	done < <(find src/3rdparty/chromium/third_party/pdfium -type f \( -name "*.h" -o -name "*.hh" \))
+	done < <(find src/3rdparty/chromium/third_party/pdfium -type f \( -name "*.h" -o -name "*.hh" \) \
+		-not -path "*/third_party/libopenjpeg20/*" \
+		-not -path "*/third_party/libjpeg/*" \
+		-not -path "*/third_party/zlib/*")
+
+	# 2. C code (e.g., libopenjpeg20): inject <stdint.h> instead, and NEVER <cstdint>
+	while IFS= read -r file; do
+		if grep -q 'uint8_t\|uint16_t\|uint32_t\|uint64_t\|int8_t\|int16_t\|int32_t\|int64_t' "$file" && \
+		   ! grep -q '#include <stdint.h>' "$file" && \
+		   ! grep -q '#include <cstdint>' "$file"; then
+			sed -i '1i #include <stdint.h>' "$file" || die
+		elif grep -q '#include <cstdint>' "$file"; then
+			# Replace misplaced <cstdint> with <stdint.h> in C headers
+			sed -i 's|#include <cstdint>|#include <stdint.h>|' "$file" || die
+		fi
+	done < <(find src/3rdparty/chromium/third_party/pdfium/third_party/libopenjpeg20 -type f \( -name "*.h" -o -name "*.c" \))
 
 	# We need to make sure this integrates well into Qt 5.15.3 installation.
 	# Otherwise revdeps fail w/o heavy changes. This is the simplest way to do it.
