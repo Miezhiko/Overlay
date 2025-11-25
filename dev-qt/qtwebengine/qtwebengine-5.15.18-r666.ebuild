@@ -170,12 +170,10 @@ src_prepare() {
 		fi
 	done < <(find src/3rdparty/chromium/third_party/perfetto -name "*.h" -o -name "*.cc")
 
-	while IFS= read -r file; do
-		if grep -q 'uint8_t\|uint16_t\|uint32_t\|uint64_t' "$file" && \
-		   ! grep -q '#include <cstdint>' "$file"; then
-			sed -i '1i #include <cstdint>' "$file" || die
-		fi
-	done < <(find src/3rdparty/chromium/third_party/webrtc -name "*.h" -o -name "*.cc")
+    # Patch WebRTC task_queue_base.h for GCC 13+
+    if ! grep -q '#include <cstdint>' "src/3rdparty/chromium/third_party/webrtc/api/task_queue/task_queue_base.h"; then
+        sed -i '1i #include <cstdint>' "src/3rdparty/chromium/third_party/webrtc/api/task_queue/task_queue_base.h" || die
+    fi
 
 	# We need to make sure this integrates well into Qt 5.15.3 installation.
 	# Otherwise revdeps fail w/o heavy changes. This is the simplest way to do it.
@@ -255,15 +253,4 @@ src_install() {
 	if [[ ! -f ${D}${QT5_LIBDIR}/libQt5WebEngine.so ]]; then
 		die "${CATEGORY}/${PF} failed to build anything. Please report to https://bugs.gentoo.org/"
 	fi
-}
-
-pkg_preinst() {
-	elog "This version of Qt WebEngine is based on Chromium version 87.0.4280.144,"
-	elog "with additional security fixes from newer versions. Extensive as it is, the"
-	elog "list of backports is impossible to evaluate, but always bound to be behind"
-	elog "Chromium's release schedule."
-	elog "In addition, various online services may deny service based on an outdated"
-	elog "user agent version (and/or other checks). Google is already known to do so."
-	elog
-	elog "tldr: Your web browsing experience will be compromised."
 }
