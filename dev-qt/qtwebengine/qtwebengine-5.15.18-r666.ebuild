@@ -236,6 +236,15 @@ src_prepare() {
 		fi
 	done < <(find src/3rdparty/chromium/third_party/pdfium/third_party/libopenjpeg20 -type f \( -name "*.h" -o -name "*.c" \))
 
+    # Fix string16 linking issues with GCC 13+
+    sed -i '1i #include <string>' src/3rdparty/chromium/base/strings/string16.h
+    sed -i '1i #include <string>' src/3rdparty/chromium/base/strings/string16_internals.h
+
+    # Also ensure proper includes in the clipboard file that's causing the error
+    if [[ -f src/core/clipboard_qt.cpp ]]; then
+        sed -i '1i #include <string>' src/core/clipboard_qt.cpp
+    fi
+
 	# We need to make sure this integrates well into Qt 5.15.3 installation.
 	# Otherwise revdeps fail w/o heavy changes. This is the simplest way to do it.
 	# See also: https://www.qt.io/blog/building-qt-webengine-against-other-qt-versions
@@ -287,6 +296,8 @@ src_prepare() {
 src_configure() {
 	export NINJA_PATH=/usr/bin/ninja
 	export NINJAFLAGS="${NINJAFLAGS:--j$(makeopts_jobs "${MAKEOPTS}" 999) -l$(makeopts_loadavg "${MAKEOPTS}" 0) -v}"
+
+    append-cxxflags -D_GLIBCXX_USE_CXX11_ABI=1
 
     # -qt-ffmpeg # bug 831487
 	local myqmakeargs=(
