@@ -146,6 +146,10 @@ src_unpack() {
 }
 
 src_prepare() {
+    # LET JUST BUILD WITH OLD GCC
+    export CC="gcc-13"
+    export CXX="g++-13"
+
     # taken from Arch: https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=qt5-webengine&id=227bf62b16db6df9456d086f7cc07dd9d922a1e0
 
     patch -p1 -d src/3rdparty -i "${FILESDIR}"/qt5-webengine-ffmpeg5.patch # Fix build with ffmpeg 5
