@@ -146,20 +146,9 @@ src_unpack() {
 }
 
 src_prepare() {
-    # LET JUST BUILD WITH OLD GCC
-    export CC="gcc-13"
-    export CXX="g++-13"
-
-    # this uses malloc_usable_size, which is incompatible with fortification level 3
-    export CFLAGS="${CFLAGS/_FORTIFY_SOURCE=3/_FORTIFY_SOURCE=2}"
-    export CXXFLAGS="${CXXFLAGS/_FORTIFY_SOURCE=3/_FORTIFY_SOURCE=2}"
-
-    # FOR ABI COMPATIBILITY AS WE CHANGE COMPILER
-    export LDFLAGS="${LDFLAGS} -lstdc++ -Wl,--no-as-needed"
-
     # taken from Arch: https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=qt5-webengine&id=227bf62b16db6df9456d086f7cc07dd9d922a1e0
 
-    # patch -p1 -d src/3rdparty -i "${FILESDIR}"/qt5-webengine-ffmpeg5.patch # Fix build with ffmpeg 5
+    patch -p1 -d src/3rdparty -i "${FILESDIR}"/qt5-webengine-ffmpeg5.patch # Fix build with ffmpeg 5
     patch -p1 -d src/3rdparty -i "${FILESDIR}"/qt5-webengine-pipewire-0.3.patch # Port to pipewire 0.3
     patch -p2 -d src/3rdparty/chromium -i "${FILESDIR}"/qt5-webengine-icu-75.patch # Fix build with ICU 75
     patch -p2 -d src/3rdparty/chromium -i "${FILESDIR}"/qt5-webengine-ninja-1.12.patch # Fix build with ninja 1.12
@@ -168,7 +157,7 @@ src_prepare() {
     patch -p1 -d src/3rdparty/chromium -i "${FILESDIR}"/python3.12-six.patch || die # Fix build with python 3.12 - patch from Debian
 
     # Fix build with ffmpeg 7 - Chromium patches
-    # patch -p1 -d src/3rdparty/chromium -i "${FILESDIR}"/qt5-webengine-ffmpeg7.patch || die
+    patch -p1 -d src/3rdparty/chromium -i "${FILESDIR}"/qt5-webengine-ffmpeg7.patch || die
     # Fix build with python 3.13
     sed -e '/import pipes/d' -i src/3rdparty/chromium/build/android/gyp/util/build_utils.py
 
@@ -185,6 +174,13 @@ src_prepare() {
     if ! grep -q '#include <cstdint>' "src/3rdparty/chromium/third_party/webrtc/api/task_queue/task_queue_base.h"; then
         sed -i '1i #include <cstdint>' "src/3rdparty/chromium/third_party/webrtc/api/task_queue/task_queue_base.h" || die
     fi
+
+    while IFS= read -r file; do
+        if grep -q 'uint8_t\|uint16_t\|uint32_t\|uint64_t' "$file" && \
+           ! grep -q '#include <cstdint>' "$file"; then
+            sed -i '1i #include <cstdint>' "$file" || die
+        fi
+    done < <(find src/3rdparty/chromium/net/tools/huffman_trie -name "*.h" -o -name "*.cc")
 
 	# We need to make sure this integrates well into Qt 5.15.3 installation.
 	# Otherwise revdeps fail w/o heavy changes. This is the simplest way to do it.
@@ -235,13 +231,9 @@ src_prepare() {
 }
 
 src_configure() {
-    # FOR ABI COMPATIBILITY AS WE CHANGE COMPILER
-    export LDFLAGS="${LDFLAGS} -lstdc++ -Wl,--no-as-needed"
-
 	export NINJA_PATH=/usr/bin/ninja
 	export NINJAFLAGS="${NINJAFLAGS:--j$(makeopts_jobs "${MAKEOPTS}" 999) -l$(makeopts_loadavg "${MAKEOPTS}" 0) -v}"
 
-    	# -qt-ffmpeg # bug 831487
 	local myqmakeargs=(
 		--
 		-no-build-qtpdf
@@ -255,6 +247,7 @@ src_configure() {
 		$(qt_use kerberos webengine-kerberos)
 		$(qt_use pulseaudio)
 		$(usex screencast -webengine-webrtc-pipewire '')
+		-qt-ffmpeg # bug 831487
 		$(qt_use system-icu webengine-icu)
 	)
 	qt5-build_src_configure

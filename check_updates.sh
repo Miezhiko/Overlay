@@ -5,10 +5,10 @@ function version { echo "$@" | awk -F. '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4
 exceptions=(
 	"dev-util/boost-build"
 	"dev-libs/boost"
-	"net-vpn/protonvpn-cli"
 	"gnome-base/gnome-core-apps"
 	"app-editors/vscode"
 	"dev-qt/qtwebengine"
+	"dev-qt/qtwebchannel"
 )
 
 while read e; do
