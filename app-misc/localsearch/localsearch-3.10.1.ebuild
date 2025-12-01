@@ -11,8 +11,8 @@ HOMEPAGE="https://gnome.pages.gitlab.gnome.org/localsearch"
 
 LICENSE="GPL-2+ LGPL-2.1+"
 SLOT="3"
-KEYWORDS="~alpha amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~sparc ~x86"
-IUSE="cue exif ffmpeg gif gsf +gstreamer iptc +iso +jpeg networkmanager +pdf playlist raw seccomp test +tiff upower +xml xmp xps"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~sparc ~x86"
+IUSE="cue exif gif gsf +gstreamer iptc +iso +jpeg +pdf +playlist raw seccomp test +tiff upower webp +xml xmp xps"
 
 REQUIRED_USE="cue? ( gstreamer )" # cue is currently only supported via gstreamer, not ffmpeg
 RESTRICT="!test? ( test )"
@@ -23,10 +23,10 @@ RDEPEND="
 	>=app-misc/tinysparql-3.8:3
 	>=sys-apps/dbus-1.3.1
 	xmp? ( >=media-libs/exempi-2.1.0:= )
-	raw? ( media-libs/gexiv2 )
-	>=dev-libs/glib-2.70:2
+	raw? ( >=media-libs/gexiv2-0.16 )
+	>=dev-libs/glib-2.76:2
 	dev-libs/libgudev
-	dev-libs/gobject-introspection
+	>=dev-libs/gobject-introspection-1.82.0-r2
 	cue? ( media-libs/libcue:= )
 	exif? ( >=media-libs/libexif-0.6 )
 	gsf? ( >=gnome-extra/libgsf-1.14.24:= )
@@ -40,12 +40,10 @@ RDEPEND="
 	xml? ( >=dev-libs/libxml2-2.6:= )
 	pdf? ( >=app-text/poppler-0.16.0:=[cairo] )
 	playlist? ( >=dev-libs/totem-pl-parser-3:= )
+	webp? ( media-libs/libwebp )
 
 	gif? ( media-libs/giflib:= )
 
-	networkmanager? ( net-misc/networkmanager )
-
-	>=net-libs/libgrss-0.7:0
 	app-arch/gzip
 
 	upower? ( >=sys-power/upower-0.9.0:= )
@@ -56,8 +54,7 @@ RDEPEND="
 		>=media-libs/gstreamer-1.20:1.0
 		>=media-libs/gst-plugins-base-1.20:1.0
 		>=media-plugins/gst-plugins-meta-1.20:1.0 )
-	!gstreamer? (
-		ffmpeg? ( media-video/ffmpeg:0= ) )
+	media-video/ffmpeg:0=
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
@@ -111,13 +108,6 @@ src_configure() {
 
 	append-cflags -DTRACKER_DEBUG -DG_DISABLE_CAST_CHECKS
 
-	local media_extractor="none"
-	if use gstreamer ; then
-		media_extractor="gstreamer"
-	elif use ffmpeg ; then
-		media_extractor="libav"
-	fi
- 
 	local emesonargs=(
 		-Dman=true
 		-Dextract=true
@@ -136,7 +126,6 @@ src_configure() {
 		# we should add a USE flag for it but likely give it the same treatment
 		# as seccomp (i.e. package.use.force).
 		-Dlandlock=disabled
-
 		$(meson_feature cue)
 		$(meson_feature exif)
 		$(meson_feature gif)
@@ -146,6 +135,8 @@ src_configure() {
 		$(meson_feature jpeg)
 		$(meson_feature pdf)
 		$(meson_feature playlist)
+		$(meson_feature webp)
+		-Dbash_completion=true
 		-Dpng=enabled
 		$(meson_feature raw)
 		$(meson_feature tiff)
@@ -165,6 +156,7 @@ src_configure() {
 src_test() {
 	export GSETTINGS_BACKEND="dconf" # Tests require dconf and explicitly check for it (env_reset set it to "memory")
 	export PYTHONPATH="${ESYSROOT}"/usr/$(get_libdir)/tinysparql-3.0
+	# Many (extractor) tests fail since version 3.9.0 https://gitlab.gnome.org/GNOME/localsearch/-/issues/405
 	dbus-run-session meson test -C "${BUILD_DIR}" --no-suite examples || die 'tests failed'
 }
 
