@@ -14,9 +14,7 @@ if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://gitlab.gnome.org/GNOME/gexiv2.git"
 	inherit git-r3
 else
-	# https://github.com/Miezhiko/Overlay/issues/65
-	#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~ppc ~ppc64 ~riscv ~sparc ~x86"
-	KEYWORDS=""
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~ppc ~ppc64 ~riscv ~sparc ~x86"
 fi
 
 LICENSE="LGPL-2.1+ GPL-2+"
@@ -73,6 +71,9 @@ src_configure() {
 
 src_install() {
 	meson_src_install
+
+    # fix for https://github.com/Miezhiko/Overlay/issues/65
+    mv "${ED}"/usr/lib64/pkgconfig/gexiv2-0.16.pc "${ED}"/usr/lib64/pkgconfig/gexiv2.pc || die
 
 	if use gtk-doc; then
 		mkdir -p "${ED}"/usr/share/gtk-doc/html || die
