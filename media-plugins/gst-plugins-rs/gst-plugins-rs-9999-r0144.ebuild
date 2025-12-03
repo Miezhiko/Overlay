@@ -9,7 +9,7 @@ DESCRIPTION="GStreamer plugins written in Rust"
 HOMEPAGE="https://gstreamer.freedesktop.org/"
 SRC_URI="https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs.git -> ${P}.git"
 EGIT_REPO_URI="https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs.git"
-EGIT_COMMIT="gstreamer-1.27.2"
+EGIT_COMMIT="0.14.4"
 
 LICENSE="|| ( LGPL-2.1+ MIT Apache-2.0 MPL-2.0 )"
 SLOT="1.0"
