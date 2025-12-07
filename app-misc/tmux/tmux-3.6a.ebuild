@@ -21,6 +21,7 @@ fi
 LICENSE="ISC"
 SLOT="0"
 IUSE="debug jemalloc selinux sixel systemd utempter vim-syntax"
+RESTRICT="mirror"
 
 DEPEND="
 	dev-libs/libevent:=
