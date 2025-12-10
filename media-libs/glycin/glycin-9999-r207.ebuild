@@ -12,7 +12,7 @@ HOMEPAGE="https://gitlab.gnome.org/GNOME/glycin"
 SRC_URI=""
 
 EGIT_REPO_URI="https://gitlab.gnome.org/GNOME/glycin.git"
-EGIT_COMMIT="2.0.5"
+EGIT_COMMIT="2.0.7"
 
 LICENSE+="
 	Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD-2 BSD GPL-3+ IJG ISC
@@ -32,7 +32,7 @@ RDEPEND="
 	jpeg2k? ( media-libs/openjpeg:= )
 	svg? ( gnome-base/librsvg:= )
 	heif? ( media-libs/libheif:= )
-	>=media-libs/glycin-loaders-2.0.5
+	>=media-libs/glycin-loaders-2.0.7
 "
 
 DEPEND="${RDEPEND}
