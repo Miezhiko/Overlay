@@ -146,7 +146,7 @@ src_install() {
 
 	exeinto /usr/lib/snapd
 	doexe "${GOBIN}/"{snapd,snapd-apparmor,snap-bootstrap,snap-failure,snap-exec,snap-preseed,snap-recovery-chooser,snap-repair,snap-seccomp,snap-update-ns} \
-		"${S}/"{cmd/snap-discard-ns/snap-discard-ns,cmd/snap-gdb-shim/snap-gdb-shim,cmd/snap-mgmt/snap-mgmt} \
+		"${S}/"{cmd/snap-discard-ns/snap-discard-ns,cmd/snap-mgmt/snap-mgmt} \
 		"${S}/data/completion/bash/"{complete.sh,etelpmoc.sh,}
 
 	dobashcomp "${S}/data/completion/bash/snap"
