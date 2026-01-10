@@ -64,6 +64,12 @@ multilib_src_configure() {
 		-Dglycin=enabled
 	)
 
+	if multilib_is_native_abi; then
+		emesonargs+=( -Dglycin=enabled )
+	else
+		emesonargs+=( -Dglycin=disabled )
+	fi
+
 	meson_src_configure
 }
 
