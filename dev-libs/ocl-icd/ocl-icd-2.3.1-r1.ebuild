@@ -1,7 +1,7 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 USE_RUBY="ruby25 ruby26 ruby27 ruby30 ruby31"
 inherit autotools flag-o-matic multilib-minimal ruby-single
@@ -17,7 +17,6 @@ KEYWORDS="~amd64 ~x86"
 # handle ebuilds both with and without this flag.
 IUSE="+khronos-headers"
 
-BDEPEND="${RUBY_DEPS}"
 DEPEND=">=dev-util/opencl-headers-2021.04.29"
 RDEPEND="${DEPEND}
 	!app-eselect/eselect-opencl

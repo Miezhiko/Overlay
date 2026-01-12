@@ -1,10 +1,10 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{9..11} pypy3 )
+PYTHON_COMPAT=( python3_{9..14} pypy3 )
 
 inherit distutils-r1
 
@@ -17,23 +17,12 @@ HOMEPAGE="
 "
 SRC_URI="
 	https://github.com/uiri/${PN}/archive/${PV}.tar.gz -> ${P}-1.tar.gz
-	test? (
-		https://github.com/BurntSushi/toml-test/archive/${TOML_TEST_VER}.tar.gz
-			-> toml-test-${TOML_TEST_VER}.tar.gz
-	)
 "
 
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~x64-macos ~x64-solaris"
-
-BDEPEND="
-	test? (
-		$(python_gen_cond_dep '
-			dev-python/numpy[${PYTHON_USEDEP}]
-		' python3_{8..10})
-	)
-"
+RESTRICT="test"
 
 DOCS=( README.rst )
 

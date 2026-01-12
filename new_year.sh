@@ -11,7 +11,7 @@ digest() {
 copyright_year() {
     local e=$1
     echo 'FIX "# Copyright" in: '"$e"
-    sed -e 's/^# Copyright .*/# Copyright 1999-2025 Gentoo Authors/g' -i "${e}"
+    sed -e 's/^# Copyright .*/# Copyright 1999-2026 Gentoo Authors/g' -i "${e}"
     digest "$e"
 }
 
