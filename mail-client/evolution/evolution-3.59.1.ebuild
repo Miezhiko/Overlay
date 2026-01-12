@@ -1,4 +1,4 @@
-# Copyright 1999-2026 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -103,11 +103,6 @@ file from /usr/share/applications if you use a different browser)."
 # call; if needed, set them after cmake_src_prepare call, if that works
 
 src_prepare() {
-	# libnotify is automagically detected, but a quick and easy way to
-	# force-disable it is to delete the "yes it's there" variable from
-	# CMakeLists.txt.
-	use libnotify || sed '/HAVE_LIBNOTIFY/d' -i CMakeLists.txt || die
-
 	cmake_src_prepare
 	gnome2_src_prepare
 }
@@ -136,6 +131,7 @@ src_configure() {
 		-DENABLE_PST_IMPORT=OFF
 		-DWITH_GLADE_CATALOG=OFF
 		-DENABLE_MARKDOWN=ON
+		-DENABLE_LIBNOTIFY=$(usex libnotify)
 	)
 
 	cmake_src_configure
