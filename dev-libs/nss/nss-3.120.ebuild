@@ -5,13 +5,13 @@ EAPI=8
 
 inherit dot-a flag-o-matic multilib toolchain-funcs multilib-minimal
 
-NSPR_VER="4.37"
+NSPR_VER="4.38.2"
 RTM_VER="${PV//./_}"
 RTM_NAME="NSS_${RTM_VER}_RTM"
 
 DESCRIPTION="Mozilla's Network Security Services library that implements PKI support"
 HOMEPAGE="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS"
-SRC_URI="https://ftp.mozilla.org/pub/security/nss/releases/${RTM_NAME}/src/nss-${RTM_VER}.tar.gz
+SRC_URI="https://ftp.mozilla.org/pub/security/nss/releases/${RTM_NAME}/src/nss-${PV}.tar.gz
 	cacert? ( https://dev.gentoo.org/~juippis/mozilla/patchsets/nss-3.104-cacert-class1-class3.patch )"
 
 LICENSE="|| ( MPL-2.0 GPL-2 LGPL-2.1 )"
@@ -34,7 +34,7 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 BDEPEND="dev-lang/perl"
 
-S="${WORKDIR}/nss-${RTM_VER}/${PN}"
+S="${WORKDIR}/nss-${PV}/${PN}"
 
 MULTILIB_CHOST_TOOLS=(
 	/usr/bin/nss-config
