@@ -42,7 +42,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/vte-${PV}-fix-unknown-variable.patch"
+	"${FILESDIR}/vte-0.82.2-fix-unknown-variable.patch"
 )
 
 src_prepare() {
