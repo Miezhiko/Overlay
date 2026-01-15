@@ -3,27 +3,39 @@
 
 EAPI=8
 
-LLVM_COMPAT=( {18..23} )
-RUST_MIN_VER="1.80.1"
-
-inherit cargo llvm-r2 optfeature systemd git-r3
-
-VENDOR="25.05.1"
-DESCRIPTION="Scrollable-tiling Wayland compositor"
-HOMEPAGE="https://github.com/YaLTeR/niri"
-EGIT_REPO_URI="https://github.com/YaLTeR/niri.git"
-SRC_URI="
-	https://github.com/YaLTeR/niri/releases/download/v${VENDOR}/niri-${VENDOR}-vendored-dependencies.tar.xz
+CRATES="
 "
 
+LLVM_COMPAT=( {18..23} )
+RUST_MIN_VER="1.82.0"
+
+inherit cargo llvm-r2 optfeature shell-completion systemd
+
+DESCRIPTION="Scrollable-tiling Wayland compositor"
+HOMEPAGE="https://github.com/YaLTeR/niri"
+
+if [[ ${PV} == 9999 ]]; then
+	inherit git-r3
+	EGIT_REPO_URI="https://github.com/YaLTeR/niri.git"
+else
+	SRC_URI="
+		https://github.com/YaLTeR/niri/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
+		https://github.com/YaLTeR/niri/releases/download/v${PV}/${P}-vendored-dependencies.tar.xz
+		${CARGO_CRATE_URIS}
+	"
+
+	# used for version string
+	export NIRI_BUILD_COMMIT="b35bcae"
+fi
+
+KEYWORDS="~amd64"
 LICENSE="GPL-3+"
 # Dependent crate licenses
 LICENSE+="
 	Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD-2 BSD ISC MIT MPL-2.0
-	Unicode-3.0
+	Unicode-3.0 ZLIB
 "
 SLOT="0"
-KEYWORDS="~amd64"
 IUSE="+dbus screencast systemd"
 REQUIRED_USE="
 	screencast? ( dbus )
@@ -42,11 +54,12 @@ DEPEND="
 	x11-libs/libxkbcommon
 	x11-libs/pango
 	x11-libs/pixman
-	screencast? (
-		media-video/pipewire:=
-	)
+	screencast? ( media-video/pipewire:= )
 "
-RDEPEND="${DEPEND}"
+RDEPEND="
+	${DEPEND}
+	screencast? ( sys-apps/xdg-desktop-portal-gnome )
+"
 # libclang is required for bindgen
 BDEPEND="
 	screencast? ( $(llvm_gen_dep 'llvm-core/clang:${LLVM_SLOT}') )
@@ -62,16 +75,22 @@ pkg_setup() {
 }
 
 src_unpack() {
-	git-r3_src_unpack
-	default
-	cd "${WORKDIR}/${P}"
-	cargo update
-	cd "${WORKDIR}"
-	cargo_live_src_unpack
+	if [[ ${PV} == 9999 ]]; then
+		git-r3_src_unpack
+		cargo_live_src_unpack
+	else
+		cargo_src_unpack
+	fi
 }
 
 src_prepare() {
 	sed -i 's/git = "[^ ]*"/version = "*"/' Cargo.toml || die
+	# niri-session doesn't work on OpenRC
+	if ! use systemd; then
+		local cmd="niri --session"
+		use dbus && cmd="dbus-run-session $cmd"
+		sed -i "s/niri-session/$cmd/" resources/niri.desktop || die
+	fi
 	default
 }
 
@@ -82,6 +101,14 @@ src_configure() {
 		$(usev systemd)
 	)
 	cargo_src_configure --no-default-features
+}
+
+src_compile() {
+	cargo_src_compile
+
+	"$(cargo_target_dir)"/niri completions bash > niri  || die
+	"$(cargo_target_dir)"/niri completions fish > niri.fish || die
+	"$(cargo_target_dir)"/niri completions zsh > _niri || die
 }
 
 src_install() {
@@ -95,6 +122,10 @@ src_install() {
 
 	insinto /usr/share/xdg-desktop-portal
 	doins resources/niri-portals.conf
+
+	dobashcomp niri
+	dofishcomp niri.fish
+	dozshcomp _niri
 }
 
 src_test() {
@@ -104,12 +135,18 @@ src_test() {
 	chmod 0700 "${XDG_RUNTIME_DIR}" || die
 
 	# bug 950626
-	# https://github.com/YaLTeR/niri/blob/main/wiki/Packaging-niri.md#running-tests
+	# https://yalter.github.io/niri/Packaging-niri.html#running-tests
 	local -x RAYON_NUM_THREADS=2
-	cargo_src_test -- --test-threads=2
+	local skip=(
+		# requires surfacesless EGL to be available
+		--skip=::egl
+	)
+	cargo_src_test -- --test-threads=2 "${skip[@]}"
 }
 
 pkg_postinst() {
 	optfeature "Default application launcher" "gui-apps/fuzzel"
 	optfeature "Default status bar" "gui-apps/waybar"
+	optfeature "Default terminal" "x11-terms/alacritty"
+	optfeature "Xwayland support" "gui-apps/xwayland-satellite"
 }
