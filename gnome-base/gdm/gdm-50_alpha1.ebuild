@@ -105,7 +105,6 @@ src_configure() {
 		-Drun-dir=/run/gdm
 		$(meson_feature selinux)
 		$(meson_use systemd systemd-journal)
-		-Dudev-dir=$(get_udevdir)/rules.d
 	)
 
 	if use elogind; then
