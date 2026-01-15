@@ -10,16 +10,16 @@ IUSE="+systemd"
 DEPEND="acct-user/ollama acct-group/ollama"
 RDEPEND="acct-user/ollama acct-group/ollama"
 S="${WORKDIR}"
-RESTRICT="strip"
+RESTRICT="strip mirror"
 
 inherit xdg-utils
 
 SRC_URI="  
-  https://github.com/ollama/ollama/releases/download/v${PV}/ollama-linux-amd64.tgz  -> $P.amd64.tgz
+  https://github.com/ollama/ollama/releases/download/v${PV}/ollama-linux-amd64.tar.zst  -> $P.amd64.tar.zst
 " 
 
 src_unpack() {
-	tar -xzvf "${DISTDIR}/${P}.amd64.tgz" -C ${WORKDIR} || die "Failed to extract binary"
+	tar --use-compress-program=zstd -xvf "${DISTDIR}/${P}.amd64.tar.zst" -C ${WORKDIR} || die "Failed to extract binary"
 }
 
 src_install() {
