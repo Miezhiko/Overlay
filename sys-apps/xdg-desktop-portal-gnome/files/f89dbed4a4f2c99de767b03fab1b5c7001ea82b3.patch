@@ -1,0 +1,25 @@
+From f89dbed4a4f2c99de767b03fab1b5c7001ea82b3 Mon Sep 17 00:00:00 2001
+From: Alessandro Astone <alessandro.astone@canonical.com>
+Date: Tue, 13 Jan 2026 11:35:09 +0100
+Subject: [PATCH] Update libgxdp to fix settings schema
+
+Part-of: <https://gitlab.gnome.org/GNOME/xdg-desktop-portal-gnome/-/merge_requests/249>
+---
+ subprojects/libgxdp.wrap | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/subprojects/libgxdp.wrap b/subprojects/libgxdp.wrap
+index 068cece..e09c7cb 100644
+--- a/subprojects/libgxdp.wrap
++++ b/subprojects/libgxdp.wrap
+@@ -1,6 +1,6 @@
+ [wrap-git]
+ url = https://gitlab.gnome.org/GNOME/libgxdp.git
+-revision = b292f7f9b6ed019e98800386f233819be6481fc4
++revision = d5eca997aa2fea5af54fdd286d5c1e1aa7c76389
+ depth = 1
+ 
+ [provide]
+-- 
+GitLab
+

@@ -15,7 +15,7 @@ IUSE="wayland X"
 
 DEPEND="
 	dev-libs/glib:2
-	>=gnome-base/gsettings-desktop-schemas-47_alpha
+	>=gnome-base/gsettings-desktop-schemas-50_alpha
 	gnome-base/gnome-desktop:4=
 	>=gui-libs/libadwaita-1.7_alpha:1
 	media-libs/fontconfig
@@ -28,12 +28,16 @@ DEPEND="
 "
 RDEPEND="${DEPEND}"
 BDEPEND="
-	dev-util/gdbus-codegen
+	>=dev-util/gdbus-codegen-2.80.5-r1
 	sys-devel/gettext
 	virtual/pkgconfig
 
 	wayland? ( dev-util/wayland-scanner )
 "
+
+PATCHES=(
+	"${FILESDIR}/f89dbed4a4f2c99de767b03fab1b5c7001ea82b3.patch"
+)
 
 src_configure() {
 	local emesonargs=(
