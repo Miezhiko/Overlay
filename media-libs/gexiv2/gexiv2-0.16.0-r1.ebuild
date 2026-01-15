@@ -73,7 +73,7 @@ src_install() {
 	meson_src_install
 
     # fix for https://github.com/Miezhiko/Overlay/issues/65
-    mv "${ED}"/usr/lib64/pkgconfig/gexiv2-0.16.pc "${ED}"/usr/lib64/pkgconfig/gexiv2.pc || die
+    cp "${ED}"/usr/lib64/pkgconfig/gexiv2-0.16.pc "${ED}"/usr/lib64/pkgconfig/gexiv2.pc || die
 
 	if use gtk-doc; then
 		mkdir -p "${ED}"/usr/share/gtk-doc/html || die
