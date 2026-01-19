@@ -27,6 +27,12 @@ src_configure() {
 	meson_src_configure
 }
 
+src_install() {
+	meson_src_install
+	# workaround for https://github.com/Miezhiko/Overlay/issues/71
+	ln -s "${ED}/usr/share/glib-2.0/schemas/org.gnome.desktop.wm.preferences.gschema.xml" "${ED}/usr/share/glib-2.0/schemas/org.gnome.desktop.wm-preferences.gschema.xml" || die
+}
+
 pkg_postinst() {
 	xdg_pkg_postinst
 	gnome2_schemas_update
