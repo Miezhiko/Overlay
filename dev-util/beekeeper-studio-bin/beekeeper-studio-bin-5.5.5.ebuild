@@ -1,4 +1,4 @@
-EAPI=7
+EAPI=8
 
 inherit desktop multilib-build pax-utils unpacker xdg
 
