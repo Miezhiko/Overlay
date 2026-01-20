@@ -18,6 +18,7 @@ KEYWORDS="~amd64"
 CABAL_CHDEPS=(
 	'data-default-class    >=0.1     && <0.2' 'data-default-class    >=0.1     && <0.3'
 	'random                >=1.2     && <1.3' 'random                >=1.2     && <1.4'
+	'typerep-map           >=0.5     && <0.7' 'typerep-map           >=0.5     && <1'
 )
 
 RDEPEND=">=dev-haskell/aeson-2.1:=[profile?] <dev-haskell/aeson-2.3:=[profile?]
@@ -55,7 +56,7 @@ RDEPEND=">=dev-haskell/aeson-2.1:=[profile?] <dev-haskell/aeson-2.3:=[profile?]
 	>=dev-haskell/text-1.2:=[profile?] <dev-haskell/text-2.2:=[profile?]
 	>=dev-haskell/text-show-3.8:=[profile?] <dev-haskell/text-show-4:=[profile?]
 	>=dev-haskell/tls-1.7:=[profile?] <dev-haskell/tls-3:=[profile?]
-	>=dev-haskell/typerep-map-0.5:=[profile?] <dev-haskell/typerep-map-0.7:=[profile?]
+	>=dev-haskell/typerep-map-0.5:=[profile?] <dev-haskell/typerep-map-1:=[profile?]
 	>=dev-haskell/unagi-chan-0.4:=[profile?] <dev-haskell/unagi-chan-0.5:=[profile?]
 	>=dev-haskell/unboxing-vector-0.2:=[profile?] <dev-haskell/unboxing-vector-0.3:=[profile?]
 	>=dev-haskell/unordered-containers-0.2:=[profile?] <dev-haskell/unordered-containers-0.3:=[profile?]
