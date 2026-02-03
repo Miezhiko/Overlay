@@ -22,14 +22,14 @@ LICENSE+="
 
 SLOT="2"
 KEYWORDS="~amd64"
-IUSE="+jpeg2k +raw +svg +heif test +introspection"
+IUSE="+raw +svg +heif test +introspection"
 
 RDEPEND="
 	dev-libs/glib:2
 	media-libs/libjpeg-turbo:=
 	media-libs/libpng:=
 	>=media-libs/lcms-2.12:=
-	jpeg2k? ( media-libs/openjpeg:= )
+	media-libs/openjpeg:=
 	svg? ( gnome-base/librsvg:= )
 	heif? ( media-libs/libheif:= )
 	>=media-libs/glycin-loaders-2.1_beta
@@ -75,7 +75,6 @@ _do_configure_and_compile() {
 
 	local loaders=( glycin-image-rs glycin-jxl glycin-svg )
 
-	use jpeg2k && loaders+=( glycin-jpeg2000 )
 	use raw && loaders+=( glycin-raw )
 	use heif && loaders+=( glycin-heif )
 
