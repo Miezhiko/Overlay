@@ -32,7 +32,7 @@ RDEPEND="
 	jpeg2k? ( media-libs/openjpeg:= )
 	svg? ( gnome-base/librsvg:= )
 	heif? ( media-libs/libheif:= )
-	>=media-libs/glycin-loaders-2.0.7
+	>=media-libs/glycin-loaders-2.1_beta
 "
 
 DEPEND="${RDEPEND}

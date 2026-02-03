@@ -14,5 +14,6 @@
 <dev-util/glib-utils-9999
 <net-libs/glib-networking-9999
 <net-libs/libsoup-9999
+<media-libs/glycin-loaders-9999
 
 <dev-qt/qtwebchannel-9999
