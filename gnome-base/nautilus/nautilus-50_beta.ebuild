@@ -31,6 +31,8 @@ DEPEND="
 	>=x11-libs/pango-1.28.3
 	selinux? ( >=sys-libs/libselinux-2.0 )
 	>=app-misc/tinysparql-3.0:3
+	media-libs/glycin
+	dev-util/blueprint-compiler
 	cloudproviders? ( >=net-libs/libcloudproviders-0.3.1 )
 	introspection? ( >=dev-libs/gobject-introspection-1.54:= )
 "
@@ -65,6 +67,14 @@ src_prepare() {
 
 	# Disable -Werror
 	sed -e '/-Werror=/d' -i meson.build ||  die
+
+    # Fix C++17-style if statement in C code
+    sed -i \
+        '/if (int current_width = gtk_widget_get_width/,/current_width != 0)/ {
+            s/if (int current_width = \(.*\);$/int current_width = \1;\n\tif (/
+            s/^\s*current_width != 0)/current_width != 0)/
+        }' \
+        src/nautilus-properties.c || die "sed failed"
 
 	if use previewer; then
 		DOC_CONTENTS="nautilus uses gnome-extra/sushi to preview media files.
