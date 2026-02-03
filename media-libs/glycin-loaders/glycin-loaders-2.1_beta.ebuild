@@ -35,9 +35,7 @@ LICENSE+="
 	|| ( LGPL-2.1+ MPL-2.0 )
 "
 SLOT="2"
-if [[ ${PV} != *_[ab]* ]]; then
-	KEYWORDS="~amd64 ~arm64"
-fi
+KEYWORDS="~amd64 ~arm64"
 IUSE="heif jpeg2k jpegxl svg test"
 REQUIRED_USE="test? ( heif jpegxl )"
 RESTRICT="!test? ( test )"
