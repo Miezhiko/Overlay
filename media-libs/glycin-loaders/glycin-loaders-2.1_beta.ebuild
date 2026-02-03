@@ -36,7 +36,7 @@ LICENSE+="
 "
 SLOT="2"
 KEYWORDS="~amd64 ~arm64"
-IUSE="heif jpeg2k jpegxl svg test"
+IUSE="heif jpegxl svg test"
 REQUIRED_USE="test? ( heif jpegxl )"
 RESTRICT="!test? ( test )"
 
@@ -79,7 +79,6 @@ src_unpack() {
 src_configure() {
 	local formats=(
 		$(usev heif glycin-heif)
-		$(usev jpeg2k glycin-jpeg2000)
 		$(usev jpegxl glycin-jxl)
 		$(usev svg glycin-svg)
 		glycin-image-rs
