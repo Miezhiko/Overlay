@@ -8,7 +8,7 @@ LLVM_OPTIONAL=1
 CARGO_OPTIONAL=1
 PYTHON_COMPAT=( python3_{11..14} )
 
-inherit flag-o-matic llvm-r1 meson-multilib python-any-r1 linux-info
+inherit flag-o-matic toolchain-funcs llvm-r1 meson-multilib python-any-r1 linux-info
 
 MY_P="${P/_/-}"
 
@@ -412,7 +412,11 @@ multilib_src_configure() {
 		-Db_ndebug=$(usex debug false true)
 	)
 
-	append-cflags -Wno-error=incompatible-pointer-types-discards-qualifiers
+	if tc-is-clang ; then
+		append-cflags -Wno-error=incompatible-pointer-types-discards-qualifiers
+	elif tc-is-gcc ; then
+		append-cflags -Wno-error=discarded-qualifiers
+	fi
 
 	meson_src_configure
 }
