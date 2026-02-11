@@ -1,8 +1,8 @@
-# Copyright 1999-2026 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{11..13} )
 
 inherit gnome.org libtool python-r1 xdg
 
@@ -32,11 +32,11 @@ RESTRICT="test"
 # https://gitlab.gnome.org/GNOME/gnumeric/issues/419#note_618852
 RDEPEND="
 	app-arch/bzip2
-	sys-libs/zlib
+	virtual/zlib:=
 	>=dev-libs/glib-2.40.0:2
 	>=gnome-extra/libgsf-1.14.33:=
 	>=x11-libs/goffice-0.10.57:0.10[introspection?]
-	>=dev-libs/libxml2-2.4.12:2
+	>=dev-libs/libxml2-2.4.12:2=
 	>=x11-libs/pango-1.46.0:=
 
 	>=x11-libs/gtk+-3.8.7:3
@@ -44,7 +44,7 @@ RDEPEND="
 
 	introspection? (
 		${PYTHON_DEPS}
-		>=dev-libs/gobject-introspection-1:=
+		>=dev-libs/gobject-introspection-1.82.0-r2:=
 	)
 	perl? ( dev-lang/perl:= )
 	libgda? ( gnome-extra/libgda:5[gtk] )"
@@ -61,6 +61,8 @@ src_prepare() {
 
 	# Manage gi overrides ourselves
 	sed '/SUBDIRS/ s/introspection//' -i Makefile.{am,in} || die
+
+	sed -i '1i#include <stdbool.h>' src/sstest.c || die "Failed to add stdbool.h include"
 
 	elibtoolize
 }
@@ -81,7 +83,6 @@ src_configure() {
 
 src_install() {
 	default
-	dodoc HACKING MAINTAINERS
 
 	if use introspection; then
 		python_moduleinto gi.overrides
