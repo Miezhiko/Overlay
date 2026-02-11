@@ -35,10 +35,6 @@ BDEPEND="
 	wayland? ( dev-util/wayland-scanner )
 "
 
-PATCHES=(
-	"${FILESDIR}/f89dbed4a4f2c99de767b03fab1b5c7001ea82b3.patch"
-)
-
 src_configure() {
 	local emesonargs=(
 		-Dsystemduserunitdir="$(systemd_get_userunitdir)"
