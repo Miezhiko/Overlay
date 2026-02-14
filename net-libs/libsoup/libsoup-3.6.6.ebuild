@@ -1,38 +1,42 @@
-# Copyright 1999-2026 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-inherit gnome.org meson-multilib vala xdg
+PYTHON_COMPAT=( python3_{11..14} )
+inherit gnome.org meson-multilib python-any-r1 vala xdg
 
 DESCRIPTION="HTTP client/server library for GNOME"
-HOMEPAGE="https://wiki.gnome.org/Projects/libsoup"
+HOMEPAGE="https://libsoup.gnome.org"
 
 LICENSE="LGPL-2.1+"
 SLOT="3.0"
 
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~mips ppc ppc64 ~riscv ~s390 ~sparc x86"
 IUSE="+brotli gssapi gtk-doc +introspection samba ssl sysprof test +vala"
+REQUIRED_USE="
+	gtk-doc? ( introspection )
+	vala? ( introspection )
+"
 RESTRICT="!test? ( test )"
-REQUIRED_USE="vala? ( introspection )"
-
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 
 DEPEND="
-	>=dev-libs/glib-2.69.1:2[${MULTILIB_USEDEP}]
+	>=dev-libs/glib-2.70.0:2[${MULTILIB_USEDEP}]
 	net-libs/nghttp2:=[${MULTILIB_USEDEP}]
 	>=dev-db/sqlite-3.8.2:3[${MULTILIB_USEDEP}]
 	brotli? ( >=app-arch/brotli-1.0.6-r1:=[${MULTILIB_USEDEP}] )
 	>=net-libs/libpsl-0.20[${MULTILIB_USEDEP}]
 	sysprof? ( >=dev-util/sysprof-capture-3.40.1:4[${MULTILIB_USEDEP}] )
-	sys-libs/zlib
+	virtual/zlib:=
 	gssapi? ( virtual/krb5[${MULTILIB_USEDEP}] )
-	introspection? ( >=dev-libs/gobject-introspection-1.54:= )
+	introspection? ( >=dev-libs/gobject-introspection-1.82.0-r2:= )
 	samba? ( net-fs/samba )
 "
 RDEPEND="${DEPEND}
 	>=net-libs/glib-networking-2.70_alpha[ssl?,${MULTILIB_USEDEP}]
 "
 BDEPEND="
+	${PYTHON_DEPS}
 	dev-libs/glib
 	dev-util/glib-utils
 	gtk-doc? (
