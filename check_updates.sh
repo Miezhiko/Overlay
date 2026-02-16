@@ -9,6 +9,7 @@ exceptions=(
 	"app-editors/vscode"
 	"dev-qt/qtwebengine"
 	"dev-qt/qtwebchannel"
+	"dev-build/cmake"
 )
 
 while read e; do
