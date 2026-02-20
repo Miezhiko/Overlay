@@ -145,7 +145,6 @@ src_unpack() {
 	git-r3_src_unpack
 }
 
-
 src_prepare() {
     # taken from Arch: https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=qt5-webengine&id=227bf62b16db6df9456d086f7cc07dd9d922a1e0
 
@@ -259,6 +258,15 @@ src_prepare() {
 	# bug 620444 - ensure local headers are used
 	find "${S}" -type f -name "*.pr[fio]" | \
 		xargs sed -i -e 's|INCLUDEPATH += |&$${QTWEBENGINE_ROOT}_build/include $${QTWEBENGINE_ROOT}/include |' || die
+
+    # Fix SYS_SECCOMP redefinition clash with system signal.h (glibc >= 2.41 defines
+    # SI_SECCOMP as an enum member named SYS_SECCOMP, which collides with the bare
+    # #define in Chromium's linux_seccomp.h and breaks the enum body at compile time)
+    local seccomp_hdr="src/3rdparty/chromium/sandbox/linux/system_headers/linux_seccomp.h"
+    if [[ -f "${seccomp_hdr}" ]]; then
+        sed -i 's|^\(#define SYS_SECCOMP\b.*\)$|#ifndef SYS_SECCOMP\n\1\n#endif|' \
+            "${seccomp_hdr}" || die "Failed to patch linux_seccomp.h"
+    fi
 
 	if use system-icu; then
 		if has_version ">=dev-libs/icu-75.1"; then
