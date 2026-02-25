@@ -132,6 +132,20 @@ pkg_postinst() {
 	udev_reload
 	xdg_pkg_postinst
 	gnome2_schemas_update
+
+	elog ""
+	elog "NOTE: Primary paste (middle-click paste) has been enabled by default"
+	elog "in this build. This sets:"
+	elog ""
+	elog "  org.gnome.desktop.interface gtk-enable-primary-paste = true"
+	elog ""
+	elog "This enables pasting the X11 primary selection (highlighted text)"
+	elog "via middle-click, which is the traditional Unix/X11 behaviour but"
+	elog "differs from upstream GNOME defaults."
+	elog ""
+	elog "To revert to the upstream default, run:"
+	elog "  gsettings set org.gnome.desktop.interface gtk-enable-primary-paste false"
+	elog ""
 }
 
 pkg_postrm() {
