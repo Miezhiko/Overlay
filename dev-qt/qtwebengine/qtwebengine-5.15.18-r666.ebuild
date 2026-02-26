@@ -259,6 +259,10 @@ src_prepare() {
 	find "${S}" -type f -name "*.pr[fio]" | \
 		xargs sed -i -e 's|INCLUDEPATH += |&$${QTWEBENGINE_ROOT}_build/include $${QTWEBENGINE_ROOT}/include |' || die
 
+  # Disable seccomp sandbox to avoid SYS_SECCOMP macro collision with glibc's siginfo enum
+  sed -i 's|enable_nacl_nonsfi=false|enable_nacl_nonsfi=false\nuse_seccomp_bpf=false|' \
+    src/buildtools/config/common.pri || die
+
   # Fix SYS_SECCOMP collision: ensure linux_seccomp.h is included before signal.h
   # by moving the sandbox header include above the system includes in broker_process.cc
   sed -i 's|#include "sandbox/linux/syscall_broker/broker_process.h"|#include "sandbox/linux/system_headers/linux_seccomp.h"\n#include "sandbox/linux/syscall_broker/broker_process.h"|' \
