@@ -12,7 +12,7 @@ HOMEPAGE="https://gitlab.gnome.org/GNOME/glycin"
 SRC_URI=""
 
 EGIT_REPO_URI="https://gitlab.gnome.org/GNOME/glycin.git"
-EGIT_COMMIT="2.1.beta"
+EGIT_COMMIT="2.1.rc"
 
 LICENSE+="
 	Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD-2 BSD GPL-3+ IJG ISC
