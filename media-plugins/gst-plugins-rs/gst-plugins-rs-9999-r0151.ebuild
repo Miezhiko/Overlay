@@ -9,7 +9,7 @@ DESCRIPTION="GStreamer plugins written in Rust"
 HOMEPAGE="https://gstreamer.freedesktop.org/"
 SRC_URI="https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs.git -> ${P}.git"
 EGIT_REPO_URI="https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs.git"
-EGIT_COMMIT="0.14.4"
+EGIT_COMMIT="0.15.1"
 
 LICENSE="|| ( LGPL-2.1+ MIT Apache-2.0 MPL-2.0 )"
 SLOT="1.0"
@@ -26,6 +26,11 @@ DEPEND="
 	!media-plugins/gst-plugin-gtk4
 "
 RDEPEND="${DEPEND}"
+
+DISABLED_PLUGINS=(
+	whisper
+	validate
+)
 
 src_unpack() {
 	git-r3_src_unpack
@@ -50,6 +55,8 @@ src_unpack() {
 		-Dcsound=disabled
 		-Ddoc=disabled
 		-Dsodium-source=system
+		-Dwhisper=disabled # 0.15.1 bug
+		$(for plugin in "${DISABLED_PLUGINS[@]}"; do echo "-D${plugin}=disabled"; done)
 	)
 
 	pushd "${builddir}" || die
