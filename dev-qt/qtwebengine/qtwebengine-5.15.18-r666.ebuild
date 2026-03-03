@@ -259,14 +259,14 @@ src_prepare() {
 	find "${S}" -type f -name "*.pr[fio]" | \
 		xargs sed -i -e 's|INCLUDEPATH += |&$${QTWEBENGINE_ROOT}_build/include $${QTWEBENGINE_ROOT}/include |' || die
 
-  # Disable seccomp sandbox to avoid SYS_SECCOMP macro collision with glibc's siginfo enum
-  sed -i 's|enable_nacl_nonsfi=false|enable_nacl_nonsfi=false\nuse_seccomp_bpf=false|' \
-    src/buildtools/config/common.pri || die
-
-  # Fix SYS_SECCOMP collision: ensure linux_seccomp.h is included before signal.h
-  # by moving the sandbox header include above the system includes in broker_process.cc
-  sed -i 's|#include "sandbox/linux/syscall_broker/broker_process.h"|#include "sandbox/linux/system_headers/linux_seccomp.h"\n#include "sandbox/linux/syscall_broker/broker_process.h"|' \
-      src/3rdparty/chromium/sandbox/linux/syscall_broker/broker_process.cc || die
+  # Fix SYS_SECCOMP macro vs glibc enum collision (glibc >= 2.37).
+  # linux_seccomp.h is always included before signal.h completes (via trap_registry.h).
+  # Solution: prepend #include <signal.h> to linux_seccomp.h so it is fully parsed
+  # before SYS_SECCOMP is defined, then guard the define against redefinition.
+  local seccomp_h="src/3rdparty/chromium/sandbox/linux/system_headers/linux_seccomp.h"
+  sed -i '1s|^|#include <signal.h>\n|' "${seccomp_h}" || die
+  # Now replace the bare #define SYS_SECCOMP with a guarded version
+  sed -i 's|^#define SYS_SECCOMP|#undef SYS_SECCOMP\n#define SYS_SECCOMP|' "${seccomp_h}" || die
 
 	if use system-icu; then
 		if has_version ">=dev-libs/icu-75.1"; then
