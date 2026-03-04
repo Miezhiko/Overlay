@@ -77,11 +77,11 @@ RDEPEND="dev-haskell/aeson:=[profile?]
 	dev-haskell/xdg-desktop-entry:=[profile?]
 	dev-haskell/xml:=[profile?]
 	dev-haskell/xml-helpers:=[profile?]
-	dev-haskell/xmonad:=[profile?]
-	dev-haskell/xmonad-contrib:=[profile?]
+	x11-wm/xmonad:=[profile?]
+	x11-wm/xmonad-contrib:=[profile?]
 	dev-haskell/yaml:=[profile?]
 	>=dev-lang/ghc-9.0.2:=
-	unknown-pkg-config/libudev
+	virtual/libudev
 	x11-libs/gtk+:3
 "
 DEPEND="${RDEPEND}
