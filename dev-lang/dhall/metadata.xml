@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="project">
+		<email>haskell@gentoo.org</email>
+		<name>Gentoo Haskell</name>
+	</maintainer>
+	<use>
+		<flag name="http">Include support for importing dhall modules from HTTP URLs</flag>
+		<flag name="http-client-tls">Use http-client-tls for resolving HTTP imports by default
+(requires with-http to be enabled)</flag>
+	</use>
+	<upstream>
+		<remote-id type="hackage">dhall</remote-id>
+		<remote-id type="github">dhall-lang/dhall-haskell</remote-id>
+	</upstream>
+</pkgmetadata>
