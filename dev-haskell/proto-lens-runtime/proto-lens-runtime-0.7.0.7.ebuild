@@ -15,6 +15,10 @@ LICENSE="BSD"
 SLOT="0/${PV}"
 KEYWORDS="~amd64"
 
+CABAL_CHDEPS=(
+  'base >=4.10 && <4.21' 'base >=4.10 && <5'
+)
+
 RDEPEND=">=dev-haskell/lens-family-1.2:=[profile?] <dev-haskell/lens-family-2.2:=[profile?]
 	>=dev-haskell/proto-lens-0.7:=[profile?] <dev-haskell/proto-lens-0.8:=[profile?]
 	>=dev-haskell/text-1.2:=[profile?] <dev-haskell/text-2.2:=[profile?]
