@@ -15,6 +15,12 @@ LICENSE=""	# FIXME: license unknown to cabal. Please pick it manually.
 SLOT="0/${PV}"
 KEYWORDS="~amd64 ~x86"
 
+CABAL_CHDEPS=(
+  'base >=4.17.2.1 && <4.21' 'base >=4.17.2.1 && <5'
+  'template-haskell >=2.19.0.0 && <2.23' 'template-haskell >=2.19.0.0 && <3'
+  'time >=1.12.2 && <1.13' 'time >=1.12.2 && <2'
+)
+
 RDEPEND=">=dev-haskell/aeson-2.1.2.1:=[profile?] <dev-haskell/aeson-2.3:=[profile?]
 	>=dev-haskell/incipit-core-0.4.1.0:=[profile?] <dev-haskell/incipit-core-0.7:=[profile?]
 	>=dev-haskell/torsor-0.1:=[profile?] <dev-haskell/torsor-0.2:=[profile?]
