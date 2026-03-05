@@ -15,6 +15,11 @@ LICENSE="BSD"
 SLOT="0/${PV}"
 KEYWORDS="~amd64"
 
+CABAL_CHDEPS=(
+  'base >=4.10 && <4.21' 'base >=4.10 && <5'
+  'ghc >=8.2 && <9.11' 'ghc >=8.2 && <9.15'
+)
+
 RDEPEND=">=dev-haskell/ghc-paths-0.1:=[profile?] <dev-haskell/ghc-paths-0.3:=[profile?]
 	>=dev-haskell/ghc-source-gen-0.4:=[profile?] <dev-haskell/ghc-source-gen-0.6:=[profile?]
 	>=dev-haskell/lens-family-1.2:=[profile?] <dev-haskell/lens-family-2.2:=[profile?]
