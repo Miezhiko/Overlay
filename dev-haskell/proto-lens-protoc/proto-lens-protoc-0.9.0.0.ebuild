@@ -15,13 +15,13 @@ LICENSE="BSD"
 SLOT="0/${PV}"
 KEYWORDS="~amd64"
 
-RDEPEND=">=dev-haskell/ghc-paths-0.1:=[profile?] <dev-haskell/ghc-paths-0.2:=[profile?]
-	>=dev-haskell/ghc-source-gen-0.4:=[profile?] <dev-haskell/ghc-source-gen-0.5:=[profile?]
+RDEPEND=">=dev-haskell/ghc-paths-0.1:=[profile?] <dev-haskell/ghc-paths-0.3:=[profile?]
+	>=dev-haskell/ghc-source-gen-0.4:=[profile?] <dev-haskell/ghc-source-gen-0.6:=[profile?]
 	>=dev-haskell/lens-family-1.2:=[profile?] <dev-haskell/lens-family-2.2:=[profile?]
-	>=dev-haskell/proto-lens-0.7:=[profile?] <dev-haskell/proto-lens-0.8:=[profile?]
-	>=dev-haskell/proto-lens-runtime-0.7:=[profile?] <dev-haskell/proto-lens-runtime-0.8:=[profile?]
-	>=dev-haskell/text-1.2:=[profile?] <dev-haskell/text-2.2:=[profile?]
-	>=dev-lang/ghc-8.2:=[profile?] <dev-lang/ghc-9.11:=[profile?]
+	>=dev-haskell/proto-lens-0.7:=[profile?] <dev-haskell/proto-lens-0.10:=[profile?]
+	>=dev-haskell/proto-lens-runtime-0.7:=[profile?] <dev-haskell/proto-lens-runtime-0.10:=[profile?]
+	>=dev-haskell/text-1.2:=[profile?] <dev-haskell/text-2.5:=[profile?]
+	>=dev-lang/ghc-8.2:=[profile?] <dev-lang/ghc-9.15:=[profile?]
 	>=dev-lang/ghc-9.0.2:=
 "
 DEPEND="${RDEPEND}

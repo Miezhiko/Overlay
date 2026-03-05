@@ -15,10 +15,10 @@ LICENSE="BSD"
 SLOT="0/${PV}"
 KEYWORDS="~amd64"
 
-RDEPEND=">=dev-haskell/cabal-2.0:=[profile?] <dev-haskell/cabal-3.13:=[profile?]
+RDEPEND=">=dev-haskell/cabal-2.0:=[profile?] <dev-haskell/cabal-4:=[profile?]
 	>=dev-haskell/proto-lens-protoc-0.4:=[profile?] <dev-haskell/proto-lens-protoc-0.10:=[profile?]
 	>=dev-haskell/temporary-1.2:=[profile?] <dev-haskell/temporary-1.4:=[profile?]
-	>=dev-haskell/text-1.2:=[profile?] <dev-haskell/text-2.2:=[profile?]
+	>=dev-haskell/text-1.2:=[profile?] <dev-haskell/text-3:=[profile?]
 	>=dev-lang/ghc-9.0.2:=
 "
 DEPEND="${RDEPEND}
