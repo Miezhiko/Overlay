@@ -53,7 +53,7 @@ RDEPEND="
 		>=app-pda/libimobiledevice-1.2:=
 		>=app-pda/libplist-1:=
 	)
-	gnome-online-accounts? ( >=net-libs/gnome-online-accounts-3.53.1:= )
+	gnome-online-accounts? ( >=net-libs/gnome-online-accounts-3.57.1:= )
 	keyring? ( app-crypt/libsecret )
 	bluray? ( media-libs/libbluray:= )
 	mtp? (
