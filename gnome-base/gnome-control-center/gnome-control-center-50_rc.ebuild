@@ -31,7 +31,7 @@ RESTRICT="!test? ( test )"
 # Second block is dependency() from subdir meson.builds, sorted by directory name occurrence order
 DEPEND="
 	x11-libs/gtk+:3
-	dev-util/blueprint-compiler
+	>=dev-util/blueprint-compiler-0.19.0
 	>=net-libs/gnome-online-accounts-3.52.0:=
 	>=media-libs/libpulse-2.0[glib]
 	>=gui-libs/gtk-4.15.2:4[wayland]
