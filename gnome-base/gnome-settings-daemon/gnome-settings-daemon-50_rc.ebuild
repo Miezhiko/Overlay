@@ -31,7 +31,7 @@ COMMON_DEPEND="
 		>=media-libs/libcanberra-0.25[gtk3(-)]
 	)
 	>=app-misc/geoclue-2.3.1:2.0
-	>=x11-libs/libnotify-0.7.3
+	>=x11-libs/libnotify-0.8.7
 	>=media-libs/libpulse-16.1[glib]
 	>=sys-auth/polkit-0.114
 	>=sys-power/upower-0.99.12:=
