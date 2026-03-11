@@ -41,7 +41,7 @@ QTCREATOR_PLUGINS=(
 	+vcsbase bazaar clearcase cvs git gitlab mercurial perforce subversion
 
 	# GHOUL
-	drp +minimap
+	drp
 )
 
 IUSE="+clang debug doc systemd +qml tools wayland webengine
