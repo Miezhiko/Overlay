@@ -47,7 +47,7 @@ RDEPEND="
 	net-dns/c-ares
 	sys-apps/dbus
 	sys-libs/glibc
-	sys-libs/zlib
+	virtual/zlib
 	virtual/glu
 	virtual/libcrypt
 	virtual/opengl

@@ -20,7 +20,7 @@ BDEPEND="${BDEPEND}
 
 DEPEND="${DEPEND}
 	media-libs/libpng
-	sys-libs/zlib[abi_x86_64,abi_x86_32]
+	virtual/zlib[abi_x86_64,abi_x86_32]
 	gui-libs/gtk
 	media-libs/mesa
 	media-libs/libsdl2

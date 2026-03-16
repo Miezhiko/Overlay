@@ -22,7 +22,7 @@ LLVM_MAX_SLOT=14
 
 RDEPEND="
 	sys-devel/llvm:${LLVM_MAX_SLOT}
-	sys-libs/zlib:0=
+	virtual/zlib:0=
 "
 DEPEND="${RDEPEND}"
 

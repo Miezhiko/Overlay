@@ -18,7 +18,7 @@ REQUIRED_USE="xinerama? ( X ) xft? ( X )"
 
 RDEPEND="
 	>=media-libs/libpng-1.2:0=[${MULTILIB_USEDEP}]
-	sys-libs/zlib[${MULTILIB_USEDEP}]
+	virtual/zlib[${MULTILIB_USEDEP}]
 	virtual/jpeg:0=[${MULTILIB_USEDEP}]
 	cairo? ( x11-libs/cairo[${MULTILIB_USEDEP},X] )
 	games? ( !sys-block/blocks )

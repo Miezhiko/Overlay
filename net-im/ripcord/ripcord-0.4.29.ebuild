@@ -24,7 +24,7 @@ RDEPEND="dev-libs/libsodium:0/23
 	dev-qt/qtwidgets:5
 	media-libs/libglvnd[X]
 	media-libs/opus
-	sys-libs/zlib
+	virtual/zlib
 	x11-libs/libX11
 	x11-libs/libXScrnSaver"
 

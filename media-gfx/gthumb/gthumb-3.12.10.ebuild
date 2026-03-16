@@ -41,7 +41,7 @@ RDEPEND="
 		>=media-libs/lcms-2.6:2
 	)
 
-	sys-libs/zlib
+	virtual/zlib
 	media-libs/libjpeg-turbo:=
 	tiff? ( media-libs/tiff:= )
 	media-libs/libpng:0=

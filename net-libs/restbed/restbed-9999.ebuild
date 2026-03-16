@@ -29,7 +29,7 @@ CMAKE_MIN_VERSION="2.8.10"
 
 RDEPEND="dev-cpp/asio
 	dev-cpp/kashmir
-	sys-libs/zlib
+	virtual/zlib
 	examples? (
 		sys-libs/pam
 		virtual/logger
