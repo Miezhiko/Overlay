@@ -15,7 +15,7 @@ IUSE="doc elogind +systemd"
 REQUIRED_USE="^^ ( elogind systemd )"
 
 COMMON_DEPEND="
-	>=dev-libs/glib-2.46.0:2
+	>=dev-libs/glib-2.88.0:2
 	x11-libs/libICE
 	x11-libs/libSM
 	>=gnome-base/gnome-desktop-3.34.2:3=
