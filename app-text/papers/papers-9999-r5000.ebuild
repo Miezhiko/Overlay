@@ -3,7 +3,7 @@
 
 EAPI=8
 
-RUST_MIN_VER="1.81"
+RUST_MIN_VER="1.84"
 
 inherit cargo gnome.org gnome2 meson xdg git-r3
 
@@ -12,7 +12,7 @@ HOMEPAGE="https://apps.gnome.org/Papers/"
 
 SRC_URI=""
 EGIT_REPO_URI="https://gitlab.gnome.org/GNOME/${PN}.git"
-EGIT_COMMIT="50.rc"
+EGIT_COMMIT="50.0"
 
 LICENSE="GPL-2+ MIT"
 # Dependent crate licenses
