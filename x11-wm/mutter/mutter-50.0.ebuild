@@ -33,10 +33,10 @@ RDEPEND="
 	>=x11-libs/pango-1.46[introspection?]
 	>=x11-libs/cairo-1.14
 	>=x11-libs/pixman-0.42
-	>=gui-libs/gtk-4.14.0:4[introspection?]
+	>=gui-libs/gtk-4.22.0:4[introspection?]
 	>=dev-libs/fribidi-1.0.0
 	>=gnome-base/gsettings-desktop-schemas-47_beta[introspection?]
-	>=dev-libs/glib-2.81.1:2
+	>=dev-libs/glib-2.88:2
 	gnome-base/gnome-settings-daemon
 	>=x11-libs/libxkbcommon-1.8.0
 	>=app-accessibility/at-spi2-core-2.46:2[introspection?]
@@ -46,7 +46,7 @@ RDEPEND="
 	>=media-libs/harfbuzz-2.6.0:=
 	>=dev-libs/libei-1.3.901
 	>=media-libs/libdisplay-info-0.2:=
-	>=media-libs/glycin-2.0_beta_p2:=
+	>=media-libs/glycin-2.1:=
 
 	devkit? (
 		gui-libs/gtk:4
