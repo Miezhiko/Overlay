@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="project">
+		<email>haskell@gentoo.org</email>
+		<name>Gentoo Haskell</name>
+	</maintainer>
+	<use>
+		<flag name="deprecated-pager-hints">Enables the deprecated System.Taffybar.Support.PagerHints module, which has been moved to xmonad-contrib.</flag>
+	</use>
+	<upstream>
+		<remote-id type="hackage">taffybar</remote-id>
+		<remote-id type="github">taffybar/taffybar</remote-id>
+	</upstream>
+</pkgmetadata>
