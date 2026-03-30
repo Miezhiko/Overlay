@@ -15,10 +15,10 @@ IUSE="test"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
-	>=dev-libs/glib-2.76:2
+	>=dev-libs/glib-2.88:2
 	>=gui-libs/gtk-4.12.2:4
 	>=gui-libs/libadwaita-1.4_alpha:1
-	>=gui-libs/vte-0.78.2:2.91-gtk4
+	>=gui-libs/vte-0.84
 	gnome-base/libgtop:2=
 	>=dev-libs/libpcre2-10.32:0=
 	gnome-base/gsettings-desktop-schemas
