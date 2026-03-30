@@ -26,7 +26,7 @@ DEPEND="
 	>=app-crypt/libsecret-0.5
 	>=app-text/enchant-2.2.0:2
 	>=dev-db/sqlite-3.7.17:3
-	>=dev-libs/glib-2.70:2[dbus]
+	>=dev-libs/glib-2.88:2[dbus]
 	>=dev-libs/libxml2-2.7.3:2=
 	>=gnome-base/gnome-desktop-2.91.3:3=
 	>=gnome-base/gsettings-desktop-schemas-2.91.92
