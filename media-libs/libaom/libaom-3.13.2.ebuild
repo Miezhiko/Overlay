@@ -65,6 +65,7 @@ multilib_src_configure() {
 	append-cppflags $(usex debug '-UNDEBUG' '-DNDEBUG')
 
 	local mycmakeargs=(
+	  -DBUILD_SHARED_LIBS=ON
 		-DENABLE_CCACHE=OFF
 		-DENABLE_DOCS=$(multilib_native_usex doc ON OFF)
 		-DENABLE_EXAMPLES=$(multilib_native_usex examples ON OFF)

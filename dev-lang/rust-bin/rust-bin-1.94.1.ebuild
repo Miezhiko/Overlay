@@ -14,7 +14,7 @@ if [[ ${PV} == *9999* ]]; then
 elif [[ ${PV} == *beta* ]]; then
 	# curl -Ls static.rust-lang.org/dist/channel-rust-beta.toml | grep "xz_url.*rust-src"
 	betaver=${PV//*beta}
-	BETA_SNAPSHOT="${betaver:0:4}-${betaver:4:2}-${betaver:6:2}"
+	BETA_SNAPSHOT="${betaver:0:4}-${betaver:4:2}-${betarustc -vVver:6:2}"
 	RUST_TOOLCHAIN_BASEURL=https://static.rust-lang.org/dist/${BETA_SNAPSHOT}/
 	SRC_URI="$(rust_all_arch_uris rust-beta rust-${PV})
 		rust-src? ( ${RUST_TOOLCHAIN_BASEURL%/}/rust-src-beta.tar.xz -> rust-src-${PV}.tar.xz )
@@ -22,7 +22,7 @@ elif [[ ${PV} == *beta* ]]; then
 else
 	# curl -Ls static.rust-lang.org/dist/channel-rust-${PV}.toml | grep "xz_url.*rust-src"
 	SRC_URI="$(rust_all_arch_uris "rust-${PV}")
-		rust-src? ( ${RUST_TOOLCHAIN_BASEURL%/}/2026-03-05/rust-src-${PV}.tar.xz )
+		rust-src? ( ${RUST_TOOLCHAIN_BASEURL%/}/2026-03-26/rust-src-${PV}.tar.xz )
 	"
 	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~s390 ~x86"
 fi
