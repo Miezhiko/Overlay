@@ -149,6 +149,7 @@ multilib_src_install() {
 	cmake_src_install
 }
 
-multilib_src_install_all() {
-	find "${ED}" -type f \( -name "*.a" -o -name "*.la" \) -delete || die
-}
+# why?
+#multilib_src_install_all() {
+#	find "${ED}" -type f \( -name "*.a" -o -name "*.la" \) -delete || die
+#}
