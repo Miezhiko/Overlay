@@ -26,3 +26,13 @@ src_install() {
 
 	newbin "${DISTDIR}/${P}.js" qwen
 }
+
+pkg_postinst() {
+    elog "qwen-code requires a specific version of web-tree-sitter's WASM file."
+    elog "Run the following commands to set it up:"
+    elog ""
+    elog "  npm install -g web-tree-sitter@0.24.7"
+    elog "  mkdir -p /usr/bin/vendor/tree-sitter"
+    elog "  ln -s /usr/lib64/node_modules/web-tree-sitter/tree-sitter.wasm \\"
+    elog "        /usr/bin/vendor/tree-sitter/tree-sitter.wasm"
+}
