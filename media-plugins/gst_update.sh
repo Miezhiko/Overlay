@@ -1,6 +1,6 @@
 #!/bin/bash
 
-NEW_VERSION="1.28.1"
+NEW_VERSION="1.28.2"
 
 for d in */; do
   cd "$d"
