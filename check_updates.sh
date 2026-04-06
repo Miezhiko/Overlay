@@ -10,6 +10,7 @@ exceptions=(
 	"dev-qt/qtwebengine"
 	"dev-qt/qtwebchannel"
 	"dev-build/cmake"
+	"dev-lang/rust-bin"
 )
 
 while read e; do
