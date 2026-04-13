@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -51,6 +51,7 @@ PATCHES=(
 
 	# bug #964367
 	"${FILESDIR}/gnome-keyring-48.0-fix-pam-install.patch"
+	"${FILESDIR}/gnome-keyring-50.0-leak.patch"
 )
 
 pkg_setup() {
