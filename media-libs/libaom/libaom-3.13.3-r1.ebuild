@@ -55,7 +55,12 @@ src_prepare() {
 	# fix hardcoded path
 	# libvmaf ERROR could not read model from path: "/usr/local/share/model/vmaf_v0.6.1.json"
 	sed -e "s#/usr/local/share/model/#${EPREFIX}/usr/share/vmaf/model/#g" -i README.md av1/av1_cx_iface.c || die
-
+	
+	# header fix for 3.13.3
+	# Add missing AOM_EFLAG_FREEZE_INTERNAL_STATE flag
+  sed -i '/#define AOM_EFLAG_CALCULATE_PSNR (1 << 1)/a #define AOM_EFLAG_FREEZE_INTERNAL_STATE (1 << 2)' \
+        aom/aom_encoder.h || die "Failed to add freeze internal state flag"
+	
 	cmake_src_prepare
 }
 
