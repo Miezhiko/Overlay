@@ -1,4 +1,4 @@
-# Copyright 2023-2025 Gentoo Authors
+# Copyright 2023-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -8,20 +8,17 @@ inherit desktop gnome.org gnome2-utils meson pam systemd udev xdg
 DESCRIPTION="GNOME Display Manager for managing graphical display servers and user logins"
 HOMEPAGE="https://gitlab.gnome.org/GNOME/gdm"
 
-SRC_URI="${SRC_URI}
-	branding? ( https://www.mail-archive.com/tango-artists@lists.freedesktop.org/msg00043/tango-gentoo-v1.1.tar.gz )
-"
+SRC_URI="${SRC_URI}"
 
 LICENSE="
 	GPL-2+
-	branding? ( CC-BY-SA-4.0 )
 "
 
 SLOT="0"
 
 KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc64 ~riscv ~x86"
 
-IUSE="audit debug bluetooth-sound branding elogind fprint plymouth selinux systemd test"
+IUSE="audit debug bluetooth-sound elogind fprint plymouth selinux systemd test"
 
 RESTRICT="!test? ( test )"
 
@@ -32,7 +29,7 @@ RESTRICT="!test? ( test )"
 COMMON_DEPEND="
 	virtual/udev
 	>=dev-libs/libgudev-232:=
-	>=dev-libs/glib-2.68:2
+	>=dev-libs/glib-2.88:2
 	>=dev-libs/json-glib-1.2.0
 	>=sys-apps/accountsservice-0.6.35
 	sys-apps/keyutils:=
@@ -80,18 +77,11 @@ BDEPEND="
 
 src_prepare() {
 	default
-	use branding && eapply "${FILESDIR}/${PN}-3.30.3-logo.patch"
 }
 
 src_configure() {
 	use debug && EMESON_BUILDTYPE=debug
 
-	# --with-initial-vt=7 conflicts with plymouth, bug #453392
-	# gdm-3.30 now reaps (stops) the login screen when the login VT isn't active, which
-	# saves on memory. However this means if we don't start on VT1, gdm doesn't start up
-	# before user manually goes to VT7. Thus as-is we can not keep gdm away from VT1,
-	# so lets try always having it in VT1 and see if that is an issue for people before
-	# hacking up workarounds for the initial start case.
 	local emesonargs=(
 		--localstatedir /var
 
@@ -109,13 +99,11 @@ src_configure() {
 
 	if use elogind; then
 		emesonargs+=(
-			-Dinitial-vt=7 # TODO: Revisit together with startDM.sh and other xinit talks; also ignores plymouth possibility
 			-Dsystemdsystemunitdir=no
 			-Dsystemduserunitdir=no
 		)
 	else
 		emesonargs+=(
-			-Dinitial-vt=1
 			-Dsystemdsystemunitdir="$(systemd_get_systemunitdir)"
 			-Dsystemduserunitdir="$(systemd_get_userunitdir)"
 		)
@@ -137,8 +125,6 @@ src_install() {
 	# install XDG_DATA_DIRS gdm changes
 	echo 'XDG_DATA_DIRS="/usr/share/gdm"' > 99xdg-gdm
 	doenvd 99xdg-gdm
-
-	use branding && newicon "${WORKDIR}/tango-gentoo-v1.1/scalable/gentoo.svg" gentoo-gdm.svg
 }
 
 pkg_postinst() {
