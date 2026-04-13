@@ -504,7 +504,7 @@ multilib_src_configure() {
 	local skip_tests=()
 
 	# zlib-ng is not bitexact w/ zlib producing mismatching md5sum (bug #965737)
-	has_version 'virtual/zlib[compat]' &&
+	has_version 'sys-libs/zlib-ng[compat]' &&
 		skip_tests+=(
 			lavf-{apng{,.png},gray16be.png,png,rgb48be.png}
 			mov-mp4-frag-flush
