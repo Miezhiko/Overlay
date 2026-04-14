@@ -1,0 +1,236 @@
+From 493a73d62c614b8f36076094aa467a5ea91755d4 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>
+Date: Sun, 12 Apr 2026 14:10:03 +0200
+Subject: [PATCH 1/3] onscreen/native: Handle power save mode later in
+ maybe_post_next_frame
+
+Only after calling meta_drm_buffer_gbm_new_lock_front. Preparation for
+later changes, to ensure that eglSwapBuffers &
+gbm_surface_lock_front_buffer will always be called in lockstep (to
+avoid a deadlock with the nvidia driver and an eglSwapBuffers error
+condition with Mesa drivers).
+
+Non-NULL onscreen_native->next_frame in
+meta_onscreen_native_swap_buffers_with_damage should no longer be
+possible when not using the render source, log a warning if it does
+happen.
+
+Part-of: <https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/5021>
+---
+ src/backends/native/meta-onscreen-native.c | 32 ++++++++++++----------
+ 1 file changed, 18 insertions(+), 14 deletions(-)
+
+diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
+index 2888eccbb47..4ced5b090cc 100644
+--- a/src/backends/native/meta-onscreen-native.c
++++ b/src/backends/native/meta-onscreen-native.c
+@@ -1781,8 +1781,11 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
+   COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeSwapBuffers,
+                            "Meta::OnscreenNative::swap_buffers_with_damage()");
+ 
+-  if (onscreen_native->render_source && onscreen_native->next_frame != NULL)
++  if (onscreen_native->next_frame != NULL)
+     {
++      if (!onscreen_native->render_source)
++        g_warning_once ("Unexpected non-NULL onscreen_native->next_frame");
++
+       /* This is needed to make sure we lock the correct front buffer for the
+        * new frame, as eglSwapBuffers() swaps what is the active front buffer.
+        *
+@@ -1894,25 +1897,12 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
+       meta_kms_is_shutting_down (kms))
+     return;
+ 
+-  power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
+-  if (power_save_mode != META_POWER_SAVE_ON)
+-    {
+-      meta_renderer_native_queue_power_save_page_flip (renderer_native,
+-                                                       onscreen);
+-      return;
+-    }
+-
+   frame = g_steal_pointer (&onscreen_native->next_frame);
+   frame_native = meta_frame_native_from_frame (frame);
+   region = meta_frame_native_get_damage (frame_native);
+ 
+   clear_superseded_frame (onscreen);
+ 
+-  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
+-  kms_device = meta_kms_crtc_get_device (kms_crtc);
+-  kms_update = meta_frame_native_ensure_kms_update (frame_native,
+-                                                    kms_device);
+-
+   is_direct_scanout = meta_frame_native_get_scanout (frame_native) != NULL;
+   is_swap_buffers = region != NULL;
+ 
+@@ -2007,6 +1997,20 @@ maybe_post_next_frame (CoglOnscreen *onscreen)
+       flip_flags = META_KMS_ASSIGN_PLANE_FLAG_NONE;
+     }
+ 
++  power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
++  if (power_save_mode != META_POWER_SAVE_ON)
++    {
++      meta_renderer_native_queue_power_save_page_flip (renderer_native,
++                                                       onscreen);
++      onscreen_native->superseded_frame = g_steal_pointer (&frame);
++      return;
++    }
++
++  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
++  kms_device = meta_kms_crtc_get_device (kms_crtc);
++  kms_update = meta_frame_native_ensure_kms_update (frame_native,
++                                                    kms_device);
++
+   meta_kms_update_add_result_listener (kms_update,
+                                        listener,
+                                        NULL,
+-- 
+GitLab
+
+
+From 743d5e1c3804b3f5018d8fd3c070e9f29b2d1749 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>
+Date: Sat, 11 Apr 2026 10:54:32 +0200
+Subject: [PATCH 2/3] onscreen/native: Call assign_next_frame earlier in
+ _swap_buffers
+
+Preparation for next commit, no functional change intended.
+
+Part-of: <https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/5021>
+---
+ src/backends/native/meta-onscreen-native.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
+index 4ced5b090cc..5a13be52753 100644
+--- a/src/backends/native/meta-onscreen-native.c
++++ b/src/backends/native/meta-onscreen-native.c
+@@ -1799,6 +1799,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
+         goto swap_failed;
+     }
+ 
++  assign_next_frame (onscreen_native, frame);
++
+   secondary_gpu_fb =
+     update_secondary_gpu_state_pre_swap_buffers (onscreen, region);
+ 
+@@ -1818,8 +1820,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
+ 
+   sync_fd = cogl_context_get_latest_sync_fd (cogl_context);
+ 
+-  assign_next_frame (onscreen_native, frame);
+-
+   clutter_frame_set_result (frame,
+                             CLUTTER_FRAME_RESULT_PENDING_PRESENTED);
+ 
+-- 
+GitLab
+
+
+From bebaf434be5ad137c0832a028d20e1bc4b4852c2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Michel=20D=C3=A4nzer?= <mdaenzer@redhat.com>
+Date: Sat, 11 Apr 2026 11:12:26 +0200
+Subject: [PATCH 3/3] onscreen/native: Move nvidia deadlock prevention to
+ assign_next_frame
+
+This is better for multiple reasons:
+
+meta_onscreen_native_swap_buffers_with_damage can no longer fail to
+swap.
+
+If maybe_post_next_frame leaves onscreen_native->next_frame non-NULL
+(mostly due to power save mode), this will move it to
+onscreen_native->superseded_frame.
+
+This also does the deadlock prevention in
+meta_onscreen_native_direct_scanout, which can get called before the
+last non-direct-scanout frame was posted. Previously, that frame would
+have been moved to onscreen_native->superseded_frame instead,
+essentially dropping it on the floor.
+
+maybe_post_next_frame calls render_source_remove_frame when needed, so
+assign_next_frame no longer needs to.
+
+Closes: https://gitlab.gnome.org/GNOME/mutter/-/issues/4658
+
+v2:
+* Remove superfluous return statement as well. (Daniel van Vugt)
+* Remove superseded frame handling from assign_next_frame, handled in
+  maybe_post_next_frame now.
+
+Part-of: <https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/5021>
+---
+ src/backends/native/meta-onscreen-native.c | 42 ++++++++--------------
+ 1 file changed, 14 insertions(+), 28 deletions(-)
+
+diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
+index 5a13be52753..bf3e9ffc101 100644
+--- a/src/backends/native/meta-onscreen-native.c
++++ b/src/backends/native/meta-onscreen-native.c
+@@ -1740,11 +1740,20 @@ assign_next_frame (MetaOnscreenNative *onscreen_native,
+ 
+   if (onscreen_native->next_frame != NULL)
+     {
+-      render_source_remove_frame (onscreen_native->render_source,
+-                                  onscreen_native->next_frame);
+-      clear_superseded_frame (onscreen);
+-      onscreen_native->superseded_frame =
+-        g_steal_pointer (&onscreen_native->next_frame);
++      if (!onscreen_native->render_source)
++        g_warning_once ("Unexpected non-NULL onscreen_native->next_frame");
++
++      /* This is needed to make sure we lock the correct front buffer for the
++       * new frame, as eglSwapBuffers() swaps what is the active front buffer.
++       *
++       * On Nvidia this will result in potentially synchronously waiting for
++       * pending GPU work.
++       */
++      cogl_framebuffer_flush (COGL_FRAMEBUFFER (onscreen));
++      maybe_post_next_frame (onscreen);
++
++      if (onscreen_native->next_frame != NULL)
++        g_warning_once ("maybe_post_next_frame didn't clear next frame");
+     }
+ 
+   onscreen_native->next_frame = clutter_frame_ref (frame);
+@@ -1781,24 +1790,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
+   COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeSwapBuffers,
+                            "Meta::OnscreenNative::swap_buffers_with_damage()");
+ 
+-  if (onscreen_native->next_frame != NULL)
+-    {
+-      if (!onscreen_native->render_source)
+-        g_warning_once ("Unexpected non-NULL onscreen_native->next_frame");
+-
+-      /* This is needed to make sure we lock the correct front buffer for the
+-       * new frame, as eglSwapBuffers() swaps what is the active front buffer.
+-       *
+-       * On Nvidia this will result in potentially synchronously waiting for
+-       * pending GPU work.
+-       */
+-      cogl_framebuffer_flush (framebuffer);
+-      maybe_post_next_frame (onscreen);
+-
+-      if (onscreen_native->next_frame != NULL)
+-        goto swap_failed;
+-    }
+-
+   assign_next_frame (onscreen_native, frame);
+ 
+   secondary_gpu_fb =
+@@ -1837,11 +1828,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen    *onscreen,
+     {
+       maybe_post_next_frame (onscreen);
+     }
+-
+-  return;
+-
+-swap_failed:
+-  clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_IDLE);
+ }
+ 
+ static void
+-- 
+GitLab
+
+
