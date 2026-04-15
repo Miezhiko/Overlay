@@ -20,7 +20,7 @@ RESTRICT="!test? ( test )"
 # tracker-2.1.7 currently always depends on ICU (theoretically could be libunistring instead);
 # so choose ICU over enca always here for the time being (ICU is preferred)
 RDEPEND="
-	>=app-misc/tinysparql-3.8:3
+	>=app-misc/tinysparql-3.11:3
 	>=sys-apps/dbus-1.3.1
 	xmp? ( >=media-libs/exempi-2.1.0:= )
 	raw? ( >=media-libs/gexiv2-0.16 )
