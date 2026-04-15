@@ -52,6 +52,7 @@ RDEPEND="
 	dev-python/websockets[${PYTHON_USEDEP}]
 	>=dev-python/zstandard-0.25.0[${PYTHON_USEDEP}]
 	dev-python/opentelemetry-exporter-otlp-proto-http[${PYTHON_USEDEP}]
+	dev-python/jsonpatch[${PYTHON_USEDEP}]
 "
 
 BDEPEND="
