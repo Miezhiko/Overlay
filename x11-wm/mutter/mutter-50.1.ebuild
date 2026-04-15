@@ -134,13 +134,6 @@ BDEPEND="
 	)
 "
 
-PATCHES=(
-	"${FILESDIR}/${P}-nvidia-fix.patch"
-	"${FILESDIR}/${P}-guard-fix.patch"
-	"${FILESDIR}/${P}-onscreen.patch"
-	"${FILESDIR}/${P}-onscreen2.patch"
-)
-
 python_check_deps() {
 	if use test; then
 		python_has_version ">=dev-python/python-dbusmock-0.28[${PYTHON_USEDEP}]"
