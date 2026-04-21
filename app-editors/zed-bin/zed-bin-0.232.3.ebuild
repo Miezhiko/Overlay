@@ -7,7 +7,7 @@ inherit desktop xdg
 
 DESCRIPTION="Code editor from the creators of Atom"
 HOMEPAGE="https://code.visualstudio.com"
-SRC_URI="https://github.com/zed-industries/zed/releases/download/v${PV}/zed-linux-x86_64.tar.gz"
+SRC_URI="https://github.com/zed-industries/zed/releases/download/v${PV}/zed-linux-x86_64.tar.gz -> ${P}.tar.gz"
 S="${WORKDIR}"
 
 RESTRICT="mirror strip bindist"
