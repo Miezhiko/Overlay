@@ -9,9 +9,7 @@ inherit autotools flag-o-matic python-single-r1 xdg
 
 DESCRIPTION="Fully featured yet light and fast cross platform word processor"
 HOMEPAGE="https://gitlab.gnome.org/World/AbiWord"
-SRC_URI="
-	https://gitlab.gnome.org/World/AbiWord/-/archive/release-${PV}/AbiWord-release-${PV}.tar.bz2
-	https://dev.gentoo.org/~soap/distfiles/${PN}-3.0.6-patches-r1.tar.xz"
+SRC_URI="https://gitlab.gnome.org/World/AbiWord/-/archive/release-${PV}/AbiWord-release-${PV}.tar.bz2"
 S="${WORKDIR}/AbiWord-release-${PV}"
 
 LICENSE="GPL-2"
@@ -80,8 +78,12 @@ BDEPEND="
 	virtual/pkgconfig"
 
 PATCHES=(
-	"${WORKDIR}"/patches
 	"${FILESDIR}/${PN}-3.0.6-goffice-pointers.patch"
+	"${FILESDIR}/${PN}-3.0.6-metarecord.patch"
+	"${FILESDIR}/${PN}-3.0.7-eds-3.60-vCard-export.patch"
+	"${FILESDIR}/51787d61993cb3981c18e4cf174fc229734fba1e.patch" # python 3 patch
+	"${FILESDIR}/ae05e92df5a5d6151641622c83d35a6fdba47b1f.patch" # enchant 2 patch
+	"${FILESDIR}/abiword-fix-appstream-data.patch"
 )
 
 pkg_setup() {
@@ -90,6 +92,8 @@ pkg_setup() {
 
 src_prepare() {
 	default
+	sed -i 's|/appdata|/metainfo|' Makefile.am
+	./autogen-common.sh || die
 	eautoreconf
 }
 
@@ -157,6 +161,8 @@ src_configure() {
 		$(use_with map champlain) \
 		$(use_with redland) \
 		$(use_enable spell)
+
+	sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
 }
 
 src_install() {
