@@ -36,6 +36,8 @@ SLOT="0"
 IUSE="cpu_flags_x86_avx2"
 RESTRICT="mirror strip"
 
+RDEPEND="sys-apps/ripgrep"
+
 [[ ${PV} == 9999 ]] && BDEPEND+=" net-misc/curl"
 
 QA_PREBUILT="usr/bin/opencode"
