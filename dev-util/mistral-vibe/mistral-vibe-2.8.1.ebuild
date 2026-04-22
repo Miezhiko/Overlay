@@ -30,7 +30,7 @@ RDEPEND="
 	>=dev-python/keyring-25.6.0[${PYTHON_USEDEP}]
 	dev-python/markdownify[${PYTHON_USEDEP}]
 	>=dev-python/mcp-1.14.0[${PYTHON_USEDEP}]
-	>=dev-python/mistralai-2.1.3[${PYTHON_USEDEP}]
+	>=dev-python/mistralai-2.4.1[${PYTHON_USEDEP}]
 	dev-python/opentelemetry-api[${PYTHON_USEDEP}]
 	dev-python/opentelemetry-sdk[${PYTHON_USEDEP}]
 	dev-python/opentelemetry-semantic-conventions[${PYTHON_USEDEP}]
