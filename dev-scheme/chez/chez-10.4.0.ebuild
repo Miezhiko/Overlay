@@ -1,4 +1,4 @@
-# Copyright 2021-2025 Gentoo Authors
+# Copyright 2021-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -87,9 +87,9 @@ src_configure() {
 		--installbin="/usr/bin"
 		--installlib="/usr/$(get_libdir)"
 		--installman="/usr/share/man"
-		--installschemename=chezscheme
-		--installpetitename=chezscheme-petite
-		--installscriptname=chezscheme-script
+		--installschemename="chezscheme"
+		--installpetitename="chezscheme-petite"
+		--installscriptname="chezscheme-script"
 
 		$(usex threads '--threads' '')
 		$(usex ncurses '' '--disable-curses')
