@@ -389,10 +389,6 @@ gstreamer_multilib_src_configure() {
 		if grep -q "option('nls'" "${EMESON_SOURCE}"/meson.options ; then
 			gst_conf+=( $(meson_feature nls) )
 		fi
-
-		if grep -q "option('tests'" "${EMESON_SOURCE}"/meson.options ; then
-			gst_conf+=( $(meson_feature test tests) )
-		fi
 	fi
 
 	if grep -qF "option('package-name'" "${EMESON_SOURCE}"/meson.options ; then
@@ -401,6 +397,7 @@ gstreamer_multilib_src_configure() {
 	if grep -qF "option('package-origin'" "${EMESON_SOURCE}"/meson.options ; then
 		gst_conf+=( -Dpackage-origin="https://www.gentoo.org" )
 	fi
+	gst_conf+=( -Dtests=disabled )
 	gst_conf+=( "${@}" )
 
 	einfo "Configuring to build ${GST_PLUGINS_ENABLED} plugin(s) ..."
