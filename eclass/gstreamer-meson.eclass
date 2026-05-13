@@ -122,12 +122,12 @@ gstreamer_get_default_enabled_plugins() {
 gstreamer_get_plugins() {
 	GST_PLUGINS_NO_EXT_DEPS=$(sed -rn \
 		"/^# Feature options for plugins with(out| no) external deps$/,/^#.*$/s;^option\('([^']*)'.*;\1;p" \
-		"${S}/meson_options.txt" || die "Failed to extract options for plugins without external deps"
+		"${S}/meson.options" || die "Failed to extract options for plugins without external deps"
 	)
 
 	GST_PLUGINS_EXT_DEPS=$(sed -rn \
 		"/^# Feature options for plugins (with|that need) external deps$/,/^#.*$/s;^option\('([^']*)'.*;\1;p" \
-		"${S}/meson_options.txt" || die "Failed to extract options for plugins with external deps"
+		"${S}/meson.options" || die "Failed to extract options for plugins with external deps"
 	)
 
 	# meson_options that should be in GST_PLUGINS_EXT_DEPS but automatic parsing above can't catch
@@ -148,7 +148,7 @@ gstreamer_get_plugins() {
 	)
 
 	for option in ${extra_options[@]} ; do
-		if grep -q "option('${option}'" "${EMESON_SOURCE}"/meson_options.txt ; then
+		if grep -q "option('${option}'" "${EMESON_SOURCE}"/meson.options ; then
 			GST_PLUGINS_EXT_DEPS="${GST_PLUGINS_EXT_DEPS}
 ${option}"
 		fi
@@ -340,7 +340,7 @@ gstreamer_multilib_src_configure() {
 		fi
 	done
 
-	if grep -q "option('orc'" "${EMESON_SOURCE}"/meson_options.txt ; then
+	if grep -q "option('orc'" "${EMESON_SOURCE}"/meson.options ; then
 		if in_iuse orc ; then
 			gst_conf+=( -Dorc=$(usex orc enabled disabled) )
 			if [[ "${PN}" != "${GST_ORG_MODULE}" ]] && ! _gstreamer_get_has_orc_dep; then
@@ -358,7 +358,7 @@ gstreamer_multilib_src_configure() {
 		fi
 	fi
 
-	if grep -q "option('introspection'" "${EMESON_SOURCE}"/meson_options.txt ; then
+	if grep -q "option('introspection'" "${EMESON_SOURCE}"/meson.options ; then
 		if in_iuse introspection ; then
 			gst_conf+=( -Dintrospection=$(_gstreamer_native_usex introspection enabled disabled) )
 		else
@@ -373,32 +373,32 @@ gstreamer_multilib_src_configure() {
 		fi
 	fi
 
-	if grep -q "option('maintainer-mode'" "${EMESON_SOURCE}"/meson_options.txt ; then
+	if grep -q "option('maintainer-mode'" "${EMESON_SOURCE}"/meson.options ; then
 		gst_conf+=( -Dmaintainer-mode=disabled )
 	fi
 
-	if grep -q "option('schemas-compile'" "${EMESON_SOURCE}"/meson_options.txt ; then
+	if grep -q "option('schemas-compile'" "${EMESON_SOURCE}"/meson.options ; then
 		gst_conf+=( -Dschemas-compile=disabled )
 	fi
 
-	if grep -q "option('examples'" "${EMESON_SOURCE}"/meson_options.txt ; then
+	if grep -q "option('examples'" "${EMESON_SOURCE}"/meson.options ; then
 		gst_conf+=( -Dexamples=disabled )
 	fi
 
 	if [[ ${PN} == ${GST_ORG_MODULE} ]]; then
-		if grep -q "option('nls'" "${EMESON_SOURCE}"/meson_options.txt ; then
+		if grep -q "option('nls'" "${EMESON_SOURCE}"/meson.options ; then
 			gst_conf+=( $(meson_feature nls) )
 		fi
 
-		if grep -q "option('tests'" "${EMESON_SOURCE}"/meson_options.txt ; then
+		if grep -q "option('tests'" "${EMESON_SOURCE}"/meson.options ; then
 			gst_conf+=( $(meson_feature test tests) )
 		fi
 	fi
 
-	if grep -qF "option('package-name'" "${EMESON_SOURCE}"/meson_options.txt ; then
+	if grep -qF "option('package-name'" "${EMESON_SOURCE}"/meson.options ; then
 		gst_conf+=( -Dpackage-name="Gentoo GStreamer ebuild" )
 	fi
-	if grep -qF "option('package-origin'" "${EMESON_SOURCE}"/meson_options.txt ; then
+	if grep -qF "option('package-origin'" "${EMESON_SOURCE}"/meson.options ; then
 		gst_conf+=( -Dpackage-origin="https://www.gentoo.org" )
 	fi
 	gst_conf+=( "${@}" )
