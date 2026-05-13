@@ -154,7 +154,6 @@ src_configure() {
 	else
 		myconf+=( --with-intl=none )
 	fi
-	use corepack || myconf+=( --without-corepack )
 	use inspector || myconf+=( --without-inspector )
 	use npm || myconf+=( --without-npm )
 	use snapshot || myconf+=( --without-node-snapshot )
