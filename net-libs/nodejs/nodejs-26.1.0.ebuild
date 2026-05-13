@@ -12,7 +12,7 @@ inherit ninja-utils pax-utils python-any-r1 toolchain-funcs xdg-utils
 
 DESCRIPTION="A JavaScript runtime built on Chrome's V8 JavaScript engine"
 HOMEPAGE="https://nodejs.org/"
-LICENSE="Apache-1.1 Apache-2.0 BSD BSD-2 MIT npm? ( Artistic-2 )"
+LICENSE="Apache-1.1 Apache-2.0 BlueOak-1.0.0 BSD BSD-2 MIT npm? ( Artistic-2 )"
 
 if [[ ${PV} == *9999 ]]; then
 	inherit git-r3
@@ -34,23 +34,22 @@ REQUIRED_USE="inspector? ( icu ssl )
 
 RESTRICT="!test? ( test )"
 
-COMMON_DEPEND=">=app-arch/brotli-1.1.0:=
+COMMON_DEPEND=">=app-arch/brotli-1.2.0:=
 	dev-db/sqlite:3
-	>=dev-cpp/ada-3.3.0:=
-	>=dev-cpp/simdutf-7.3.4:=
-	>=dev-libs/libuv-1.51.0:=
-	>=dev-libs/simdjson-4.0.7:=
-	>=net-dns/c-ares-1.34.5:=
-	>=net-libs/nghttp2-1.67.1:=
-	>=net-libs/nghttp3-1.7.0:=
+	>=dev-cpp/ada-3.4.4:=
+	>=dev-libs/libuv-1.52.1:=
+	>=dev-libs/simdjson-4.6.1:=
+	>=net-dns/c-ares-1.34.6:=
+	>=net-libs/nghttp2-1.69.0:=
+	>=net-libs/nghttp3-1.15.0:=
 	virtual/zlib:=
 	corepack? ( !sys-apps/yarn )
 	system-icu? ( >=dev-libs/icu-73:= )
 	system-ssl? (
-		>=net-libs/ngtcp2-1.11.0:=
-		>=dev-libs/openssl-3.5.4:0=
+		>=net-libs/ngtcp2-1.22.0:=
+		>=dev-libs/openssl-3.5.6:0=
 	)
-	!system-ssl? ( >=net-libs/ngtcp2-1.11.0:=[-gnutls] )
+	!system-ssl? ( >=net-libs/ngtcp2-1.22.0:=[-gnutls] )
 	|| (
 		sys-devel/gcc:*
 		llvm-runtimes/libatomic-stub
@@ -143,7 +142,6 @@ src_configure() {
 		--shared-nghttp3
 		--shared-ngtcp2
 		--shared-simdjson
-		--shared-simdutf
 		--shared-sqlite
 		--shared-zlib
 	)
