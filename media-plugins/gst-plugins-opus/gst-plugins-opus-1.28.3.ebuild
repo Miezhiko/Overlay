@@ -33,10 +33,6 @@ in_bdir() {
 }
 
 src_configure() {
-  local emesonargs=(
-      -Dtests=disabled
-      -Dopus=enabled
-  )
 	S="${WORKDIR}/gst-plugins-base-${PV}" multilib_foreach_abi gstreamer_multilib_src_configure
 	S="${WORKDIR}/gst-plugins-bad-${PV}"  multilib_foreach_abi gstreamer_multilib_src_configure
 }
