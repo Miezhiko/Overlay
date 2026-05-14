@@ -15,6 +15,17 @@ LICENSE="LGPL-2.1"
 SLOT="0/${PV}"
 KEYWORDS="~amd64"
 
+GHC_BOOTSTRAP_PACKAGES=(
+	haskell-gi
+	gi-gobject
+	gi-xlib
+	gi-cairo
+	gi-gio
+	gi-gdk3
+	gi-gtk3
+	gi-glib
+)
+
 RDEPEND=">=dev-haskell/gi-gio-2.0:=[profile?] <dev-haskell/gi-gio-2.1:=[profile?]
 	>=dev-haskell/gi-glib-2.0:=[profile?] <dev-haskell/gi-glib-2.1:=[profile?]
 	>=dev-haskell/gi-gobject-2.0:=[profile?] <dev-haskell/gi-gobject-2.1:=[profile?]
@@ -23,7 +34,7 @@ RDEPEND=">=dev-haskell/gi-gio-2.0:=[profile?] <dev-haskell/gi-gio-2.1:=[profile?
 	<dev-haskell/haskell-gi-overloading-1.1:=[profile?]
 	>=dev-haskell/text-1.0:=[profile?] <dev-haskell/text-3:=[profile?]
 	>=dev-lang/ghc-9.0.2:=
-	unknown-pkg-config/wireplumber-0.5
+	>=media-video/wireplumber-0.5
 "
 DEPEND="${RDEPEND}
 	>=dev-haskell/cabal-3.4.1.0 <dev-haskell/cabal-4

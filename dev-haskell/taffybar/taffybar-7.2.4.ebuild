@@ -14,7 +14,7 @@ HOMEPAGE="https://github.com/taffybar/taffybar"
 LICENSE="BSD"
 SLOT="0/${PV}"
 KEYWORDS="~amd64"
-IUSE="+deprecated-pager-hints +wireplumber"
+IUSE="+deprecated-pager-hints wireplumber"
 
 RDEPEND=">=dev-haskell/aeson-1.4:=[profile?] <dev-haskell/aeson-2.3:=[profile?]
 	>=dev-haskell/ansi-terminal-0.10:=[profile?] <dev-haskell/ansi-terminal-1.2:=[profile?]
@@ -78,12 +78,11 @@ RDEPEND=">=dev-haskell/aeson-1.4:=[profile?] <dev-haskell/aeson-2.3:=[profile?]
 	>=dev-haskell/xdg-desktop-entry-0.1.1.5:=[profile?] <dev-haskell/xdg-desktop-entry-0.2:=[profile?]
 	>=dev-haskell/xml-1.3:=[profile?] <dev-haskell/xml-1.4:=[profile?]
 	>=dev-haskell/xml-helpers-1.0:=[profile?] <dev-haskell/xml-helpers-1.1:=[profile?]
-	>=dev-haskell/xmonad-0.17:=[profile?] <dev-haskell/xmonad-0.19:=[profile?]
-	>=dev-haskell/xmonad-contrib-0.17:=[profile?] <dev-haskell/xmonad-contrib-0.19:=[profile?]
+	>=x11-wm/xmonad-0.17:=[profile?] <x11-wm/xmonad-0.19:=[profile?]
+	>=x11-wm/xmonad-contrib-0.17:=[profile?] <x11-wm/xmonad-contrib-0.19:=[profile?]
 	>=dev-haskell/yaml-0.11:=[profile?] <dev-haskell/yaml-0.12:=[profile?]
 	>=dev-lang/dhall-1.40:=[profile?] <dev-lang/dhall-1.43:=[profile?]
 	>=dev-lang/ghc-9.0.2:=
-	unknown-pkg-config/libudev
 	x11-libs/gtk+:3
 	wireplumber? ( >=dev-haskell/gi-wireplumber-0.5.14.2:=[profile?] <dev-haskell/gi-wireplumber-0.6:=[profile?] )
 "
