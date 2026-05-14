@@ -5,12 +5,8 @@
 		<email>haskell@gentoo.org</email>
 		<name>Gentoo Haskell</name>
 	</maintainer>
-	<use>
-		<flag name="deprecated-pager-hints">Enables the deprecated System.Taffybar.Support.PagerHints module, which has been moved to xmonad-contrib.</flag>
-		<flag name="wireplumber">Enables WirePlumber/PipeWire audio support.</flag>
-	</use>
 	<upstream>
-		<remote-id type="hackage">taffybar</remote-id>
+		<remote-id type="hackage">gi-wireplumber</remote-id>
 		<remote-id type="github">taffybar/taffybar</remote-id>
 	</upstream>
 </pkgmetadata>
