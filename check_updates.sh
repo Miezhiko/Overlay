@@ -9,6 +9,9 @@ exceptions=(
 	"app-editors/vscode"
 	"dev-qt/qtwebengine"
 	"dev-qt/qtwebchannel"
+	"dev-qt/qtsvg"
+	"dev-qt/qtwayland"
+	"dev-qt/qtmultimedia"
 	"dev-build/cmake"
 	"dev-lang/rust-bin"
 )
