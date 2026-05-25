@@ -70,7 +70,6 @@ src_prepare() {
 
 src_configure() {
 	local emesonargs=(
-		-Ddevelopment=false
 		-Dplatform=gnome
 
 		-Dviewer=true
@@ -93,8 +92,6 @@ src_configure() {
 		$(meson_feature keyring)
 		$(meson_feature cups gtk_unix_print)
 		$(meson_feature gnome thumbnail_cache)
-		$(meson_feature gstreamer multimedia)
-		$(meson_feature spell gspell)
 
 		-Dinternal_synctex=true
 
