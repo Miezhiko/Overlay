@@ -168,6 +168,9 @@ pkg_postinst() {
 	xdg_desktop_database_update
 	tmpfiles_process snapd.conf
 
+	cat "${EPREFIX}/usr/lib/snapd/snap-confine.caps" | setcap - "${EPREFIX}/usr/lib/snapd/snap-confine"
+	cat "${EPREFIX}/usr/lib/snapd/snap-confine.caps" | setcap -v - "${EPREFIX}/usr/lib/snapd/snap-confine"
+
 	if use apparmor && [[ -z ${ROOT} && -e /sys/kernel/security/apparmor/profiles &&
 		$(wc -l < /sys/kernel/security/apparmor/profiles) -gt 0 ]]; then
 		apparmor_parser -r "${EPREFIX}/etc/apparmor.d/usr.lib.snapd.snap-confine.real"
