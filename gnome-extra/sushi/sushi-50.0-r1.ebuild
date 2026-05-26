@@ -14,7 +14,7 @@ IUSE=""
 
 DEPEND="
 	media-libs/libepoxy
-	>=app-text/evince-3.0[introspection]
+	>=app-text/evince-49_alpha1[introspection]
 	media-libs/freetype:2
 	>=x11-libs/gdk-pixbuf-2.23.0[introspection]
 	>=dev-libs/glib-2.29.14:2
@@ -34,6 +34,10 @@ BDEPEND="
 	>=sys-devel/gettext-0.19.8
 	virtual/pkgconfig
 "
+
+PATCHES=(
+	"${FILESDIR}/${P}-evince-4.0.patch"
+)
 
 src_configure() {
 	local emesonargs=(
