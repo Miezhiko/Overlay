@@ -21,7 +21,7 @@ LICENSE+="
 "
 
 # subslot = ppsd4.0.(suffix of libppsdocument-4.0)-ppsv4.0.(suffix of libppsview-4.0)
-SLOT="0/ppsd4.0.5-ppsv4.0.4"
+SLOT="0/ppsd4.0.6-ppsv4.0.5"
 
 KEYWORDS="~amd64"
 
