@@ -21,10 +21,10 @@ DEPEND="
 	>=app-accessibility/at-spi2-core-2.46.0:2
 	>=dev-libs/glib-2.44.0:2
 	>=gui-libs/libhandy-1.5.0:1
+	>=gui-libs/gtk-4.23.1
 	>=dev-libs/libxml2-2.5:2=
 	virtual/zlib:=
 	>=x11-libs/gdk-pixbuf-2.40:2
-	>=x11-libs/gtk+-3.22.0:3[cups?,introspection?]
 	gnome-base/gsettings-desktop-schemas
 	>=x11-libs/cairo-1.10
 	>=app-text/poppler-22.05.0:=[cairo]
@@ -65,6 +65,9 @@ BDEPEND="
 "
 
 src_prepare() {
+    sed -i 's|#include <gdk/gdkkeysyms.h>|#include <gdk/gdk.h>|g' \
+        libview/ev-view-presentation.c \
+        libview/ev-view.c
 	default
 	xdg_environment_reset
 }
