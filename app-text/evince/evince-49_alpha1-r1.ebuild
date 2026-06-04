@@ -11,7 +11,7 @@ HOMEPAGE="https://apps.gnome.org/Evince/"
 LICENSE="GPL-2+ CC-BY-SA-3.0"
 # subslot = evd3.(suffix of libevdocument3)-evv3.(suffix of libevview3)
 SLOT="0/evd3.4-evv3.3"
-KEYWORDS="~alpha amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv x86 ~amd64-linux ~x86-linux ~x64-solaris"
+KEYWORDS="~alpha amd64 ~arm ~arm64 ~loong ~riscv x86 ~x64-solaris"
 IUSE="cups djvu dvi gstreamer gnome keyring gtk-doc +introspection postscript spell tiff xps"
 REQUIRED_USE="gtk-doc? ( introspection )"
 
@@ -29,6 +29,7 @@ DEPEND="
 	>=x11-libs/cairo-1.10
 	>=app-text/poppler-22.05.0:=[cairo]
 	>=app-arch/libarchive-3.6.0:=
+	>=media-libs/exempi-2.0:=
 	djvu? ( >=app-text/djvu-3.5.22:= )
 	dvi? (
 		>=app-text/libspectre-0.2:=
