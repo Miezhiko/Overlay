@@ -66,7 +66,8 @@ python_check_deps() {
 src_configure() {
 	# gst-plugin-scanner writes to /proc/self/task/*/comm for thread naming
 	addpredict /proc/self/task
-	addwrite /dev/dri/renderD*
+	# ?
+	#addwrite /dev/dri/renderD*
 
 	local emesonargs=(
 		-Ddbus-service-dir="${EPREFIX}/usr/share/dbus-1/services"
