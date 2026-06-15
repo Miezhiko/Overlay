@@ -30,7 +30,6 @@ RESTRICT="!test? ( test )"
 # First block is toplevel meson.build deps in order of occurrence (plus deeper deps if in same conditional).
 # Second block is dependency() from subdir meson.builds, sorted by directory name occurrence order
 DEPEND="
-	x11-libs/gtk+:3
 	>=dev-util/blueprint-compiler-0.19.0
 	>=net-libs/gnome-online-accounts-3.52.0:=
 	>=media-libs/libpulse-2.0[glib]
