@@ -66,8 +66,9 @@ python_check_deps() {
 src_configure() {
 	# gst-plugin-scanner writes to /proc/self/task/*/comm for thread naming
 	addpredict /proc/self/task
-	# ?
-	#addwrite /dev/dri/renderD*
+
+	# gst-inspect-1.0 writes to /dev/dri/renderD* to query AMD hardware details (if present)
+	addpredict /dev/dri/renderD*
 
 	local emesonargs=(
 		-Ddbus-service-dir="${EPREFIX}/usr/share/dbus-1/services"
