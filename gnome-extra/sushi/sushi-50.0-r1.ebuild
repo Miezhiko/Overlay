@@ -13,6 +13,7 @@ KEYWORDS="amd64 ~arm arm64 ~loong ~ppc64 ~riscv x86"
 IUSE=""
 
 DEPEND="
+	net-libs/webkit-gtk:6
 	media-libs/libepoxy
 	>=app-text/evince-49_alpha1[introspection]
 	media-libs/freetype:2
