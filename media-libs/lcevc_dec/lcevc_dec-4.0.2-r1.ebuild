@@ -1,4 +1,4 @@
-# Copyright 2025 Gentoo Authors
+# Copyright 2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -18,7 +18,7 @@ IUSE=""
 # This package uses a custom non-free license
 RESTRICT="mirror"
 
-DEPEND=""
+DEPEND="dev-vcs/git"
 RDEPEND="${DEPEND}"
 BDEPEND="virtual/pkgconfig"
 
