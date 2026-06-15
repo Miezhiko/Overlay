@@ -82,7 +82,7 @@ RDEPEND="${DEPEND}
 		net-misc/mobile-broadband-provider-info
 		sys-libs/timezone-data
 	)
-	ibus? ( >=app-i18n/ibus-1.5.26[gtk3,gtk4,introspection] )
+	ibus? ( >=app-i18n/ibus-1.5.26[gtk4,introspection] )
 	media-fonts/adwaita-fonts
 
 	sys-apps/xdg-desktop-portal-gnome
