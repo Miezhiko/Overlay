@@ -51,6 +51,7 @@ DEPEND+="
 	>=gui-libs/libadwaita-1.6:1
 	media-libs/exempi:2
 	>=x11-libs/cairo-1.14.0
+	dev-libs/appstream[vala]
 	virtual/zlib
 
 	sysprof? ( dev-util/sysprof-capture:4 )
