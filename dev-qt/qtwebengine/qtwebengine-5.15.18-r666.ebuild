@@ -20,7 +20,7 @@ EGIT_SUBMODULES=( '*' )
 S="${WORKDIR}/${P}"
 QT5_BUILD_DIR="${S}_build"
 
-IUSE="alsa bindist designer geolocation +jumbo-build kerberos pulseaudio screencast +system-icu widgets"
+IUSE="alsa bindist designer geolocation +jumbo-build kerberos pulseaudio screencast system-icu widgets"
 REQUIRED_USE="designer? ( widgets )"
 
 RDEPEND="
