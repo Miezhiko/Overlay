@@ -13,6 +13,8 @@ fi
 
 IUSE="+jit scripttools"
 
+RESTRICT="mirror"
+
 DEPEND="
 	=dev-qt/qtcore-${QT5_PV}*
 	scripttools? (
