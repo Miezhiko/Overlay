@@ -62,6 +62,7 @@ REQUIRED_USE="
 QT_PV="6.4.0:6"
 
 BDEPEND="
+	dev-lang/go
 	>=dev-qt/qttools-${QT_PV}[linguist(+)]
 	doc? ( >=dev-qt/qttools-${QT_PV}[qdoc(+)] )
 "
