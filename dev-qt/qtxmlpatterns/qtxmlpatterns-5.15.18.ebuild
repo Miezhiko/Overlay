@@ -13,6 +13,8 @@ fi
 
 IUSE="qml"
 
+RESTRICT="mirror"
+
 DEPEND="
 	=dev-qt/qtcore-${QT5_PV}*
 	=dev-qt/qtnetwork-${QT5_PV}*
