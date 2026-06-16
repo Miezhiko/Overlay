@@ -32,6 +32,8 @@ RESTRICT="!test? ( test )"
 KEYWORDS="~amd64 ~x86"
 SRC_URI="https://github.com/Kitware/CMake/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
 
+S="${WORKDIR}/CMake-${PV}"
+
 # >= 1.51.0-r1 for ppc32 workaround (bug #941738)
 RDEPEND="
 	>=app-arch/libarchive-3.3.3:=
