@@ -17,7 +17,7 @@ EAPI=8
 #this frontend, as doing so appears to require the full deck.gl git repository.
 
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{8..11} )
+PYTHON_COMPAT=( python3_{10..14} )
 
 inherit distutils-r1
 
