@@ -4,7 +4,7 @@
 EAPI=8
 
 LUA_COMPAT=( lua5-4 )
-PYTHON_COMPAT=( python3_{11..14} )
+PYTHON_COMPAT=( python3_{12..14} )
 inherit lua-single meson optfeature python-any-r1 udev
 
 DESCRIPTION="Library to handle input devices in Wayland"
