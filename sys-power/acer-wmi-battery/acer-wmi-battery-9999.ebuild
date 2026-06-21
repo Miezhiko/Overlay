@@ -19,6 +19,11 @@ pkg_setup() {
 	linux-mod-r1_pkg_setup
 }
 
+src_prepare() {
+	sed -i "s|\$(shell uname -r)|${KV_FULL}|g" Makefile || die
+	default
+}
+
 src_compile() {
 	local modlist=( "acer-wmi-battery" )
 	linux-mod-r1_src_compile
