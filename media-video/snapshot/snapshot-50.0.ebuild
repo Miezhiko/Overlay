@@ -3,7 +3,10 @@
 
 EAPI=8
 
-inherit gnome.org meson xdg
+CARGO_OPTIONAL=1
+CRATES=" "
+
+inherit gnome.org meson xdg cargo
 
 DESCRIPTION="A webcam app for gnome"
 HOMEPAGE="https://apps.gnome.org/Snapshot/"
@@ -19,10 +22,17 @@ DEPEND="
 	>=dev-libs/glib-2.76:2
 	>=media-libs/gstreamer-1.22:1.0
 	>=media-libs/gst-plugins-base-1.22:1.0
+	>=media-libs/gst-plugins-bad-1.22:1.0
 	>=gui-libs/gtk-4.15:4
+	>=media-libs/glycin-2
+	>=media-libs/glycin-gtk4-2
 	media-plugins/gst-plugins-rs
+	media-libs/lcms2:2
+	sys-libs/libseccomp
 "
-RDEPEND="${DEPEND}"
+RDEPEND="${DEPEND}
+	media-video/pipewire[gstreamer]
+"
 
 src_configure() {
 	meson_src_configure
@@ -38,6 +48,9 @@ src_configure() {
 
 	[net]
 	offline = true
+
+	[profile.release]
+	lto = false
 	EOF
 }
 
