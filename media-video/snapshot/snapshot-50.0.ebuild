@@ -20,14 +20,13 @@ IUSE=""
 
 DEPEND="
 	>=dev-libs/glib-2.76:2
+	>=gui-libs/gtk-4.18:4
+	>=gui-libs/libadwaita-1.8:1
+	>=media-libs/glycin-2
 	>=media-libs/gstreamer-1.22:1.0
 	>=media-libs/gst-plugins-base-1.22:1.0
 	>=media-libs/gst-plugins-bad-1.22:1.0
-	>=gui-libs/gtk-4.15:4
-	>=media-libs/glycin-2
-	>=media-libs/glycin-gtk4-2
 	media-plugins/gst-plugins-rs
-	media-libs/lcms2:2
 	sys-libs/libseccomp
 "
 RDEPEND="${DEPEND}
