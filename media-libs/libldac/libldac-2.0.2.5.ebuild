@@ -8,7 +8,7 @@ inherit cmake-multilib
 DESCRIPTION="LDAC codec library from AOSP"
 HOMEPAGE="https://android.googlesource.com/platform/external/libldac/"
 SRC_URI="https://github.com/EHfive/ldacBT/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz
-	https://android.googlesource.com/platform/external/libldac/+archive/eeee1a3f5f8df1282e3a6d297085885fd886737b.tar.gz -> libldac-aosp-${PV}.tar.gz"
+	https://github.com/msft-mirror-aosp/platform.external.libldac/archive/82b6a1abee84787b8fa167efe20290073f60db2d.tar.gz -> libldac-aosp-${PV}.tar.gz"
 
 S="${WORKDIR}/ldacBT-${PV}"
 
@@ -25,7 +25,7 @@ src_unpack() {
 	cd "${S}/libldac" || die
 	# GitHub release tarballs don't include git submodules.
 	# CMakeLists.txt expects sources under libldac/src/, libldac/inc/, etc.
-	tar -xzf "${DISTDIR}/libldac-aosp-${PV}.tar.gz" || die
+	tar -xzf "${DISTDIR}/libldac-aosp-${PV}.tar.gz" --strip-components=1 || die
 }
 
 multilib_src_configure() {
