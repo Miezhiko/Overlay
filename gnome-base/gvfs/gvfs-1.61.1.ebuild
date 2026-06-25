@@ -13,13 +13,12 @@ LICENSE="LGPL-2+"
 SLOT="0"
 
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~x86 ~amd64-linux ~x86-linux"
-IUSE="afp archive bluray cdda cdr elogind fuse google keyring gnome-online-accounts gphoto2 +http ios mtp nfs onedrive policykit samba systemd test +udev udisks zeroconf"
+IUSE="bluray cdda elogind fuse keyring gnome-online-accounts gphoto2 +http ios mtp nfs onedrive policykit samba systemd test +udev udisks zeroconf"
 RESTRICT="!test? ( test )"
 # elogind/systemd only relevant to udisks (in v1.38.1)
 REQUIRED_USE="
 	?? ( elogind systemd )
 	cdda? ( udev )
-	google? ( gnome-online-accounts )
 	gphoto2? ( udev )
 	onedrive? ( gnome-online-accounts )
 	mtp? ( udev )
@@ -29,7 +28,6 @@ REQUIRED_USE="
 RDEPEND="
 	>=dev-libs/glib-2.83.0:2
 	>=gnome-base/gsettings-desktop-schemas-3.33.0
-	afp? ( >=dev-libs/libgcrypt-1.2.2:0= )
 	sys-apps/dbus
 	app-crypt/gcr:4=
 	policykit? (
@@ -61,12 +59,10 @@ RDEPEND="
 		>=media-libs/libmtp-1.1.15:=
 	)
 	samba? ( >=net-fs/samba-4[client] )
-	archive? ( app-arch/libarchive:= )
 	cdda? (
 		dev-libs/libcdio:0=
 		>=dev-libs/libcdio-paranoia-0.78.2:=
 	)
-	google? ( >=dev-libs/libgdata-0.18.0:=[crypt,gnome-online-accounts] )
 	gphoto2? ( >=media-libs/libgphoto2-2.5.0:= )
 	nfs? ( >=net-fs/libnfs-1.9.8:= )
 	onedrive? (
@@ -93,13 +89,6 @@ src_configure() {
 		enable_logind="true"
 	fi
 
-	# currently HAVE_GCRYPT and linkage only used with afp; check it on big
-	# bumps (grep for HAVE_GCRYPT and enable_gcrypt); adjust depends if changes
-	local enable_gcrypt="false"
-	if use afp; then
-		enable_gcrypt="true"
-	fi
-
 	# currently HAVE_LIBUSB and linkage only used with mtp; check it on big
 	# bumps (grep for HAVE_LIBUSB and enable_libusb); adjust depends if changes
 	local enable_libusb="false"
@@ -112,14 +101,9 @@ src_configure() {
 		-Dtmpfilesdir="${EPREFIX}"/usr/lib/tmpfiles.d
 		$(meson_use policykit admin)
 		$(meson_use ios afc)
-		$(meson_use afp)
-		$(meson_use archive)
-		$(meson_use cdr burn)
 		$(meson_use cdda)
-		-Ddeprecated_apis=false
 		$(meson_use zeroconf dnssd)
 		$(meson_use gnome-online-accounts goa)
-		$(meson_use google)
 		$(meson_use gphoto2)
 		$(meson_use http)
 		$(meson_use mtp)
@@ -131,7 +115,6 @@ src_configure() {
 		$(meson_use bluray)
 		$(meson_use fuse)
 		-Dgcr=true
-		-Dgcrypt=${enable_gcrypt}
 		$(meson_use udev gudev)
 		$(meson_use keyring keyring)
 		-Dlogind=${enable_logind}
