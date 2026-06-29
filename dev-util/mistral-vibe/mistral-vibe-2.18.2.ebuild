@@ -18,7 +18,7 @@ KEYWORDS="~amd64"
 
 RDEPEND="
 	>=dev-libs/tree-sitter-bash-0.25.1[${PYTHON_USEDEP}]
-	~dev-python/agent-client-protocol-0.9.0[${PYTHON_USEDEP}]
+	>=dev-python/agent-client-protocol-0.9.0[${PYTHON_USEDEP}]
 	>=dev-python/anyio-4.12[${PYTHON_USEDEP}]
 	dev-python/cachetools[${PYTHON_USEDEP}]
 	>=dev-python/cryptography-44.0.0[${PYTHON_USEDEP}]
