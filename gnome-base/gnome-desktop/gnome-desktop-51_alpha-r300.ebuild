@@ -49,8 +49,10 @@ src_prepare() {
 	# Don't build manual test programs that will never get run
 	sed -i -e "/'test-.*'/d" libgnome-desktop/meson.build || die
 
-	# Fix duplicate link_args warning (will be error in Meson 2.0)
-	sed -i -z 's|    link_args: compat_ldflags,\n    link_args: base_ldflags,|    link_args: compat_ldflags + base_ldflags,|' libgnome-desktop/meson.build || die
+	# Fix duplicate version-script link_args: ld rejects two --version-script
+	# files with anonymous version tags. base-symbol.map is a superset of
+	# symbol.map, so drop compat_ldflags (the older symbol.map).
+	sed -i -z 's|    link_args: compat_ldflags,\n    link_args: base_ldflags,|    link_args: base_ldflags,|' libgnome-desktop/meson.build || die
 
 	# gnome_qr_dep is only defined when build_gtk4=true;
 	# also gate it here so tests/examples don't blow up
