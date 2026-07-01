@@ -20,10 +20,11 @@ REQUIRED_USE="
 "
 
 RDEPEND="
-	>=dev-libs/glib-2.80.0:2
-	>=gui-libs/gtk-4.19.4:4[introspection?]
+	>=dev-libs/glib-2.84.0:2
+	>=gui-libs/gtk-4.23.1:4[introspection?]
 	dev-libs/appstream:=
 	dev-libs/fribidi
+	dev-libs/ministream
 	introspection? ( >=dev-libs/gobject-introspection-1.83.2:= )
 "
 DEPEND="${RDEPEND}
