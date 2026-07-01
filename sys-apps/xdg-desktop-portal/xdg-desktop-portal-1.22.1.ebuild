@@ -68,7 +68,9 @@ src_configure() {
 	addpredict /proc/self/task
 
 	# gst-inspect-1.0 writes to /dev/dri/renderD* to query AMD hardware details (if present)
-	addpredict /dev/dri/renderD*
+	for dri in /dev/dri/renderD*; do
+		[[ -e ${dri} ]] && addpredict "${dri}"
+	done
 
 	local emesonargs=(
 		-Ddbus-service-dir="${EPREFIX}/usr/share/dbus-1/services"
