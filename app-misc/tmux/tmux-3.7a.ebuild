@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit autotools flag-o-matic systemd
+inherit autotools eapi9-ver flag-o-matic systemd
 
 DESCRIPTION="Terminal multiplexer"
 HOMEPAGE="https://tmux.github.io/"
@@ -13,7 +13,7 @@ if [[ ${PV} == 9999 ]] ; then
 else
 	SRC_URI="https://github.com/tmux/tmux/releases/download/${PV}/${P/_/-}.tar.gz"
 	if [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-macos"
 	fi
 	S="${WORKDIR}/${P/_/-}"
 fi
@@ -21,7 +21,6 @@ fi
 LICENSE="ISC"
 SLOT="0"
 IUSE="debug jemalloc selinux sixel systemd utempter vim-syntax"
-RESTRICT="mirror"
 
 DEPEND="
 	dev-libs/libevent:=
@@ -51,10 +50,6 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 )
 
 DOCS=( CHANGES README )
-
-PATCHES=(
-	"${FILESDIR}"/${PN}-2.4-flags.patch
-)
 
 src_prepare() {
 	default
@@ -94,5 +89,20 @@ src_install() {
 	if use systemd; then
 		systemd_newuserunit "${FILESDIR}"/tmux.service tmux@.service
 		systemd_newuserunit "${FILESDIR}"/tmux.socket tmux@.socket
+	fi
+}
+
+pkg_postinst() {
+	# https://github.com/tmux/tmux/issues/4711
+	if ver_replacing -lt 3.6a ; then
+		ewarn "Please restart all running tmux sessions (client+server)."
+		ewarn "3.6a has an incompatible protocol change, so it is especially important:"
+		ewarn " https://github.com/tmux/tmux/issues/4699#issue-3666479306"
+	elif ver_replacing -lt ${PV} ; then
+		# https://github.com/tmux/tmux/issues/4699#issue-3666479306
+		# > Note that it is very important to restart tmux entirely after upgrading.
+		# > This is particularly important with this release because one of the libraries
+		# > that tmux uses changed its protocol.
+		ewarn "Please restart all running tmux clients+servers after upgrading tmux."
 	fi
 }
