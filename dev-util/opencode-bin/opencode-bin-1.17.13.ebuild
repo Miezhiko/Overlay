@@ -40,7 +40,7 @@ RDEPEND="sys-apps/ripgrep"
 
 [[ ${PV} == 9999 ]] && BDEPEND+=" net-misc/curl"
 
-QA_PREBUILT="usr/bin/opencode"
+QA_PREBUILT="usr/bin/opencode.real"
 
 src_unpack() {
 	if [[ ${PV} == 9999 ]]; then
@@ -64,6 +64,16 @@ src_unpack() {
 }
 
 src_install() {
-	dobin opencode
+	# Install real binary under a different name
+	newbin opencode opencode.real
+
+	# Wrapper that suppresses models.dev fetch errors
+	# https://github.com/anomalyco/opencode/issues/4959
+	cat > "${ED}/usr/bin/opencode" <<-EOF
+		#!/bin/sh
+		export OPENCODE_DISABLE_MODELS_FETCH=1
+		exec /usr/bin/opencode.real "\$@"
+	EOF
+	chmod +x "${ED}/usr/bin/opencode"
 }
 
