@@ -3,7 +3,8 @@
 
 EAPI=8
 
-inherit cargo git-r3 meson xdg
+RUST_MIN_VER="1.92.0"
+inherit cargo git-r3 gnome2-utils meson xdg
 
 DESCRIPTION="A system resources monitor for GNOME"
 HOMEPAGE="https://apps.gnome.org/app/org.gnome.Resources/ https://gitlab.gnome.org/GNOME/Incubator/resources"
@@ -22,6 +23,7 @@ RDEPEND="
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
+	${RUST_DEPEND}
 	dev-util/itstool
 	>=sys-devel/gettext-0.19.8
 	virtual/pkgconfig
@@ -43,4 +45,14 @@ src_configure() {
 		-Ddevelopment_build=false
 	)
 	meson_src_configure
+}
+
+pkg_postinst() {
+	xdg_pkg_postinst
+	gnome2_schemas_update
+}
+
+pkg_postrm() {
+	xdg_pkg_postrm
+	gnome2_schemas_update
 }
