@@ -8,7 +8,7 @@ inherit cargo git-r3 meson xdg
 DESCRIPTION="GStreamer plugins written in Rust"
 HOMEPAGE="https://gstreamer.freedesktop.org/"
 EGIT_REPO_URI="https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs.git"
-EGIT_COMMIT="0.15.2"
+EGIT_COMMIT="0.15.3"
 
 LICENSE="|| ( LGPL-2.1+ MIT Apache-2.0 MPL-2.0 )"
 SLOT="1.0"
