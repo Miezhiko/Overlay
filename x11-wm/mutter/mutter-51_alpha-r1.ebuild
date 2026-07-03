@@ -133,6 +133,10 @@ BDEPEND="
 	)
 "
 
+PATCHES=(
+	"${FILESDIR}/mutter-51_alpha-nvidia-gpu-data.patch"
+)
+
 python_check_deps() {
 	if use test; then
 		python_has_version ">=dev-python/python-dbusmock-0.28[${PYTHON_USEDEP}]"
