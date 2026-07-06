@@ -12,7 +12,7 @@ HOMEPAGE="https://apps.gnome.org/Papers/"
 
 SRC_URI=""
 EGIT_REPO_URI="https://gitlab.gnome.org/GNOME/${PN}.git"
-EGIT_COMMIT="50.2"
+EGIT_COMMIT="51.alpha"
 
 LICENSE="GPL-2+ MIT"
 # Dependent crate licenses
