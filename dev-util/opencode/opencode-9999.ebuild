@@ -77,7 +77,64 @@ src_unpack() {
 	rm -rf packages/console packages/stats packages/enterprise || die
 	rm -f bun.lock || die
 
-	echo '[]' > "${S}/packages/opencode/models.json" || die
+	cat > "${S}/packages/opencode/models.json" <<- 'MODELS_EOF' || die
+		{
+		  "opencode": {
+		    "id": "opencode",
+		    "env": ["OPENCODE_API_KEY"],
+		    "npm": "@ai-sdk/openai-compatible",
+		    "api": "https://opencode.ai/zen/v1",
+		    "name": "OpenCode Zen",
+		    "doc": "https://opencode.ai/docs/zen",
+		    "models": {
+		      "big-pickle": {
+		        "id": "big-pickle",
+		        "name": "Big Pickle",
+		        "family": "big-pickle",
+		        "attachment": false,
+		        "reasoning": true,
+		        "tool_call": true,
+		        "interleaved": { "field": "reasoning_content" },
+		        "structured_output": true,
+		        "temperature": true,
+		        "limit": { "context": 200000, "output": 128000 },
+		        "cost": { "input": 0, "output": 0, "cache_read": 0, "cache_write": 0 }
+		      },
+		      "deepseek-v4-flash-free": {
+		        "id": "deepseek-v4-flash-free",
+		        "name": "DeepSeek V4 Flash Free",
+		        "family": "deepseek-flash-free",
+		        "attachment": false,
+		        "reasoning": true,
+		        "tool_call": true,
+		        "interleaved": { "field": "reasoning_content" },
+		        "structured_output": true,
+		        "temperature": true,
+		        "knowledge": "2025-05",
+		        "modalities": { "input": ["text"], "output": ["text"] },
+		        "open_weights": true,
+		        "limit": { "context": 1000000, "output": 384000 },
+		        "cost": { "input": 0, "output": 0, "cache_read": 0 }
+		      },
+		      "ring-2.6-1t-free": {
+		        "id": "ring-2.6-1t-free",
+		        "name": "Ring 2.6 1T Free",
+		        "family": "ring-1t-free",
+		        "attachment": false,
+		        "reasoning": true,
+		        "tool_call": true,
+		        "interleaved": { "field": "reasoning_content" },
+		        "temperature": true,
+		        "knowledge": "2025-06",
+		        "modalities": { "input": ["text"], "output": ["text"] },
+		        "open_weights": true,
+		        "limit": { "context": 262000, "output": 66000 },
+		        "cost": { "input": 0, "output": 0 }
+		      }
+		    }
+		  }
+		}
+	MODELS_EOF
 	export MODELS_DEV_API_JSON="${S}/packages/opencode/models.json"
 
 	einfo "Installing npm dependencies from ${NPM_REGISTRY}..."
@@ -143,6 +200,7 @@ src_install() {
 	cat > "${ED}/usr/bin/opencode" <<-EOF
 		#!/bin/sh
 		export OPENCODE_DISABLE_MODELS_FETCH=1
+		export OPENCODE_DISABLE_AUTOUPDATE=1
 		exec /usr/bin/opencode.real "\$@"
 	EOF
 	chmod +x "${ED}/usr/bin/opencode" || die
