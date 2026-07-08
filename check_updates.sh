@@ -13,6 +13,7 @@ exceptions=(
 	"dev-qt/qtwayland"
 	"dev-qt/qtmultimedia"
 	"dev-qt/qtdeclarative"
+	"dev-qt/qtcharts"
 	"dev-build/cmake"
 	"dev-lang/rust-bin"
 )
