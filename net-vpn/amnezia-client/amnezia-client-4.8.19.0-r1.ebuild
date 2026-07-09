@@ -76,14 +76,38 @@ src_configure() {
 src_install() {
 	newbin "${BUILD_DIR}/client/AmneziaVPN" amnezia-vpn
 
-	exeinto /opt/AmneziaVPN/bin
+	# Install service binary
+	# Tag 4.8.19.0 uses hardcoded relative paths ../../client/bin/* from the
+	# service binary. The upstream build uses CQtDeployer which places binaries
+	# in a bin/ subdir under the target, so the service must be at
+	# /opt/AmneziaVPN/service/bin/AmneziaVPN-service for the path to resolve:
+	#   /opt/AmneziaVPN/service/bin/../../client/bin/wireguard-go
+	#   = /opt/AmneziaVPN/client/bin/wireguard-go
+	exeinto /opt/AmneziaVPN/service/bin
 	doexe "${BUILD_DIR}/service/server/AmneziaVPN-service"
+
+	# Install prebuilt tunnel binaries and routing data
+	# Paths resolve as: /opt/AmneziaVPN/service/../../client/bin/openvpn
+	#                  = /opt/AmneziaVPN/client/bin/openvpn
+	local prebuilt_dir="${S}/client/3rd-prebuilt/deploy-prebuilt/linux/client/bin"
+	exeinto /opt/AmneziaVPN/client/bin
+	for f in openvpn wireguard-go tun2socks ck-client ss-local; do
+		if [[ -f "${prebuilt_dir}/${f}" ]]; then
+			doexe "${prebuilt_dir}/${f}"
+		fi
+	done
+	insinto /opt/AmneziaVPN/client/bin
+	for f in geosite.dat geoip.dat; do
+		if [[ -f "${prebuilt_dir}/${f}" ]]; then
+			doins "${prebuilt_dir}/${f}"
+		fi
+	done
 
 	doicon "${S}/deploy/data/linux/AmneziaVPN.png"
 	make_desktop_entry amnezia-vpn "Amnezia VPN" AmneziaVPN "Network;VPN"
 
 	# Fix path in service file: tag 4.8.19.0 points to old .sh path, dev branch already fixed
-	sed -e 's|/opt/AmneziaVPN/service/AmneziaVPN-service.sh|/opt/AmneziaVPN/bin/AmneziaVPN-service|' \
+	sed -e 's|/opt/AmneziaVPN/service/AmneziaVPN-service.sh|/opt/AmneziaVPN/service/bin/AmneziaVPN-service|' \
 		-e '/^Environment=/d' \
 		"${S}/deploy/data/linux/AmneziaVPN.service" > "${T}/AmneziaVPN.service" || die
 	systemd_dounit "${T}/AmneziaVPN.service"
