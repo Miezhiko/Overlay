@@ -7,7 +7,7 @@ PREBUILT_COMMIT="51bb4703a4049e4d28ef7e28c2ec87db1bbb0d1e"
 QSIMPLECRYPTO_COMMIT="c99b33f0e08b7206116ddff85c22d3b97ce1e79d"
 SFPM_COMMIT="f2881493e42bd7b7d5b7abe804dad084dd610b71"
 
-inherit cmake desktop xdg
+inherit cmake desktop systemd xdg
 
 DESCRIPTION="VPN client that resists DPI detection and censorship"
 HOMEPAGE="https://amnezia.org"
@@ -74,8 +74,16 @@ src_configure() {
 
 src_install() {
 	newbin "${BUILD_DIR}/client/AmneziaVPN" amnezia-vpn
-	#dobin "${BUILD_DIR}/service/server/AmneziaVPN-service"
+
+	exeinto /opt/AmneziaVPN/bin
+	doexe "${BUILD_DIR}/service/server/AmneziaVPN-service"
 
 	doicon "${S}/deploy/data/linux/AmneziaVPN.png"
 	make_desktop_entry amnezia-vpn "Amnezia VPN" AmneziaVPN "Network;VPN"
+
+	# Fix path in service file: tag 4.8.19.0 points to old .sh path, dev branch already fixed
+	sed -e 's|/opt/AmneziaVPN/service/AmneziaVPN-service.sh|/opt/AmneziaVPN/bin/AmneziaVPN-service|' \
+		-e '/^Environment=/d' \
+		"${S}/deploy/data/linux/AmneziaVPN.service" > "${T}/AmneziaVPN.service" || die
+	systemd_dounit "${T}/AmneziaVPN.service"
 }
