@@ -14,17 +14,14 @@ else
 	SRC_URI="
 		amd64? (
 			cpu_flags_x86_avx2? (
-				elibc_glibc? ( ${GITHUB_BASE}/opencode-linux-x64.tar.gz -> ${P}-amd64.tar.gz )
-				elibc_musl? ( ${GITHUB_BASE}/opencode-linux-x64-musl.tar.gz -> ${P}-amd64-musl.tar.gz )
+				${GITHUB_BASE}/opencode-linux-x64.tar.gz -> ${P}-amd64.tar.gz
 			)
 			!cpu_flags_x86_avx2? (
-				elibc_glibc? ( ${GITHUB_BASE}/opencode-linux-x64-baseline.tar.gz -> ${P}-amd64-baseline.tar.gz )
-				elibc_musl? ( ${GITHUB_BASE}/opencode-linux-x64-baseline-musl.tar.gz -> ${P}-amd64-baseline-musl.tar.gz )
+				${GITHUB_BASE}/opencode-linux-x64-baseline.tar.gz -> ${P}-amd64-baseline.tar.gz
 			)
 		)
 		arm64? (
-			elibc_glibc? ( ${GITHUB_BASE}/opencode-linux-arm64.tar.gz -> ${P}-arm64.tar.gz )
-			elibc_musl? ( ${GITHUB_BASE}/opencode-linux-arm64-musl.tar.gz -> ${P}-arm64-musl.tar.gz )
+			${GITHUB_BASE}/opencode-linux-arm64.tar.gz -> ${P}-arm64.tar.gz
 		)
 	"
 	KEYWORDS="~amd64 ~arm64"
@@ -51,7 +48,6 @@ src_unpack() {
 			*) die "Unsupported architecture: ${ARCH}" ;;
 		esac
 		[[ ${ARCH} == amd64 ]] && ! use cpu_flags_x86_avx2 && suffix+="-baseline"
-		use elibc_musl && suffix+="-musl"
 
 		local filename="opencode-linux-${arch}${suffix}.tar.gz"
 		einfo "Downloading opencode latest release: ${filename}"
