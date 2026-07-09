@@ -37,6 +37,7 @@ DEPEND="
 "
 RDEPEND="${DEPEND}
 	dev-qt/qtshadertools:6
+	net-vpn/amneziawg-tools
 "
 BDEPEND="dev-qt/qttools:6"
 
