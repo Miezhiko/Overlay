@@ -1,0 +1,29 @@
+--- a/client/ui/controllers/importController.h
++++ b/client/ui/controllers/importController.h
+@@ -6,19 +6,16 @@
+ #include "ui/models/containers_model.h"
+ #include "ui/models/servers_model.h"
+
+-namespace
+-{
+-    enum class ConfigTypes {
+-        Amnezia,
+-        OpenVpn,
+-        WireGuard,
+-        Awg,
+-        Xray,
+-        ShadowSocks,
+-        Backup,
+-        Invalid
+-    };
+-}
++enum class ConfigTypes {
++    Amnezia,
++    OpenVpn,
++    WireGuard,
++    Awg,
++    Xray,
++    ShadowSocks,
++    Backup,
++    Invalid
++};
