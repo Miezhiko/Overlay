@@ -1,6 +1,6 @@
---- a/client/cmake/3rdparty.cmake	2026-04-27 13:18:50.000000000 +0800
-+++ b/client/cmake/3rdparty.cmake	2026-06-05 00:07:37.450874598 +0800
-@@ -8,81 +8,11 @@
+--- a/client/cmake/3rdparty.cmake	2026-07-13 14:29:17.886829449 +0400
++++ b/client/cmake/3rdparty.cmake	2026-07-13 14:29:25.882701063 +0400
+@@ -7,81 +7,11 @@
  
  include(${CLIENT_ROOT_DIR}/3rd/qrcodegen/qrcodegen.cmake)
  
@@ -86,35 +86,32 @@
  
  if(ANDROID)
      # Use qtgamepad from amnezia-vpn/qtgamepad repository
-@@ -103,15 +33,9 @@
+@@ -102,14 +32,6 @@
      endif()
  endif()
  
 -set(LIBS ${LIBS} qt6keychain)
-+find_package(Qt6Keychain REQUIRED)
-+set(LIBS ${LIBS} Qt6Keychain::Qt6Keychain)
- 
- include_directories(
+-
+-include_directories(
 -    ${OPENSSL_INCLUDE_DIR}
 -    ${LIBSSH_INCLUDE_DIR}/include
 -    ${LIBSSH_ROOT_DIR}/include
 -    ${CLIENT_ROOT_DIR}/3rd/libssh/include
-     ${CLIENT_ROOT_DIR}/3rd/QSimpleCrypto/src/include
 -    ${CLIENT_ROOT_DIR}/3rd/qtkeychain/qtkeychain
 -    ${CMAKE_CURRENT_BINARY_DIR}/3rd/qtkeychain
 -    ${CMAKE_CURRENT_BINARY_DIR}/3rd/libssh/include
++find_package(Qt6Keychain REQUIRED)
++set(LIBS ${LIBS} Qt6Keychain::Qt6Keychain
  )
---- a/service/server/CMakeLists.txt	2026-06-05 00:14:08.595680757 +0800
-+++ b/service/server/CMakeLists.txt	2026-06-05 00:15:34.594268001 +0800
-@@ -32,39 +32,12 @@
- set(QSIMPLECRYPTO_DIR ${CMAKE_CURRENT_LIST_DIR}/../../client/3rd/QSimpleCrypto/src)
+--- a/service/server/CMakeLists.txt	2026-07-13 14:29:35.194350976 +0400
++++ b/service/server/CMakeLists.txt	2026-07-13 14:31:07.623173632 +0400
+@@ -30,39 +30,11 @@
+ endif()
  
  
 -set(OPENSSL_ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}/../../client/3rd-prebuilt/3rd-prebuilt/openssl/")
 -set(OPENSSL_LIBRARIES_DIR "${OPENSSL_ROOT_DIR}/lib")
-+find_package(OpenSSL REQUIRED)
-+find_package(Qt6Keychain REQUIRED)
- 
+-
 -set(OPENSSL_INCLUDE_DIR "${OPENSSL_ROOT_DIR}/windows/include")
 -if("${CMAKE_SIZEOF_VOID_P}" STREQUAL "8")
 -    set(OPENSSL_LIB_SSL_PATH "${OPENSSL_ROOT_DIR}/windows/win64/libssl.lib")
@@ -141,14 +138,16 @@
 -endif()
 -
 -set(OPENSSL_USE_STATIC_LIBS TRUE)
++find_package(OpenSSL REQUIRED)
++find_package(Qt6Keychain REQUIRED)
  
  include_directories(
      ${AMNEZIA_XRAY_INCLUDE_DIR}
 -    ${OPENSSL_INCLUDE_DIR}
-     ${QSIMPLECRYPTO_DIR}
  )
  
-@@ -241,8 +214,8 @@
+ set(HEADERS
+@@ -229,8 +201,8 @@
          Advapi32
          Kernel32
          ${AMNEZIA_XRAY_LIB_PATH}
@@ -159,7 +158,7 @@
      )
  
      add_compile_definitions(_WINSOCKAPI_)
-@@ -291,8 +264,8 @@
+@@ -279,8 +251,8 @@
      set(LIBS
          resolv
          ${AMNEZIA_XRAY_LIB_PATH}
@@ -170,7 +169,7 @@
      )
  
  endif()
-@@ -330,8 +303,8 @@
+@@ -318,8 +290,8 @@
  
      set(LIBS
          ${AMNEZIA_XRAY_LIB_PATH}    
@@ -181,8 +180,8 @@
          -static-libstdc++
          -static-libgcc
          -ldl
---- a/client/secure_qsettings.h	2026-04-27 13:18:50.000000000 +0800
-+++ b/client/secure_qsettings.h	2026-06-05 00:20:11.245553630 +0800
+--- a/client/secure_qsettings.h	2026-07-13 14:29:38.931202218 +0400
++++ b/client/secure_qsettings.h	2026-07-13 14:29:38.973774443 +0400
 @@ -6,7 +6,7 @@
  #include <QObject>
  #include <QSettings>
