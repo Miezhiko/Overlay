@@ -1,0 +1,209 @@
+--- a/meson.build	2026-07-13 15:20:04.802428147 +0400
++++ b/meson.build	2026-07-13 15:20:07.338002158 +0400
+@@ -24,7 +24,7 @@
+ libgnome_games_support = subproject ('libgnome-games-support',
+ 	    		             default_options: [ 'superproject_name=quadrapassel', 'sounds=true' ])
+ libgnome_games_support_dependency = libgnome_games_support.get_variable ('lggs_dependency')
+-manette_dependency = dependency('manette-0.2', version: '>= 0.2.10')
++manette_dependency = dependency('manette-1', version: '>= 1.0')
+ pango_dependency = dependency('pango')
+ pango_cairo_dependency = dependency('pangocairo')
+ posix_dependency = meson.get_compiler('vala').find_library('posix')
+--- a/src/quadrapassel.vala	2026-07-13 15:20:04.803065275 +0400
++++ b/src/quadrapassel.vala	2026-07-13 15:20:47.233311001 +0400
+@@ -71,26 +71,24 @@
+     private Gtk.Button new_game_button;
+ 
+     private Manette.Monitor manette_monitor;
+-    private const uint16[] MANETTE_BUTTONS = {
+-        InputEventCode.BTN_A,
+-        InputEventCode.BTN_B,
+-        InputEventCode.BTN_X,
+-        InputEventCode.BTN_Y,
+-        InputEventCode.BTN_TL,
+-        InputEventCode.BTN_TR,
+-        InputEventCode.BTN_TL2,
+-        InputEventCode.BTN_TR2,
+-        InputEventCode.BTN_SELECT,
+-        InputEventCode.BTN_START,
+-        InputEventCode.BTN_MODE,
+-        InputEventCode.BTN_THUMBL,
+-        InputEventCode.BTN_THUMBR,
+-        InputEventCode.BTN_DPAD_UP,
+-        InputEventCode.BTN_DPAD_DOWN,
+-        InputEventCode.BTN_DPAD_LEFT,
+-        InputEventCode.BTN_DPAD_RIGHT,
++    private const Manette.Button[] MANETTE_BUTTONS = {
++        Manette.Button.SOUTH,
++        Manette.Button.EAST,
++        Manette.Button.NORTH,
++        Manette.Button.WEST,
++        Manette.Button.LEFT_SHOULDER,
++        Manette.Button.RIGHT_SHOULDER,
++        Manette.Button.SELECT,
++        Manette.Button.START,
++        Manette.Button.MODE,
++        Manette.Button.LEFT_STICK,
++        Manette.Button.RIGHT_STICK,
++        Manette.Button.DPAD_UP,
++        Manette.Button.DPAD_DOWN,
++        Manette.Button.DPAD_LEFT,
++        Manette.Button.DPAD_RIGHT,
+     };
+-    private HashTable<uint16, bool> buttons_state = new HashTable<uint16, bool> (direct_hash, direct_equal);
++    private HashTable<Manette.Button, bool> buttons_state = new HashTable<Manette.Button, bool> (direct_hash, direct_equal);
+ 
+     private bool pause_requested = false;
+ 
+@@ -310,10 +308,9 @@
+ 
+         manette_monitor = new Manette.Monitor ();
+         manette_monitor.device_connected.connect (manette_device_connected_cb);
+-        var manette_iterator = manette_monitor.iterate ();
+-        Manette.Device manette_device = null;
+-        while (manette_iterator.next (out manette_device))
+-            manette_device_connected_cb (manette_device);
++        var devices = manette_monitor.list_devices ();
++        foreach (var device in devices)
++            manette_device_connected_cb (device);
+ 
+         uint[] keys = {
+             Gdk.Key.Return,
+@@ -594,23 +591,19 @@
+ 
+     private void manette_device_connected_cb (Manette.Device manette_device)
+     {
+-        manette_device.button_press_event.connect (manette_button_press_event_cb);
+-        manette_device.button_release_event.connect (manette_button_release_event_cb);
+-        manette_device.absolute_axis_event.connect (manette_absolute_axis_event_cb);
++        manette_device.button_pressed.connect (manette_button_press_event_cb);
++        manette_device.button_released.connect (manette_button_release_event_cb);
++        manette_device.absolute_axis_changed.connect (manette_absolute_axis_event_cb);
+     }
+ 
+-    private void manette_button_press_event_cb (Manette.Event event)
++    private void manette_button_press_event_cb (Manette.Button button)
+     {
+-        uint16 button;
+-        if (!event.get_button (out button))
+-            return;
+-
+         if (buttons_state[button])
+             return;
+ 
+         buttons_state[button] = true;
+ 
+-        if (button == InputEventCode.BTN_SELECT)
++        if (button == Manette.Button.SELECT)
+         {
+             if (game_aspect.has_focus)
+                 new_game ();
+@@ -618,7 +611,7 @@
+             return;
+         }
+ 
+-        if (button == InputEventCode.BTN_START)
++        if (button == Manette.Button.START)
+         {
+             if (!game_aspect.has_focus)
+                 return;
+@@ -639,42 +632,42 @@
+         if (game.paused)
+             return;
+ 
+-        if (button == InputEventCode.BTN_DPAD_LEFT)
++        if (button == Manette.Button.DPAD_LEFT)
+         {
+             game.move_left ();
+             return;
+         }
+-        else if (button == InputEventCode.BTN_DPAD_RIGHT)
++        else if (button == Manette.Button.DPAD_RIGHT)
+         {
+             game.move_right ();
+             return;
+         }
+-        else if (button == InputEventCode.BTN_TL2 || button == InputEventCode.BTN_TL)
++        else if (button == Manette.Button.LEFT_SHOULDER)
+         {
+             game.rotate_left ();
+             return;
+         }
+-        else if (button == InputEventCode.BTN_TR2 || button == InputEventCode.BTN_TR)
++        else if (button == Manette.Button.RIGHT_SHOULDER)
+         {
+             game.rotate_right ();
+             return;
+         }
+-        else if (button == InputEventCode.BTN_B || button == InputEventCode.BTN_A)
++        else if (button == Manette.Button.EAST || button == Manette.Button.SOUTH)
+         {
+             game.set_fast_forward (true);
+             return;
+         }
+-        else if (button == InputEventCode.BTN_X)
++        else if (button == Manette.Button.NORTH)
+         {
+             game.hold ();
+             return;
+         }
+-        else if (button == InputEventCode.BTN_DPAD_DOWN)
++        else if (button == Manette.Button.DPAD_DOWN)
+         {
+             game.drop ();
+             return;
+         }
+-        else if (button == InputEventCode.BTN_DPAD_UP)
++        else if (button == Manette.Button.DPAD_UP)
+         {
+             if (settings.get_boolean ("rotate-counter-clock-wise"))
+                 game.rotate_left ();
+@@ -683,12 +676,8 @@
+         }
+     }
+ 
+-    private void manette_button_release_event_cb (Manette.Event event)
++    private void manette_button_release_event_cb (Manette.Button button)
+     {
+-        uint16 button;
+-        if (!event.get_button (out button))
+-            return;
+-
+         if (!buttons_state[button])
+             return;
+ 
+@@ -697,29 +686,25 @@
+         if (game == null)
+             return;
+ 
+-        if (button == InputEventCode.BTN_DPAD_LEFT ||
+-            button == InputEventCode.BTN_DPAD_RIGHT)
++        if (button == Manette.Button.DPAD_LEFT ||
++            button == Manette.Button.DPAD_RIGHT)
+         {
+             game.stop_moving ();
+             return;
+         }
+-        else if (button == InputEventCode.BTN_B || button == InputEventCode.BTN_A)
++        else if (button == Manette.Button.EAST || button == Manette.Button.SOUTH)
+         {
+             game.set_fast_forward (false);
+             return;
+         }
+     }
+ 
+-    private void manette_absolute_axis_event_cb (Manette.Event event)
++    private void manette_absolute_axis_event_cb (Manette.Axis axis, double val)
+     {
+         if (game == null || game.paused)
+             return;
+ 
+-        uint16 axis;
+-        double val;
+-        event.get_absolute (out axis, out val);
+-
+-        if (axis != InputEventCode.ABS_X)
++        if (axis != Manette.Axis.LEFT_X)
+             return;
+ 
+         var abs = val.abs ();
