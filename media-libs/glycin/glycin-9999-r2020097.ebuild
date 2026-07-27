@@ -50,6 +50,10 @@ _custom_src_unpack() {
 	git-r3_src_unpack
 	cargo_live_src_unpack
 
+	pushd "${S}" || die
+	eapply "${FILESDIR}/${PN}-2.2_alpha7-remove-debug-dbg.patch"
+	popd || die
+
 	_do_configure_and_compile
 }
 
