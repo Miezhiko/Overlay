@@ -11,6 +11,7 @@
  - no metadata.xml
  - pull requests are very welcome
  - many patches taken from Arch Linux
+ - currently I use it with bentoo overlay
 
 <h3>Install</h3>
 
