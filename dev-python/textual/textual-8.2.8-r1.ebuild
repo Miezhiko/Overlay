@@ -23,7 +23,7 @@ RDEPEND="
 	>=dev-python/rich-14.2.0[${PYTHON_USEDEP}]
 	>=dev-python/typing-extensions-4.4.0[${PYTHON_USEDEP}]
 	<dev-python/typing-extensions-5[${PYTHON_USEDEP}]
-	~dev-python/pygments-2.19.2
+	>=dev-python/pygments-2.19.2
 "
 DEPEND="${RDEPEND}"
 
