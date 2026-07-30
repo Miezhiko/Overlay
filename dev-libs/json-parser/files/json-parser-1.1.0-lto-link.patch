@@ -1,0 +1,22 @@
+The libjsonparser.so link rule omits $(CFLAGS), so when CFLAGS enables LTO
+(e.g. -flto=thin), json.o is compiled as an LLVM bitcode object but linked
+without any LTO flag. mold then refuses it:
+
+  mold: fatal: json.o: unable to handle this LTO object file because the
+  -plugin option was not provided. Please make sure you added -flto not
+  only when creating object files but also when linking the final
+  executable.
+
+Pass $(CFLAGS) to the link command too, matching the compile command.
+
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -31,7 +31,7 @@
+ 	$(AR) rcs libjsonparser.a $^
+
+ libjsonparser.so: $(OBJS)
+-	$(CC) -shared -Wl,-soname,$(SO_NAME) $(LDFLAGS) -o libjsonparser.so $^ -lm
++	$(CC) $(CFLAGS) -shared -Wl,-soname,$(SO_NAME) $(LDFLAGS) -o libjsonparser.so $^ -lm
+
+ libjsonparser.dylib: $(OBJS)
+ 	$(CC) -dynamiclib $^ -o libjsonparser.dylib
