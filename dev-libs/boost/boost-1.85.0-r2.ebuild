@@ -81,8 +81,16 @@ create_user-config.jam() {
 		local mpi_configuration="using mpi ;"
 	fi
 
+	# b2 does not carry <cflags>/<cxxflags> over to the final link command,
+	# only <linkflags>. When CFLAGS/CXXFLAGS enable LTO (e.g. -flto=thin),
+	# object files are emitted as LLVM bitcode, and mold then refuses to
+	# link them without an explicit -flto on the link line:
+	#   mold: fatal: ...: unable to handle this LTO object file because
+	#   the -plugin option was not provided.
+	# Append CXXFLAGS to linkflags too so the LTO (and -march) flags reach
+	# the linker.
 	cat > "${user_config_jam}" <<- __EOF__ || die
-		using ${compiler} : ${compiler_version} : ${compiler_executable} : <cflags>"${CPPFLAGS} ${CFLAGS}" <cxxflags>"${CPPFLAGS} ${CXXFLAGS}" <linkflags>"${LDFLAGS}" <archiver>"$(tc-getAR)" <ranlib>"$(tc-getRANLIB)" ;
+		using ${compiler} : ${compiler_version} : ${compiler_executable} : <cflags>"${CPPFLAGS} ${CFLAGS}" <cxxflags>"${CPPFLAGS} ${CXXFLAGS}" <linkflags>"${LDFLAGS} ${CXXFLAGS}" <archiver>"$(tc-getAR)" <ranlib>"$(tc-getRANLIB)" ;
 		${mpi_configuration}
 	__EOF__
 
