@@ -27,6 +27,17 @@ src_install() {
 	doexe "${WORKDIR}/bin/ollama" || die "Failed to install binary"
 	insinto /opt/Ollama/lib/
 	doins -r "${WORKDIR}/lib/ollama/" || die "Failed to install libraries"
+
+	# doins always strips the executable bit, but upstream ships some files
+	# under lib/ollama/ (e.g. llama-server, spawned via fork/exec by the
+	# main ollama binary at runtime) as executables rather than plain
+	# shared libraries. Restore +x on whatever was executable in the
+	# original tree instead of hardcoding filenames.
+	local f
+	while IFS= read -r -d '' f; do
+		fperms +x "/opt/Ollama/lib/ollama/${f#"${WORKDIR}"/lib/ollama/}"
+	done < <(find "${WORKDIR}/lib/ollama" -type f -perm -u+x -print0)
+
 	dosym /opt/Ollama/bin/ollama /opt/bin/ollama
 }
 
