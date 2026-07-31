@@ -130,6 +130,17 @@ python_configure_all() {
 		--jobs="$(makeopts_jobs)"
 		--qmake="$(qt_get_broot_binary 6 qmake)"
 		--qmake-setting="$(qt6_get_qmake_args)"
+		# qt6_get_qmake_args() only overrides QMAKE_CC/CXX to point at the
+		# active compiler; it leaves qmake's mkspec as the default
+		# "linux-g++". Some .prf features (e.g. hardening's
+		# no_direct_extern_access.prf) branch on qmake's *scope* clang
+		# (set by the linux-clang mkspec's qmake.conf), not on which
+		# compiler binary is actually configured, so under clang they
+		# still add GCC-only flags like -mno-direct-extern-access:
+		#   clang++: error: unknown argument: '-mno-direct-extern-access'
+		# Pick the matching clang mkspec so such features resolve
+		# against the right branch.
+		$(tc-is-clang && echo --spec=linux-clang)
 		--verbose
 		--confirm-license
 
