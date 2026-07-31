@@ -1,0 +1,24 @@
+A string literal immediately followed by an identifier (no whitespace) is
+parsed as a user-defined-literal suffix since C++11. Modern clang has
+turned the previously-permissive -Wreserved-user-defined-literal warning
+into a hard error for this pattern:
+
+  ap_UnixApp.cpp:868:29: error: invalid suffix on literal; C++11 requires
+  a space between literal and identifier [-Wreserved-user-defined-literal]
+          if(0 == strcmp (suffix, "."G_MODULE_SUFFIX))
+
+Add the missing space so "." and G_MODULE_SUFFIX are two separate
+preprocessing tokens (concatenated as adjacent string literals after
+macro expansion, as originally intended) rather than one malformed
+literal-with-suffix token.
+
+--- a/src/wp/ap/gtk/ap_UnixApp.cpp
++++ b/src/wp/ap/gtk/ap_UnixApp.cpp
+@@ -865,7 +865,7 @@
+ 		return false;
+ 	const char *suffix = file+(len-3);
+-	if(0 == strcmp (suffix, "."G_MODULE_SUFFIX))
++	if(0 == strcmp (suffix, "." G_MODULE_SUFFIX))
+ 		return true;
+ 	return false;
+ }

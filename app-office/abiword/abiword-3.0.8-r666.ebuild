@@ -84,6 +84,8 @@ PATCHES=(
 	"${FILESDIR}/51787d61993cb3981c18e4cf174fc229734fba1e.patch" # python 3 patch
 	"${FILESDIR}/ae05e92df5a5d6151641622c83d35a6fdba47b1f.patch" # enchant 2 patch
 	"${FILESDIR}/abiword-fix-appstream-data.patch"
+	"${FILESDIR}/${PN}-3.0.8-udl-suffix.patch"
+	"${FILESDIR}/${PN}-3.0.8-lexical_cast-enum.patch"
 )
 
 pkg_setup() {

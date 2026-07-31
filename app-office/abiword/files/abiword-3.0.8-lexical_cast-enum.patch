@@ -1,0 +1,35 @@
+boost::lexical_cast<std::string>() instantiated directly on a plain enum
+makes boost::is_signed/is_unsigned evaluate static_cast<EnumType>(-1) as
+part of their trait computation. Modern clang rejects that as a
+non-constant expression because -1 is not a valid enumerator:
+
+  is_signed.hpp:37:25: error: in-class initializer for static data member
+  is not a constant expression
+     static const no_cv_t minus_one = (static_cast<no_cv_t>(-1));
+  note: integer value -1 is outside the valid range of values [0, 255]
+  for the enumeration type 'FL_ListType'
+
+Cast the enum to int before handing it to lexical_cast.
+
+--- a/plugins/openxml/common/xp/OXML_List.cpp	2026-07-31 10:38:18.473854694 +0400
++++ b/plugins/openxml/common/xp/OXML_List.cpp	2026-07-31 10:38:18.475215527 +0400
+@@ -426,7 +426,7 @@
+ 
+ 	std::string listId = boost::lexical_cast<std::string>(id);
+ 	std::string parentListId = boost::lexical_cast<std::string>(parentId);
+-	std::string listType = boost::lexical_cast<std::string>(type);
++	std::string listType = boost::lexical_cast<std::string>(static_cast<int>(type));
+ 	std::string listStartVal = boost::lexical_cast<std::string>(startValue);
+ 	std::string listDelim("%L."); 
+ 	std::string listDecimal(".");
+--- a/plugins/collab/backends/service/xp/ServiceBuddy.h	2026-07-31 10:38:18.474523896 +0400
++++ b/plugins/collab/backends/service/xp/ServiceBuddy.h	2026-07-31 10:38:18.476220160 +0400
+@@ -60,7 +60,7 @@
+ 		}
+ 		std::string descr = std::string("acn://")+
+ 								boost::lexical_cast<std::string>(m_user_id) + ":" +
+-								boost::lexical_cast<std::string>(m_type) + "@" +
++								boost::lexical_cast<std::string>(static_cast<int>(m_type)) + "@" +
+ 								m_domain;
+ 		return descr.c_str();
+ 	}
