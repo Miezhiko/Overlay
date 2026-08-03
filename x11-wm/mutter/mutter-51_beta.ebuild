@@ -20,7 +20,6 @@ else
 fi
 
 IUSE="bash-completion debug devkit elogind gnome gtk-doc input_devices_wacom +introspection screencast sysprof systemd test udev +xwayland video_cards_nvidia"
-# native backend requires gles3 for hybrid graphics blitting support, udev and a logind provider
 REQUIRED_USE="
 	devkit? ( screencast )
 	gtk-doc? ( introspection )
@@ -134,9 +133,10 @@ BDEPEND="
 	)
 "
 
-PATCHES=(
-	"${FILESDIR}/${P}-bug91.patch"
-)
+# meged hopefully
+#PATCHES=(
+#	"${FILESDIR}/mutter-51_alpha-nvidia-gpu-data.patch"
+#)
 
 python_check_deps() {
 	if use test; then
@@ -152,22 +152,13 @@ src_configure() {
 	local emesonargs=(
 		-Dopengl=true
 		-Dgles2=true
-		-Degl=true
 		-Dfonts=true
 		-Dxwayland=true
-		-Dnative_backend=true
 	)
-
-	if use elogind || use systemd; then
-		emesonargs+=(
-			-Dlogind=true
-		)
-	fi
 
 	emesonargs+=(
 		$(meson_use screencast remote_desktop)
 		$(meson_use gnome libgnome_desktop)
-		$(meson_use udev)
 		-Dudev_dir=$(get_udevdir)
 		$(meson_use input_devices_wacom libwacom)
 		-Dsound_player=true
@@ -185,18 +176,6 @@ src_configure() {
 		-Dinstalled_tests=false
 		$(meson_use bash-completion bash_completion)
 	)
-
-	if use video_cards_nvidia; then
-		emesonargs+=(
-			-Degl_device=true
-			-Dwayland_eglstream=true
-		)
-	else
-		emesonargs+=(
-			-Degl_device=false
-			-Dwayland_eglstream=false
-		)
-	fi
 
 	meson_src_configure
 }
