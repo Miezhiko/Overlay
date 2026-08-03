@@ -1,0 +1,663 @@
+# -*-eselect-*-  vim: ft=eselect
+# Copyright 1999-2026 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+inherit config multilib
+
+DESCRIPTION="Manage the active Node.js slot"
+MAINTAINER="Lucas Couto <lucascs@protonmail.com>"
+VERSION="1"
+
+# find_targets
+#
+# Discover every installed Node.js slot by inspecting the filesystem. No
+# major-version list, range or parity rule is encoded here: a new Node major
+# becomes selectable the moment its slot directory appears on disk, with no
+# change to this module.
+#
+# Each slot installs itself into /usr/$(get_libdir)/node-<major>/, so the
+# lib* wildcard covers every multilib libdir (lib, lib32, lib64, libx32).
+# A directory only counts as a target when it actually carries an executable
+# interpreter at bin/node, which keeps stale or half-removed directories out
+# of the list.
+#
+# OUTPUT:
+#
+# The name of every installed slot, one per line, ordered by numeric version
+# (node9 before node10, not the other way round). Nothing at all when no slot
+# is installed - "no slot installed" is a normal state, not an error.
+#
+find_targets() {
+	# nullglob keeps an unmatched pattern from being returned literally.
+	# Save the caller's setting and restore it before returning.
+	local shopt_saved=$(shopt -p nullglob)
+	shopt -s nullglob
+
+	local d targets=()
+	for d in "${EROOT}"/usr/lib*/node-[0-9]*; do
+		[[ -x ${d}/bin/node ]] && targets+=( "node${d##*/node-}" )
+	done
+
+	${shopt_saved}
+
+	# printf reuses its format string once even with no arguments, so an
+	# empty array would print a single blank line that callers would read
+	# as a target. Emit genuinely nothing instead.
+	[[ ${#targets[@]} -eq 0 ]] && return 0
+
+	# sort -V is load-bearing: a plain sort is lexicographic and would put
+	# node10 before node9, making the newest slot the wrong one.
+	#
+	# -u deduplicates: where a profile makes one libdir a symlink to another
+	# (/usr/lib -> /usr/lib64 on 17.0-era profiles), the lib* wildcard reaches
+	# the same slot twice. Distinct majors never compare equal under a version
+	# sort, so nothing legitimate is ever collapsed.
+	printf '%s\n' "${targets[@]}" | sort -V -u
+}
+
+# Every unversioned path this module owns (R3.2), as "<link>|<target>" pairs.
+# <link> is relative to ${EROOT}; <target> is relative to the slot prefix it
+# must point at. remove_symlinks() and create_symlinks() both read this one
+# list, so the set of managed paths cannot drift between them.
+#
+# The node manpage is deliberately not in here: it is the one managed path
+# whose file name is not fixed, so it is handled by the name-agnostic globs
+# below. Everything else has a stable name on both ends.
+NODEJS_LINKS=(
+	"/usr/bin/node|bin/node"
+	"/usr/bin/npm|bin/npm"
+	"/usr/bin/npx|bin/npx"
+	"/usr/include/node|include/node"
+	"/usr/share/bash-completion/completions/npm|share/bash-completion/completions/npm"
+)
+
+# PORTAGE_COMPRESS may leave the manpage as node.1, node.1.gz, node.1.bz2 or
+# node.1.zst, and man only decompresses when the *link* carries the same
+# suffix. Both directions are therefore resolved by glob, never assumed.
+NODEJS_MANPAGE_DIR="/usr/share/man/man1"
+NODEJS_MANPAGE_GLOB="node.1*"
+
+NODEJS_ENVFILE="/etc/env.d/50nodejs"
+
+# slot_libdir <major>
+#
+# Which libdir the slot for <major> actually lives in: lib, lib32, lib64 or
+# libx32.
+#
+# Not $(get_libdir), which is a compile-time constant of eselect itself: the
+# slot is wherever it was installed, and find_targets() already accepts any
+# libdir, so deriving the answer from the filesystem is what keeps the two
+# functions from disagreeing about the same slot.
+#
+# A libdir that is itself a symlink (17.0-era profiles point /usr/lib at
+# /usr/lib64) is skipped: the slot is reachable through both names and only
+# the real one belongs inside a link target.
+#
+# OUTPUT: the libdir basename, or nothing and a non-zero status when no slot
+# for that major is installed.
+#
+slot_libdir() {
+	local major=$1
+
+	local shopt_saved=$(shopt -p nullglob)
+	shopt -s nullglob
+
+	local d libdir=""
+	for d in "${EROOT}"/usr/lib*/node-"${major}"; do
+		[[ -x ${d}/bin/node ]] || continue
+		d=${d%/*}
+		[[ -L ${d} ]] && continue
+		libdir=${d##*/}
+		break
+	done
+
+	${shopt_saved}
+
+	[[ -n ${libdir} ]] || return 1
+	echo "${libdir}"
+}
+
+# link_target <link> <slot path>
+#
+# The value a managed symlink carries. Always relative, never absolute: with
+# ROOT set (an offline install) an absolute target would name a path on the
+# *host*, and once that tree is booted or chrooted into it would point
+# nowhere. php.eselect makes the same choice, and the slotted ebuild's own
+# dosym calls are relative for the same reason.
+#
+# Both arguments are absolute paths under /usr, so the number of components
+# between /usr and the link is exactly how many levels the target climbs.
+#
+link_target() {
+	local link=$1 slot_path=$2
+
+	[[ ${link} == /usr/*/* && ${slot_path} == /usr/*/* ]] \
+		|| die -q "link_target: unsupported layout for ${link} -> ${slot_path}"
+
+	local rest=${link%/*} up=""
+	rest=${rest#/usr/}
+	while true; do
+		up+="../"
+		[[ ${rest} == */* ]] || break
+		rest=${rest#*/}
+	done
+
+	echo "${up}${slot_path#/usr/}"
+}
+
+# remove_managed_path <path> <pattern>
+#
+# Remove one path this module owns, whatever shape it currently has.
+#
+# The dangerous shape is a real *directory*. ln neither replaces nor refuses
+# one: it descends into it and creates the link inside. Verified here on GNU
+# coreutils 9.11 - with an existing real directory at the link name, both
+# `ln -sf` and `ln -sfn` turn /usr/include/node into /usr/include/node/node,
+# and node-gyp then resolves the wrong headers with no message at all. -n
+# fixes only the *other* case, a link that is already a symlink to a
+# directory, so the directory has to be removed explicitly here (R3.3). Such
+# a directory is a leftover of the unslotted net-libs/nodejs:0, whose
+# src_install did `dodir /usr/include/node/deps/{v8,uv}`.
+#
+# <pattern> is a self-check, not a feature: every caller passes a literal
+# taken from the managed list above, so a path that does not end in it means
+# the composition went wrong - and a recursive removal must not proceed on a
+# path this module did not build itself. ${EROOT} being empty is normal on a
+# non-prefix system, so the guard is on the composed path being well formed,
+# never on ${EROOT} being set.
+#
+remove_managed_path() {
+	local path=$1 pattern=$2
+
+	[[ -n ${path} && -n ${pattern} ]] \
+		|| die -q "remove_managed_path: refusing to act on an empty path"
+	[[ ${path} == /* ]] \
+		|| die -q "remove_managed_path: refusing to act on relative path ${path}"
+	# unquoted on purpose: ${pattern} is a glob, and it comes from this module
+	[[ ${path} == *${pattern} ]] \
+		|| die -q "remove_managed_path: ${path} is not a managed path"
+
+	if [[ -d ${path} && ! -L ${path} ]]; then
+		rm -rf -- "${path}" || die -q "Failed to remove directory ${path}"
+	elif [[ -e ${path} || -L ${path} ]]; then
+		rm -f -- "${path}" || die -q "Failed to remove ${path}"
+	fi
+}
+
+# remove_symlinks
+#
+# Return every unversioned path to a clean state, so that create_symlinks()
+# starts from nothing rather than from a half-switched previous slot. Nothing
+# installed is a normal state, not an error: every removal is conditional.
+#
+remove_symlinks() {
+	local entry link
+	for entry in "${NODEJS_LINKS[@]}"; do
+		link=${entry%%|*}
+		remove_managed_path "${EROOT}${link}" "${link}"
+	done
+
+	# The whole node.1* family goes, not just the name the current slot uses:
+	# a leftover node.1.gz sitting next to a fresh node.1 leaves `man node`
+	# picking between two versions.
+	local shopt_saved=$(shopt -p nullglob)
+	shopt -s nullglob
+
+	local man
+	for man in "${EROOT}${NODEJS_MANPAGE_DIR}"/${NODEJS_MANPAGE_GLOB}; do
+		remove_managed_path "${man}" \
+			"${NODEJS_MANPAGE_DIR}/${NODEJS_MANPAGE_GLOB}"
+	done
+
+	${shopt_saved}
+}
+
+# write_env_file <slot prefix>
+#
+# /etc/env.d/50nodejs carries one variable, MANPATH, and is rewritten on every
+# activation so it always names the slot that is actually active.
+#
+# npm's manpages live inside the slot prefix (share/man/man{1,5,7}/npm-*),
+# because two slots installing into the shared /usr/share/man would collide.
+# `man npm-install` therefore resolves only when the active slot's man root is
+# on MANPATH - one env.d entry covers every section at once, which is the
+# whole mechanism behind R7.3.
+#
+# The file is written under ${EROOT} but its *content* is ${EPREFIX}-based:
+# with ROOT set, the recorded path has to be the one the target system will
+# see, not the one this host writes through. emacs.eselect writes its INFOPATH
+# the same way.
+#
+write_env_file() {
+	local slotdir=$1
+
+	[[ ${slotdir} == /usr/*/* ]] \
+		|| die -q "write_env_file: bad slot prefix \"${slotdir}\""
+
+	local dir="${EROOT}${NODEJS_ENVFILE%/*}"
+	[[ -d ${dir} ]] || mkdir -p -- "${dir}" \
+		|| die -q "Failed to create directory ${dir}"
+	[[ -w ${dir} ]] \
+		|| die -q "Cannot write ${EROOT}${NODEJS_ENVFILE}: superuser privileges required"
+
+	store_config "${EROOT}${NODEJS_ENVFILE}" MANPATH \
+		"${EPREFIX}${slotdir}/share/man"
+}
+
+# create_symlinks <target>
+#
+# Point every unversioned path at <target> (a slot name as find_targets prints
+# it, e.g. node26) and record that slot's man root in /etc/env.d/50nodejs.
+#
+# Callers run remove_symlinks() first: this function only ever adds.
+#
+create_symlinks() {
+	local target=$1
+
+	[[ -n ${target} ]] || die -q "create_symlinks: no target given"
+
+	local major=${target#node}
+	[[ ${major} =~ ^[0-9]+$ ]] \
+		|| die -q "Invalid target \"${target}\": expected node<major>, e.g. node26"
+
+	local libdir
+	libdir=$(slot_libdir "${major}") \
+		|| die -q "Node.js slot ${target} is not installed under ${EROOT}/usr/lib*/node-${major}"
+
+	local slotdir="/usr/${libdir}/node-${major}"
+
+	local entry link rel src dir
+	for entry in "${NODEJS_LINKS[@]}"; do
+		link=${entry%%|*}
+		rel=${entry#*|}
+		src="${EROOT}${slotdir}/${rel}"
+
+		# A slot built with USE=-npm ships neither npm, npx nor the
+		# completion. Skipping what the slot does not have is what keeps a
+		# switch from leaving a dangling link behind; php.eselect does the
+		# same for its optional phar.
+		[[ -e ${src} || -L ${src} ]] || continue
+
+		dir="${EROOT}${link%/*}"
+		[[ -d ${dir} ]] || mkdir -p -- "${dir}" \
+			|| die -q "Failed to create directory ${dir}"
+
+		# -n is load-bearing on a re-set: without it, a link that is already
+		# a symlink to a directory (/usr/include/node) is followed, and the
+		# new link lands inside the previously active slot. It does not help
+		# against a real directory - remove_symlinks() handles that one.
+		ln -sfn -- "$(link_target "${link}" "${slotdir}/${rel}")" \
+			"${EROOT}${link}" \
+			|| die -q "Failed to create symlink ${EROOT}${link}"
+	done
+
+	# Mirror whatever manpage name the slot ships, compressed or not, so that
+	# man can still tell how to decompress it from the link name alone.
+	local shopt_saved=$(shopt -p nullglob)
+	shopt -s nullglob
+
+	local man name
+	for man in "${EROOT}${slotdir}/share/man/man1"/${NODEJS_MANPAGE_GLOB}; do
+		name=${man##*/}
+		dir="${EROOT}${NODEJS_MANPAGE_DIR}"
+		[[ -d ${dir} ]] || mkdir -p -- "${dir}" \
+			|| die -q "Failed to create directory ${dir}"
+		ln -sfn -- "$(link_target "${NODEJS_MANPAGE_DIR}/${name}" \
+				"${slotdir}/share/man/man1/${name}")" \
+			"${dir}/${name}" \
+			|| die -q "Failed to create symlink ${dir}/${name}"
+		break
+	done
+
+	${shopt_saved}
+
+	write_env_file "${slotdir}"
+}
+
+# get_active_slot
+#
+# Which slot /usr/bin/node currently resolves to, named the way find_targets
+# prints it (node26).
+#
+# Three states deliberately report *nothing*, because none of them is a slot a
+# user can actually run: no /usr/bin/node at all; a /usr/bin/node that is not a
+# symlink (the leftover of an unslotted net-libs/nodejs:0); and a symlink whose
+# slot has been unmerged. Reporting the last two as "active" is what would stop
+# the repair paths - do_set from pkg_postinst, do_cleanup from pkg_postrm -
+# from ever running.
+#
+# OUTPUT: the active slot name, or nothing at all. Always exits 0: see
+# describe_show for why the *output*, not the exit status, is the contract.
+#
+get_active_slot() {
+	local link="${EROOT}/usr/bin/node" resolved
+
+	# -e follows the symlink, so this pair is the standard "exists and is not
+	# dangling" test.
+	[[ -L ${link} && -e ${link} ]] || return 0
+
+	resolved=$(canonicalise "${link}" 2>/dev/null) || return 0
+
+	# Only a link landing inside a slot prefix counts. Anything else is some
+	# other package's /usr/bin/node and not this module's to report on.
+	[[ ${resolved} =~ /node-([0-9]+)/bin/node$ ]] || return 0
+
+	echo "node${BASH_REMATCH[1]}"
+}
+
+# resolve_target <spec>
+#
+# Turn what the user typed into a slot name. <spec> is either a name as
+# find_targets prints it (node26) or a 1-based index into the numbered list
+# do_list shows - the two forms every eselect module accepts.
+#
+# find_targets already deduplicates, so the indices here and the numbers on
+# screen cannot drift apart.
+#
+# OUTPUT: the slot name, or nothing and a non-zero status when <spec> names no
+# installed slot.
+#
+resolve_target() {
+	local spec=$1 targets=()
+	mapfile -t targets < <(find_targets)
+
+	if is_number "${spec}"; then
+		[[ ${spec} -ge 1 && ${spec} -le ${#targets[@]} ]] || return 1
+		echo "${targets[spec-1]}"
+		return 0
+	fi
+
+	# Compared literally rather than with has(), which takes its first
+	# argument as a *glob*: `set 'node*'` would resolve to the literal string
+	# "node*" and only fail later, deep inside create_symlinks, with a message
+	# about a malformed name instead of "that target does not exist, here are
+	# the ones that do".
+	local t
+	for t in "${targets[@]}"; do
+		[[ ${spec} == "${t}" ]] || continue
+		echo "${t}"
+		return 0
+	done
+
+	return 1
+}
+
+# valid_targets_hint
+#
+# The second half of every "unknown target" message. A bare rejection is not
+# actionable: the whole point of the numbered list is that the user does not
+# have to know the layout, so the error has to carry the list with it.
+#
+valid_targets_hint() {
+	local targets=()
+	mapfile -t targets < <(find_targets)
+
+	if [[ ${#targets[@]} -eq 0 ]]; then
+		echo "no Node.js slot is installed under ${EROOT}/usr/lib*/node-<major>"
+	else
+		echo "valid targets are ${targets[*]}, or 1-${#targets[@]}"
+	fi
+}
+
+# find_dangling_links
+#
+# Every managed path that is a symlink pointing at something that no longer
+# exists (R3.4) - the state a slot leaves behind when it is unmerged while
+# active. A dangling /usr/bin/node is worse than a missing one: `command -v
+# node` still succeeds and the failure only surfaces at exec time.
+#
+# OUTPUT: absolute paths, one per line; nothing when the tree is healthy.
+#
+find_dangling_links() {
+	local entry link path
+	for entry in "${NODEJS_LINKS[@]}"; do
+		link=${entry%%|*}
+		path="${EROOT}${link}"
+		[[ -L ${path} && ! -e ${path} ]] && echo "${path}"
+	done
+
+	# Globbing lists a dangling symlink like any other directory entry, so the
+	# name-agnostic manpage glob finds these too.
+	local shopt_saved=$(shopt -p nullglob)
+	shopt -s nullglob
+
+	local man
+	for man in "${EROOT}${NODEJS_MANPAGE_DIR}"/${NODEJS_MANPAGE_GLOB}; do
+		[[ -L ${man} && ! -e ${man} ]] && echo "${man}"
+	done
+
+	${shopt_saved}
+}
+
+# remove_env_file
+#
+# Drop ${NODEJS_ENVFILE}. Only ever called when the last slot has gone.
+#
+# remove_symlinks() deliberately keeps the file across a *switch*, because
+# create_symlinks rewrites it in place and a switch always has a successor. A
+# teardown has none, and the file is runtime state this module wrote itself -
+# no package owns it, so nothing else would ever remove it. emacs.eselect makes
+# the same call for its own /etc/env.d/50emacs.
+#
+# The MANPATH entry it leaves behind would be harmless to man, which skips
+# directories that do not exist, but that is an argument for it being safe to
+# remove late - not for keeping it forever.
+#
+remove_env_file() {
+	local path="${EROOT}${NODEJS_ENVFILE}"
+
+	[[ -e ${path} || -L ${path} ]] || return 0
+	rm -f -- "${path}" || die -q "Failed to remove ${path}"
+}
+
+# test_for_write_access
+#
+# Fail before touching anything rather than half way through it. Every
+# individual operation already dies with its own path, but by then a switch may
+# have removed the previous slot's links without being able to create the new
+# ones - a state worse than the one it started from.
+#
+# The check walks up to whichever directory actually exists, because with ROOT
+# set the tree may be sparse and this module creates its own parents.
+#
+test_for_write_access() {
+	local dir="${EROOT}/usr/bin"
+	[[ -d ${dir} ]] || dir="${EROOT}/usr"
+	[[ -d ${dir} ]] || dir="${EROOT:-/}"
+
+	[[ -w ${dir} ]] \
+		|| die -q "You need superuser privileges to change the active Node.js slot"
+}
+
+# activate_highest_slot
+#
+# Point everything at the highest installed slot, or - when none is left - take
+# the unversioned paths and the environment file away.
+#
+# This is the body of the update action, factored out because cleanup ends in
+# exactly the same place: once the dead links are gone, "re-point at whatever
+# is still installed" is the repair, and there is no second version of it.
+#
+activate_highest_slot() {
+	local targets=()
+	mapfile -t targets < <(find_targets)
+
+	if [[ ${#targets[@]} -eq 0 ]]; then
+		test_for_write_access
+
+		# Nothing left to point at, so anything still here can only be
+		# stale. This is the branch pkg_postrm of the last slot ends in.
+		remove_symlinks
+		remove_env_file
+		is_output_mode brief || echo "No Node.js slot is installed."
+		return 0
+	fi
+
+	# find_targets sorts with sort -V, so the last entry is the highest major.
+	do_set "${targets[${#targets[@]} - 1]}"
+}
+
+### list action ###
+
+describe_list() {
+	echo "List the installed Node.js slots"
+}
+
+do_list() {
+	[[ $# -gt 0 ]] && die -q "Too many parameters"
+
+	local i targets=() active
+	mapfile -t targets < <(find_targets)
+	active=$(get_active_slot)
+
+	for (( i = 0; i < ${#targets[@]}; i++ )); do
+		# ${active} is empty when nothing is active, and no slot name ever is,
+		# so no entry can be marked by accident.
+		[[ ${targets[i]} == "${active}" ]] \
+			&& targets[i]=$(highlight_marker "${targets[i]}")
+	done
+
+	write_list_start "Installed Node.js slots:"
+	write_numbered_list -m "(none found)" "${targets[@]}"
+}
+
+### show action ###
+
+describe_show() {
+	echo "Print the active Node.js slot, or nothing when none is active"
+}
+
+# do_show
+#
+# THE CONTRACT, which pkg_postinst of every slotted net-libs/nodejs codes
+# against (R3.5, R3.6):
+#
+#   stdout  the active slot name and nothing else ("node26\n"), or zero bytes
+#           when no slot is active. This is the whole signal.
+#   stderr  nothing.
+#   status  always 0, in every output mode, including "none active".
+#
+# Consumers therefore branch on the *output*:
+#
+#   active=$(eselect nodejs show)
+#   if [[ -z ${active} ]]; then eselect nodejs set "node${SLOT}"; fi
+#
+# The exit status is deliberately not part of the contract, for two reasons.
+# Failing on a normal state would conflate "no slot is active" with "the module
+# is not installed" (which exits non-zero too), and `eselect nodejs show` as
+# the last command of pkg_postinst would fail the phase - portage takes the
+# phase function's status as the phase's result.
+#
+# The output stays undecorated in every mode, so a consumer never has to
+# remember to pass --brief. `list` is the action that renders for humans.
+#
+do_show() {
+	[[ $# -gt 0 ]] && die -q "Too many parameters"
+
+	get_active_slot
+}
+
+### set action ###
+
+describe_set() {
+	echo "Activate a Node.js slot"
+}
+
+describe_set_parameters() {
+	echo "<target>"
+}
+
+describe_set_options() {
+	echo "target : Slot name (e.g. node26) or number (from the 'list' action)"
+}
+
+do_set() {
+	[[ -z $1 ]] && die -q "You didn't tell me which slot to activate"
+	[[ $# -gt 1 ]] && die -q "Too many parameters"
+
+	local target
+	target=$(resolve_target "$1") \
+		|| die -q "Invalid target \"$1\": $(valid_targets_hint)"
+
+	test_for_write_access
+
+	echo "Switching Node.js to ${target} ..."
+
+	# Remove first, create second. Overwriting in place would keep whatever
+	# the previous slot had and this one has not: a node.1.gz left beside a
+	# fresh node.1, or npm and npx still resolving into the old slot after a
+	# switch to one built with USE=-npm. Those survivors point into a slot
+	# nobody selected, and nothing later would notice.
+	remove_symlinks
+	create_symlinks "${target}"
+
+	# create_symlinks writes ${NODEJS_ENVFILE}, but nothing reads /etc/env.d
+	# directly - MANPATH only reaches a shell once /etc/profile.env has been
+	# regenerated. Without this, `man npm-install` keeps resolving into the
+	# previous slot until some later merge happens to run env-update.
+	# emacs.eselect and locale.eselect end their set action the same way.
+	do_action env update noldconfig
+}
+
+### update action ###
+
+describe_update() {
+	echo "Activate the highest installed Node.js slot"
+}
+
+describe_update_parameters() {
+	echo "[ifunset]"
+}
+
+describe_update_options() {
+	echo "ifunset : Leave an already active slot alone"
+}
+
+do_update() {
+	[[ -z $1 || $1 == ifunset || $1 == --if-unset ]] \
+		|| die -q "Unknown option \"$1\""
+	[[ $# -gt 1 ]] && die -q "Too many parameters"
+
+	# get_active_slot reports nothing for a dangling link, so "ifunset" still
+	# repairs a broken selection - it only protects a working one.
+	[[ -n $1 && -n $(get_active_slot) ]] && return 0
+
+	activate_highest_slot
+}
+
+### cleanup action ###
+
+describe_cleanup() {
+	echo "Remove links left dangling by an unmerged slot, then re-point"
+}
+
+do_cleanup() {
+	[[ $# -gt 0 ]] && die -q "Too many parameters"
+
+	local dangling=()
+	mapfile -t dangling < <(find_dangling_links)
+
+	if [[ ${#dangling[@]} -eq 0 ]]; then
+		is_output_mode brief || echo "No dangling Node.js links found."
+		return 0
+	fi
+
+	test_for_write_access
+
+	local link
+	for link in "${dangling[@]}"; do
+		echo "Removing dangling link ${link}"
+	done
+
+	# Every managed path goes, not only the dead ones. A slot unmerged while
+	# active can leave some links dangling and others still resolving - into
+	# itself, or into a second slot's manpage - and re-pointing wholesale is
+	# the only outcome that is certainly consistent. php.eselect's cleanup
+	# takes the same route: remove, then update.
+	remove_symlinks
+
+	# R3.4 asks for a repair path, not only for detection: this is the body of
+	# the update action, re-pointing at the highest slot still installed - or
+	# tearing the environment file down when the one just removed was the last.
+	activate_highest_slot
+}

@@ -1,0 +1,101 @@
+Add paxmark to the mksnapshot and node targets, so that a PaX-enabled kernel
+does not kill them during the build.
+
+Rebased onto node-v26.5.1 for this overlay. Same change as
+files/nodejs-24.1.0-paxmarking.patch -- only the @@ line numbers and the
+surrounding context lines were regenerated. Nothing was added, removed or
+reworded in any + line.
+
+Why a rebase was needed: at 26.5.1 the shared 24.1.0 file applied with
+"fuzz 1" in BOTH node.gyp (hunk 1, whose context still named
+src/node_webstorage.h where 26 now has src/ffi/types.h) and
+tools/v8_gypfiles/v8.gyp (hunk 3). Fuzz is not a warning that can be sat on:
+portage's __eapply_patch greps its own output for "with fuzz", prints it and
+still returns SUCCESS, so a hunk that drifts to the wrong site ships silently
+and fails at compile time -- and only for USE=pax-kernel users, who are not
+this overlay's maintainer. This copy applies with --fuzz=0.
+
+Bug: https://bugs.gentoo.org/694100
+--- a/node.gyp
++++ b/node.gyp
+@@ -493,6 +493,7 @@
+       'src/ffi/types.h',
+     ],
+     'node_mksnapshot_exec': '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)node_mksnapshot<(EXECUTABLE_SUFFIX)',
++    'node_mksnapshot_u_exec': '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)node_mksnapshot_u<(EXECUTABLE_SUFFIX)',
+     'node_js2c_exec': '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)node_js2c<(EXECUTABLE_SUFFIX)',
+     'conditions': [
+       ['GENERATOR == "ninja"', {
+@@ -1132,10 +1133,24 @@
+             ['node_snapshot_main!=""', {
+               'actions': [
+                 {
++                  'action_name': 'run_pax_mksnapshot',
++                  'inputs': [
++                    '<(node_mksnapshot_exec)',
++                  ],
++                  'outputs': [
++                    '<(node_mksnapshot_u_exec)',
++                  ],
++                  'action': [
++                    'bash',
++                    '-c',
++                    'mv <(node_mksnapshot_exec) <(node_mksnapshot_u_exec) && paxmark.sh m <(node_mksnapshot_u_exec)',
++                  ],
++                },
++                {
+                   'action_name': 'node_mksnapshot',
+                   'process_outputs_as_sources': 1,
+                   'inputs': [
+-                    '<(node_mksnapshot_exec)',
++                    '<(node_mksnapshot_u_exec)',
+                     '<(node_snapshot_main)',
+                   ],
+                   'outputs': [
+--- a/tools/v8_gypfiles/v8.gyp
++++ b/tools/v8_gypfiles/v8.gyp
+@@ -9,6 +9,7 @@
+     'v8_vector_stores%': 0,
+     'v8_embed_script%': "",
+     'mksnapshot_exec': '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)mksnapshot<(EXECUTABLE_SUFFIX)',
++    'mksnapshot_u_exec': '<(PRODUCT_DIR)/<(EXECUTABLE_PREFIX)mksnapshot_u<(EXECUTABLE_SUFFIX)',
+     'v8_os_page_size%': 0,
+     'generate_bytecode_output_root': '<(SHARED_INTERMEDIATE_DIR)/generate-bytecode-output-root',
+     'generate_bytecode_builtins_list_output': '<(generate_bytecode_output_root)/builtins-generated/bytecodes-builtins-list.h',
+@@ -1783,7 +1784,7 @@
+       ],
+     },  # bytecode_builtins_list_generator
+     {
+-      'target_name': 'mksnapshot',
++      'target_name': 'mksnapshot_u',
+       'type': 'executable',
+       'dependencies': [
+         'v8_base_without_compiler',
+@@ -1836,6 +1837,27 @@
+           },
+         }],
+       ],
++    },  # mksnapshot_u
++    {
++      'target_name': 'mksnapshot',
++      'type': 'none',
++      'dependencies': ['mksnapshot_u'],
++      'actions': [
++        {
++          'action_name': 'paxmark_mksnapshot',
++          'inputs': [
++            '<(mksnapshot_u_exec)',
++          ],
++          'outputs': [
++            '<(mksnapshot_exec)',
++          ],
++          'action': [
++            'bash',
++            '-c',
++            'cp <(mksnapshot_u_exec) <(mksnapshot_exec) && paxmark.sh m <(mksnapshot_exec)'
++          ],
++        },
++      ],
+     },  # mksnapshot
+     {
+       'target_name': 'torque',

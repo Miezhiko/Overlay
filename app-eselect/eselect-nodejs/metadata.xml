@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>lucascs@protonmail.com</email>
+		<name>Lucas Couto</name>
+	</maintainer>
+	<longdescription lang="en">
+		An eselect module that manages the unversioned Node.js entry points on a
+		system where net-libs/nodejs is slotted by major version. It owns
+		/usr/bin/{node,npm,npx}, /usr/include/node, the node manpage, the npm
+		bash-completion and the shared npm configuration, pointing each of them
+		at whichever slot is currently selected.
+	</longdescription>
+</pkgmetadata>
