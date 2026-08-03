@@ -1,0 +1,72 @@
+Backport of upstream commit 00508a702de117967ee8ae8c70f3786c4d73f958
+("Gio: Emblem and DBus::ActionGroup: Don't derive gtkmm__Gxxx types").
+
+Newer glib (>=2.89.2) declares GDBusActionGroup and GEmblem as
+G_DECLARE_FINAL_TYPE, which auto-generates a typedef for
+GDBusActionGroupClass/GEmblemClass. glibmm 2.88.1 unconditionally
+declares its own `using X = struct _X` alias for the same names,
+causing a hard conflicting-declaration error against glib >= 2.89.2:
+
+  giomm/dbusactiongroup.h:32:7: error: conflicting declaration
+  'using GDBusActionGroupClass = struct _GDBusActionGroupClass'
+  note: previous declaration as 'typedef struct GDBusActionGroupClass
+  GDBusActionGroupClass' (from glib's G_DECLARE_FINAL_TYPE)
+
+This guards the alias behind a glib version check and marks the
+classes as not deriving their GType, matching how glib itself now
+declares them as final types.
+
+diff --git a/gio/src/dbusactiongroup.hg b/gio/src/dbusactiongroup.hg
+index fbc00f86fe4d1d264a1c72604efb74baadcb27d8..fedba12b7bcf73a6a0af755a9cbf59a33f1e043a 100644
+--- a/gio/src/dbusactiongroup.hg
++++ b/gio/src/dbusactiongroup.hg
+@@ -21,6 +21,17 @@
+ _DEFS(giomm,gio)
+ _PINCLUDE(glibmm/private/object_p.h)
+ 
++#ifndef DOXYGEN_SHOULD_SKIP_THIS
++// Necessary if compiled against glib < 2.89.1, where GDBusActionGroup is not
++// a final type, and GDBusActionGroupClass is not defined by G_DECLARE_FINAL_TYPE().
++// (It was declared a final type somewhere between 2.89.1 and 2.89.2.
++// The compiler will probably complain if you compile against a glib 2.89.1
++// where GDBusActionGroup is not a final type.)
++#if !GLIB_CHECK_VERSION(2,89,1)
++using GDBusActionGroupClass = struct _GDBusActionGroupClass;
++#endif
++#endif /* DOXYGEN_SHOULD_SKIP_THIS */
++
+ namespace Gio
+ {
+ 
+@@ -43,6 +54,9 @@ class GIOMM_API ActionGroup
+   _CLASS_GOBJECT(ActionGroup, GDBusActionGroup, G_DBUS_ACTION_GROUP, Glib::Object, GObject, , , GIOMM_API)
+   _IMPLEMENTS_INTERFACE(Gio::ActionGroup)
+   _IMPLEMENTS_INTERFACE(Gio::RemoteActionGroup)
++  _DO_NOT_DERIVE_GTYPE dnl// GDBusActionGroup is a final type since glib 2.89.2
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
++  _STRUCT_NOT_HIDDEN
+ 
+ protected:
+   _CTOR_DEFAULT
+diff --git a/gio/src/emblem.hg b/gio/src/emblem.hg
+index e8e8cfb4259a8d010f79cb0a9f2508daf101c53b..2e6412f8c0b76c55cab80b12679040c1a7d8ea98 100644
+--- a/gio/src/emblem.hg
++++ b/gio/src/emblem.hg
+@@ -16,6 +16,7 @@
+ 
+ #include <glibmm/object.h>
+ #include <giomm/icon.h>
++#include <gio/gio.h>
+ 
+ _DEFS(giomm,gio)
+ _PINCLUDE(glibmm/private/object_p.h)
+@@ -40,6 +41,9 @@ class GIOMM_API Emblem
+ {
+   _CLASS_GOBJECT(Emblem, GEmblem, G_EMBLEM, Glib::Object, GObject, , , GIOMM_API)
+   _IMPLEMENTS_INTERFACE(Icon)
++  _DO_NOT_DERIVE_GTYPE dnl// GEmblem is a final type since glib 2.89.2
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
++  _STRUCT_NOT_HIDDEN
+ 
+ public:
+   _WRAP_ENUM(Origin, GEmblemOrigin, NO_GTYPE, decl_prefix GIOMM_API)

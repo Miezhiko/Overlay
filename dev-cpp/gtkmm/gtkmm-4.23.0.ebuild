@@ -16,6 +16,15 @@ IUSE="gtk-doc test"
 
 RESTRICT="!test? ( test )"
 
+PATCHES=(
+	# Backport of upstream fix for building against glib >= 2.89.2, which
+	# declares GdkCursor (and other internal Gdk classes) as
+	# G_DECLARE_FINAL_TYPE and conflicts with gtkmm's own unconditional
+	# class-name aliases otherwise. Companion to dev-cpp/glibmm's
+	# equivalent GDBusActionGroup/GEmblem fix.
+	"${FILESDIR}"/${PN}-4.23.0-gdk-final-gtypes.patch
+)
+
 RDEPEND="
 	>=dev-cpp/glibmm-2.75.0:2.68[gtk-doc?]
 	>=gui-libs/gtk-4.19.4:4
