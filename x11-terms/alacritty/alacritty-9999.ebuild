@@ -1,4 +1,4 @@
-# Copyright 2017-2023 Gentoo Authors
+# Copyright 2017-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -48,7 +48,6 @@ RDEPEND="${COMMON_DEPEND}
 
 BDEPEND="
 	dev-build/cmake
-	>=virtual/rust-1.65.0
 "
 
 QA_FLAGS_IGNORED="usr/bin/alacritty"
