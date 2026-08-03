@@ -16,6 +16,8 @@ exceptions=(
 	"dev-qt/qtcharts"
 	"dev-build/cmake"
 	"dev-lang/rust-bin"
+	"net-libs/nodejs"
+	"net-libs/webkit-gtk"
 )
 
 while read e; do
