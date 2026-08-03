@@ -1,0 +1,309 @@
+Backport of upstream commit 38a18a447880643964e6e352d1a364237830815e
+("Gdk: Don't derive gtkmm__GdkXxx GTypes from internal types").
+
+Newer glib (>=2.89.2) declares GdkCursor (and several other Gdk
+classes) as G_DECLARE_FINAL_TYPE, which auto-generates a typedef for
+GdkCursorClass. gtkmm 4.23.0 unconditionally declares its own
+`using GdkCursorClass = struct _GdkCursorClass` alias for the same
+name, causing a hard conflicting-declaration error against glib
+>= 2.89.2 (companion issue to the same problem already fixed in
+dev-cpp/glibmm for GDBusActionGroup/GEmblem):
+
+  gdkmm/cursor.h:30:7: error: conflicting declaration
+  'using GdkCursorClass = struct _GdkCursorClass'
+  note: previous declaration as 'typedef struct GdkCursorClass
+  GdkCursorClass' (from glib's G_DECLARE_FINAL_TYPE)
+
+This marks GdkCursor and the other affected Gdk classes as not
+deriving their GType, matching how glib itself now declares them.
+
+diff --git a/gdk/src/applaunchcontext.hg b/gdk/src/applaunchcontext.hg
+index cc2cec7d9efcfb8f1cd0e257aa4d16dd28592a3b..1c5e8e6b7f5fdaa4962314fe253bf0c6173c55b9 100644
+--- a/gdk/src/applaunchcontext.hg
++++ b/gdk/src/applaunchcontext.hg
+@@ -35,6 +35,8 @@ class GDKMM_API Display;
+ class GDKMM_API AppLaunchContext : public Gio::AppLaunchContext
+ {
+   _CLASS_GOBJECT(AppLaunchContext, GdkAppLaunchContext, GDK_APP_LAUNCH_CONTEXT, Gio::AppLaunchContext, GAppLaunchContext, , , GDKMM_API)
++  _DO_NOT_DERIVE_GTYPE dnl// GdkAppLaunchContext is an internal type
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
+
+ protected:
+   _CTOR_DEFAULT()
+diff --git a/gdk/src/cairocontext.hg b/gdk/src/cairocontext.hg
+index 46087539efd92ac3d7254da8e5712cc965bc2bd0..730838b50385647bd1db85828d80f33cfb957744 100644
+--- a/gdk/src/cairocontext.hg
++++ b/gdk/src/cairocontext.hg
+@@ -36,6 +36,8 @@ namespace Gdk
+ class GDKMM_API CairoContext : public Gdk::DrawContext
+ {
+   _CLASS_GOBJECT(CairoContext, GdkCairoContext, GDK_CAIRO_CONTEXT, Gdk::DrawContext, GdkDrawContext, , , GDKMM_API)
++  _DO_NOT_DERIVE_GTYPE dnl// GdkCairoContext is an internal type
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
+
+ protected:
+   _CTOR_DEFAULT()
+diff --git a/gdk/src/clipboard.hg b/gdk/src/clipboard.hg
+index 54f9555d471b56f89bbdb6076cabd71db9ac62c9..b0f68be47df4deb12efd043ee9e7173dc795da8d 100644
+--- a/gdk/src/clipboard.hg
++++ b/gdk/src/clipboard.hg
+@@ -56,6 +56,8 @@ namespace Gdk
+ class GDKMM_API Clipboard : public Glib::Object
+ {
+   _CLASS_GOBJECT(Clipboard, GdkClipboard, GDK_CLIPBOARD, Glib::Object, GObject, , , GDKMM_API)
++  _DO_NOT_DERIVE_GTYPE dnl// GdkClipboard is an internal type
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
+
+ public:
+   _WRAP_METHOD(Glib::RefPtr<Display> get_display(), gdk_clipboard_get_display, refreturn)
+diff --git a/gdk/src/cursor.hg b/gdk/src/cursor.hg
+index 05cb88821fff7cfd57af7dfe51e65050e5497022..da3137c6f165be6694926c70e40aaaa32b592557 100644
+--- a/gdk/src/cursor.hg
++++ b/gdk/src/cursor.hg
+@@ -60,7 +60,8 @@ namespace Gdk
+ class GDKMM_API Cursor : public Glib::Object
+ {
+   _CLASS_GOBJECT(Cursor, GdkCursor, GDK_CURSOR, Glib::Object, GObject, , , GDKMM_API)
+-  _DO_NOT_DERIVE_GTYPE //We use DO_NOT_DERIVE_GTYPE because glib does not allow us to derive from a non-fundamental (abstract) type, for some reason.
++  _DO_NOT_DERIVE_GTYPE dnl// GdkCursor is a final type
++  _STRUCT_NOT_HIDDEN
+
+ protected:
+
+diff --git a/gdk/src/device.hg b/gdk/src/device.hg
+index d5e49190840d8aab2f77831a15b71acd8e94f59e..6fc86ab6af71b5346b356944e8ac0a291ec50629 100644
+--- a/gdk/src/device.hg
++++ b/gdk/src/device.hg
+@@ -39,6 +39,9 @@ class GDKMM_API Surface;
+ class GDKMM_API Device : public Glib::Object
+ {
+   _CLASS_GOBJECT(Device,GdkDevice,GDK_DEVICE,Glib::Object,GObject, , , GDKMM_API)
++  _DO_NOT_DERIVE_GTYPE dnl// GdkDevice is an internal type
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
++
+   _CUSTOM_WRAP_NEW
+
+ protected:
+diff --git a/gdk/src/devicepad.hg b/gdk/src/devicepad.hg
+index b88bb66049dea35cc5742264cbfcd4062d2674e4..359425234832f27ff9f59e1ac71c28e96d5108dc 100644
+--- a/gdk/src/devicepad.hg
++++ b/gdk/src/devicepad.hg
+@@ -56,6 +56,8 @@ namespace Gdk
+ class GDKMM_API DevicePad : public Glib::Interface
+ {
+   _CLASS_INTERFACE(DevicePad, GdkDevicePad, GDK_DEVICE_PAD, GdkDevicePadInterface, , , GDKMM_API)
++  _DO_NOT_DERIVE_GTYPE dnl// GdkDevicePad is an internal type
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
+
+ public:
+   _WRAP_ENUM(Feature, GdkDevicePadFeature, decl_prefix GDKMM_API)
+diff --git a/gdk/src/devicetool.hg b/gdk/src/devicetool.hg
+index 3b51d45aa3712b4cbf519aec077b347bfcae496f..663038aeaf0425b31f901074491096fb9e7d03b8 100644
+--- a/gdk/src/devicetool.hg
++++ b/gdk/src/devicetool.hg
+@@ -31,6 +31,8 @@ namespace Gdk
+ class GDKMM_API DeviceTool : public Glib::Object
+ {
+   _CLASS_GOBJECT(DeviceTool, GdkDeviceTool, GDK_DEVICE_TOOL, Glib::Object, GObject, , , GDKMM_API)
++  _DO_NOT_DERIVE_GTYPE dnl// GdkDeviceTool is an internal type
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
+
+ public:
+   _WRAP_ENUM(Type, GdkDeviceToolType, decl_prefix GDKMM_API)
+diff --git a/gdk/src/display.hg b/gdk/src/display.hg
+index b3f9ac95b604d9c8a168c46dd4cf83107e99b855..a386f8af2da3ceaace8fb661e928b77e7914116a 100644
+--- a/gdk/src/display.hg
++++ b/gdk/src/display.hg
+@@ -52,6 +52,8 @@ class GDKMM_API Surface;
+ class GDKMM_API Display : public Glib::Object
+ {
+   _CLASS_GOBJECT(Display,GdkDisplay,GDK_DISPLAY,Glib::Object,GObject, , , GDKMM_API)
++  _DO_NOT_DERIVE_GTYPE dnl// GdkDisplay is an internal type
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
+ protected:
+   _CTOR_DEFAULT
+
+diff --git a/gdk/src/displaymanager.hg b/gdk/src/displaymanager.hg
+index 939b3f0cddb5fe80821f55e8ac425675661d6578..70b456cb5d7bb001b568d23f0f42d1e271437370 100644
+--- a/gdk/src/displaymanager.hg
++++ b/gdk/src/displaymanager.hg
+@@ -32,6 +32,8 @@ namespace Gdk
+ class GDKMM_API DisplayManager : public Glib::Object
+ {
+   _CLASS_GOBJECT(DisplayManager,GdkDisplayManager,GDK_DISPLAY_MANAGER,Glib::Object,GObject, , , GDKMM_API)
++  _DO_NOT_DERIVE_GTYPE dnl// GdkDisplayManager is an internal type
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
+ protected:
+
+ public:
+diff --git a/gdk/src/dmabuftexture.hg b/gdk/src/dmabuftexture.hg
+index 94ba74d2cdb71492f7aa0855dba76990dd15c681..5a823e3235ca0de5bd87474aacc4b2b35fb1a1aa 100644
+--- a/gdk/src/dmabuftexture.hg
++++ b/gdk/src/dmabuftexture.hg
+@@ -36,6 +36,8 @@ _WRAP_GERROR(DmabufError, GdkDmabufError, GDK_DMABUF_ERROR, decl_prefix GDKMM_AP
+ class GDKMM_API DmabufTexture : public Gdk::Texture
+ {
+   _CLASS_GOBJECT(DmabufTexture, GdkDmabufTexture, GDK_DMABUF_TEXTURE, Gdk::Texture, GdkTexture, , , GDKMM_API)
++  _DO_NOT_DERIVE_GTYPE dnl// GdkDmabufTexture is an internal type
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
+
+ protected:
+   _CTOR_DEFAULT()
+diff --git a/gdk/src/drag.hg b/gdk/src/drag.hg
+index ffa194ab5a7bd473f78e7dfe202f2f7093cd600d..4540cddf06fd891c1ded2cdc2fdd934242666ac2 100644
+--- a/gdk/src/drag.hg
++++ b/gdk/src/drag.hg
+@@ -44,6 +44,8 @@ _WRAP_ENUM(DragCancelReason, GdkDragCancelReason, decl_prefix GDKMM_API)
+ class GDKMM_API Drag : public Glib::Object
+ {
+   _CLASS_GOBJECT(Drag, GdkDrag, GDK_DRAG, Glib::Object, GObject, , , GDKMM_API)
++  _DO_NOT_DERIVE_GTYPE dnl// GdkDrag is an internal type
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
+
+ public:
+   // The Gtk::DnD namespace contains functions that logically are Gdk::Drag methods.
+diff --git a/gdk/src/drawcontext.hg b/gdk/src/drawcontext.hg
+index 13ab7a49f5947d1ed3ab797f847cf650da83d9d5..bb3d56827a4ae58d152795297ddfe42384fd14fa 100644
+--- a/gdk/src/drawcontext.hg
++++ b/gdk/src/drawcontext.hg
+@@ -40,6 +40,8 @@ class GDKMM_API Surface;
+ class GDKMM_API DrawContext : public Glib::Object
+ {
+   _CLASS_GOBJECT(DrawContext, GdkDrawContext, GDK_DRAW_CONTEXT, Glib::Object, GObject, , , GDKMM_API)
++  _DO_NOT_DERIVE_GTYPE dnl// GdkDrawContext is an internal type
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
+
+ protected:
+   /// This constructor is protected because only derived classes shall be instantiated.
+diff --git a/gdk/src/drop.hg b/gdk/src/drop.hg
+index 40cb0ad5ab721f2cc2fa8627b021b0bacbb3efab..e02898f3012a5b4b02bf724681227ac1a8664c11 100644
+--- a/gdk/src/drop.hg
++++ b/gdk/src/drop.hg
+@@ -55,6 +55,8 @@ class GDKMM_API Surface;
+ class GDKMM_API Drop : public Glib::Object
+ {
+   _CLASS_GOBJECT(Drop, GdkDrop, GDK_DROP, Glib::Object, GObject, , , GDKMM_API)
++  _DO_NOT_DERIVE_GTYPE dnl// GdkDrop is an internal type
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
+
+ public:
+   _WRAP_METHOD(Glib::RefPtr<Display> get_display(), gdk_drop_get_display, refreturn)
+diff --git a/gdk/src/frameclock.hg b/gdk/src/frameclock.hg
+index 70b93b9d9a1471491c548676d8c7d18d6e3fc99e..c6fd96032109e0092cc789c8d3a52e1ca0fd82ad 100644
+--- a/gdk/src/frameclock.hg
++++ b/gdk/src/frameclock.hg
+@@ -67,6 +67,8 @@ namespace Gdk
+ class GDKMM_API FrameClock : public Glib::Object
+ {
+   _CLASS_GOBJECT(FrameClock, GdkFrameClock, GDK_FRAME_CLOCK, Glib::Object, GObject, , , GDKMM_API)
++  _DO_NOT_DERIVE_GTYPE dnl// GdkFrameClock is an internal type
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
+
+ public:
+   _WRAP_ENUM(Phase, GdkFrameClockPhase, decl_prefix GDKMM_API)
+diff --git a/gdk/src/glcontext.hg b/gdk/src/glcontext.hg
+index dd9a2ffe4306144258eb1604e90120ae3d400b84..ea05ddc0319dde6689102fbcab5ba23f2c62e121 100644
+--- a/gdk/src/glcontext.hg
++++ b/gdk/src/glcontext.hg
+@@ -79,6 +79,8 @@ _WRAP_GERROR(GLError, GdkGLError, GDK_GL_ERROR, newin "3,18", decl_prefix GDKMM_API)
+ class GDKMM_API GLContext : public DrawContext
+ {
+   _CLASS_GOBJECT(GLContext, GdkGLContext, GDK_GL_CONTEXT, Gdk::DrawContext, GdkDrawContext, , , GDKMM_API)
++  _DO_NOT_DERIVE_GTYPE dnl// GdkGLContext is an internal type
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
+
+ protected:
+   _CTOR_DEFAULT
+diff --git a/gdk/src/gltexture.hg b/gdk/src/gltexture.hg
+index 61ce55ef4839837e1a2a5995aef752d4b2baaeaa..c963a431ab3369ddc17c3b62a4258231633de756 100644
+--- a/gdk/src/gltexture.hg
++++ b/gdk/src/gltexture.hg
+@@ -30,6 +30,8 @@ class GDKMM_API GLContext;
+ class GDKMM_API GLTexture : public Gdk::Texture
+ {
+   _CLASS_GOBJECT(GLTexture, GdkGLTexture, GDK_GL_TEXTURE, Gdk::Texture, GdkTexture, , , GDKMM_API)
++  _DO_NOT_DERIVE_GTYPE dnl// GdkGLTexture is an internal type
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
+
+ protected:
+   _CTOR_DEFAULT()
+diff --git a/gdk/src/memorytexture.hg b/gdk/src/memorytexture.hg
+index 5b35f91ec329fa36b60fa1f2cc7c583849b44dfe..c7af876e30bdfae7ab228e7dfc02fbe442cf050a 100644
+--- a/gdk/src/memorytexture.hg
++++ b/gdk/src/memorytexture.hg
+@@ -30,6 +30,8 @@ namespace Gdk
+ class GDKMM_API MemoryTexture : public Gdk::Texture
+ {
+   _CLASS_GOBJECT(MemoryTexture, GdkMemoryTexture, GDK_MEMORY_TEXTURE, Gdk::Texture, GdkTexture, , , GDKMM_API)
++  _DO_NOT_DERIVE_GTYPE dnl// GdkMemoryTexture is an internal type
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
+
+ protected:
+   _CTOR_DEFAULT()
+diff --git a/gdk/src/monitor.hg b/gdk/src/monitor.hg
+index 50391ee51ba4c568862773089141bb0e519136e0..4474df384dd81f1f6d71bc1d3be1bcf0f184d5f8 100644
+--- a/gdk/src/monitor.hg
++++ b/gdk/src/monitor.hg
+@@ -38,6 +38,8 @@ class GDKMM_API Display;
+ class GDKMM_API Monitor : public Glib::Object
+ {
+   _CLASS_GOBJECT(Monitor, GdkMonitor, GDK_MONITOR, Glib::Object, GObject, , , GDKMM_API)
++  _DO_NOT_DERIVE_GTYPE dnl// GdkMonitor is an internal type
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
+
+ protected:
+   _CTOR_DEFAULT()
+diff --git a/gdk/src/seat.hg b/gdk/src/seat.hg
+index 096a67c1849ec182c4bdf9b73b61f84f14e1b23f..b9a8fe1b58d91ee9722a182ab194433c56b7cdff 100644
+--- a/gdk/src/seat.hg
++++ b/gdk/src/seat.hg
+@@ -37,6 +37,8 @@ class GDKMM_API Surface;
+ class GDKMM_API Seat : public Glib::Object
+ {
+   _CLASS_GOBJECT(Seat, GdkSeat, GDK_SEAT, Glib::Object, GObject, , , GDKMM_API)
++  _DO_NOT_DERIVE_GTYPE dnl// GdkSeat is an internal type
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
+
+ protected:
+   _CTOR_DEFAULT()
+diff --git a/gdk/src/snapshot.hg b/gdk/src/snapshot.hg
+index e4ca180bd1ec5762607f6bd317b720fd81c1d9fd..bd925df141626f5da70413a0a40849f568c690bd 100644
+--- a/gdk/src/snapshot.hg
++++ b/gdk/src/snapshot.hg
+@@ -33,6 +33,8 @@ namespace Gdk
+ class GDKMM_API Snapshot : public Glib::Object
+ {
+   _CLASS_GOBJECT(Snapshot, GdkSnapshot, GDK_SNAPSHOT, Glib::Object, GObject, , , GDKMM_API)
++  _DO_NOT_DERIVE_GTYPE dnl// GdkSnapshot is an internal type
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
+
+ public:
+   // This class is almost empty
+diff --git a/gdk/src/surface.hg b/gdk/src/surface.hg
+index 4453cdb826793fefacc758721916a77dbc21b004..d8fbea3bd43cbaa66effa74223d5fb71ae3072b9 100644
+--- a/gdk/src/surface.hg
++++ b/gdk/src/surface.hg
+@@ -56,7 +56,10 @@ class GDKMM_API Monitor;
+ class GDKMM_API Surface : public Glib::Object
+ {
+   _CLASS_GOBJECT(Surface, GdkSurface, GDK_SURFACE, Glib::Object, GObject, , , GDKMM_API)
++  _DO_NOT_DERIVE_GTYPE dnl// GdkSurface is an internal type
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
+   _STRUCT_NOT_HIDDEN
++
+   _CUSTOM_WRAP_NEW
+   _IGNORE(gdk_surface_destroy, gdk_surface_is_destroyed)
+
+diff --git a/gdk/src/texture.hg b/gdk/src/texture.hg
+index 1ca4d3f00894734d798bc8c154b0e89a3dd7373a..2d2c6560621bedabd8c730c920145eada9c5c3b6 100644
+--- a/gdk/src/texture.hg
++++ b/gdk/src/texture.hg
+@@ -59,6 +59,8 @@ class GDKMM_API Texture : public Glib::Object, public Paintable
+ {
+   _CLASS_GOBJECT(Texture, GdkTexture, GDK_TEXTURE, Glib::Object, GObject, , , GDKMM_API)
+   _IMPLEMENTS_INTERFACE(Paintable)
++  _DO_NOT_DERIVE_GTYPE dnl// GdkTexture is an internal type
++  _ABI_AS_WITH_DERIVED_GTYPE dnl// Remove when we can break ABI
+   _IGNORE(gdk_texture_downloader_new) dnl// gmmproc thinks this is a Texture method
+
+ protected:
