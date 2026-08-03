@@ -19,7 +19,7 @@ KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc64 ~riscv ~x86"
 DEPEND="
 	>=dev-libs/glib-2.88.0:2
 	>=gui-libs/gtk-4.22:4
-	>=gui-libs/gtksourceview-5.20.0:5
+	>=gui-libs/gtksourceview-5.21.0:5
 	>=gui-libs/libadwaita-1.5_alpha:1
 	app-text/editorconfig-core-c
 	x11-libs/cairo
