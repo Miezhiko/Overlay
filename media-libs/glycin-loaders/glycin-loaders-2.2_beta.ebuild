@@ -9,6 +9,7 @@ RUST_MIN_VER=1.89.0
 inherit cargo meson
 
 MY_PV=${PV/_alpha/.alpha.}
+MY_PV=${PV/_beta/.beta}
 MY_P=glycin-${MY_PV}
 TEST_IMAGE_COMMIT=85c6cdb47229162dcd8c8f599f9c2a7f42d75a1d
 
