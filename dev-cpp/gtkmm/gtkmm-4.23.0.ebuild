@@ -39,9 +39,10 @@ DEPEND="
 "
 BDEPEND="
 	virtual/pkgconfig
+	dev-cpp/mm-common
+	dev-lang/perl
 	gtk-doc? (
 		app-text/doxygen[dot]
-		dev-lang/perl
 		dev-libs/libxslt
 	)
 	${PYTHON_DEPS}
@@ -52,6 +53,10 @@ src_configure() {
 		-Dbuild-demos=false
 		$(meson_use gtk-doc build-documentation)
 		$(meson_use test build-tests)
+		# Regenerate the .h/.cc sources from our patched .hg/.ccg files
+		# instead of using the tarball's pre-generated untracked/ copies,
+		# which don't include the local GdkCursor-et-al fix patch.
+		-Dmaintainer-mode=true
 	)
 	meson_src_configure
 }
