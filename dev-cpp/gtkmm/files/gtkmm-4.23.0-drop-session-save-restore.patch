@@ -1,0 +1,62 @@
+GtkApplication's session save/restore API (gtk_application_save(),
+gtk_application_forget(), GtkRestoreReason, the "support-save" and
+"autosave-interval" properties, and the "restore-window"/"save-state"/
+"restore-state" signals) has been repeatedly added, removed, and
+reverted upstream in GTK4 over the past year, and was removed again
+on 2026-08-01 ("application: Drop public save/restore API"). gtkmm
+4.23.0 still wraps it, which fails to build against a gtk without it:
+
+  application.cc:279:86: error: unknown type name 'GtkRestoreReason';
+  did you mean 'Gtk::RestoreReason'?
+  application.cc:724:3: error: use of undeclared identifier
+  'gtk_application_save'
+  application.cc:729:3: error: use of undeclared identifier
+  'gtk_application_forget'
+
+Drop the wrapping until gtk settles on whether this API exists. As of
+this patch, upstream gtkmm's git main hasn't reacted to gtk's latest
+removal yet (checked 2026-08-03), so this isn't a backport of an
+existing commit -- if upstream lands their own fix, prefer that
+instead.
+
+--- a/gtk/src/application.hg
++++ b/gtk/src/application.hg
+@@ -345,28 +345,16 @@
+
+   _WRAP_METHOD(Glib::RefPtr<Gio::Menu> get_menu_by_id(const Glib::ustring& id), gtk_application_get_menu_by_id, refreturn)
+   _WRAP_METHOD(Glib::RefPtr<const Gio::Menu> get_menu_by_id(const Glib::ustring& id) const, gtk_application_get_menu_by_id, refreturn, constversion)
+-  _WRAP_METHOD(void save(), gtk_application_save)
+-  _WRAP_METHOD(void forget(), gtk_application_forget)
+-
+   _WRAP_PROPERTY("menubar", Glib::RefPtr<Gio::MenuModel>)
+   _WRAP_PROPERTY("register-session", bool,
+     deprecated "4.20: This property is ignored. GTK always registers with the session manager.")
+   _WRAP_PROPERTY("screensaver-active", bool, newin "3,94")
+   _WRAP_PROPERTY("active-window", Window*)
+-  _WRAP_PROPERTY("support-save", bool)
+-  _WRAP_PROPERTY("autosave-interval", unsigned int)
+-
+   _WRAP_SIGNAL(void window_added(Window* window), "window-added")
+   _WRAP_SIGNAL(void window_removed(Window* window), "window-removed")
+   // no_default_handler because the wrapped C signal has no default handler.
+   _WRAP_SIGNAL(void query_end(), "query-end", no_default_handler)
+
+-#m4 _CONVERSION(`GVariant*',`const Glib::VariantBase&',`Glib::wrap($3, true)')
+-#m4 _CONVERSION(`GVariantDict*',`const Glib::RefPtr<Glib::VariantDict>&',`Glib::wrap($3, true)')
+-  // TODO: Remove the following 3 no_default_handler when we can break ABI.
+-  _WRAP_SIGNAL(void restore_window(RestoreReason reason, const Glib::VariantBase& state), "restore-window", no_default_handler)
+-  _WRAP_SIGNAL(bool save_state(const Glib::RefPtr<Glib::VariantDict>& dict), "save-state", no_default_handler)
+-  _WRAP_SIGNAL(bool restore_state(RestoreReason reason, const Glib::VariantBase& state), "restore-state", no_default_handler)
+
+ private:
+   /** This is just a way to call Glib::init() before calling a Glib::Object ctor,
+--- a/gtk/src/enums.hg
++++ b/gtk/src/enums.hg
+@@ -66,7 +66,6 @@
+ _WRAP_ENUM(InterfaceColorScheme, GtkInterfaceColorScheme, decl_prefix GTKMM_API)
+ _WRAP_ENUM(InterfaceContrast, GtkInterfaceContrast, decl_prefix GTKMM_API)
+ _WRAP_ENUM(ReducedMotion, GtkReducedMotion, decl_prefix GTKMM_API)
+-_WRAP_ENUM(RestoreReason, GtkRestoreReason, decl_prefix GTKMM_API)
+
+ #ifndef DOXYGEN_SHOULD_SKIP_THIS
+ //We need this because we can't just use floats for enum value.

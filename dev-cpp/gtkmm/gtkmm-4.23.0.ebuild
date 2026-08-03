@@ -23,6 +23,10 @@ PATCHES=(
 	# class-name aliases otherwise. Companion to dev-cpp/glibmm's
 	# equivalent GDBusActionGroup/GEmblem fix.
 	"${FILESDIR}"/${PN}-4.23.0-gdk-final-gtypes.patch
+	# GtkApplication session save/restore API was removed from gtk again on
+	# 2026-08-01; not yet a stable/known upstream gtkmm fix as of this
+	# writing (has flip-flopped repeatedly), see patch header for detail.
+	"${FILESDIR}"/${PN}-4.23.0-drop-session-save-restore.patch
 )
 
 RDEPEND="
