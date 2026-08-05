@@ -75,6 +75,14 @@ BDEPEND="
 	test? ( >=dev-libs/check-0.9.4 )
 "
 
+PATCHES=(
+	# Revert a same-day upstream regression that breaks interactive login
+	# entirely: activating a username in the greeter does nothing (no
+	# password prompt, no gdm-password worker). See patch header for the
+	# full root-cause analysis.
+	"${FILESDIR}"/${PN}-51.beta-revert-auth-session-id-env.patch
+)
+
 src_prepare() {
 	default
 }

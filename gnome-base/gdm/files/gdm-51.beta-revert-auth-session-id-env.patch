@@ -1,0 +1,204 @@
+Revert upstream commit 6bee0c43b24a09213b1a69451e1a3ca46e529fe3
+("session: Set GDM_AUTH_SESSION_ID env var for PAM conversations"),
+included in the 51.beta tarball (committed 2026-08-04, one day before
+this release was cut). It breaks interactive login entirely:
+
+Symptom: after upgrading to gdm-51_beta, the greeter shows the user
+list fine, but activating a username (mouse or keyboard) does nothing
+-- no password prompt, no gdm-password worker, no journal event at
+all for the activation. Only visible symptom is at greeter startup:
+
+  gdm-launch-environment][PID]: PAM pam_putenv: delete non-existent
+  entry; GDM_AUTH_SESSION_ID
+  gdm-launch-environment][PID]: Gdm: cannot put GDM_AUTH_SESSION_ID
+  in pam environment: Bad item passed to pam_*_item()
+
+Root cause: the commit sets GDM_AUTH_SESSION_ID via a plain setenv()
+in gdm_session_worker_initialize_pam() (daemon/gdm-session-worker.c),
+i.e. only in the worker's own process environment, never through
+pam_putenv(). Later, gdm_session_worker_authenticate_user() tries to
+remove it via gdm_session_worker_set_environment_variable(worker,
+GDM_AUTH_SESSION_ID, NULL), which calls pam_putenv(handle,
+"GDM_AUTH_SESSION_ID") to delete it from the PAM environment -- an
+entry that was never added there in the first place, since the setup
+step used setenv() instead of pam_putenv(). This mismatch is present
+for every session conversation now (the commit also moved the
+"session-id-of-caller" assignment in gdm-manager.c's
+on_session_conversation_started() ahead of the gdm-autologin check,
+so it runs unconditionally, not just for autologin), and something in
+that broadened codepath stops the greeter from ever starting a new
+gdm-password conversation when a user is activated.
+
+This is a same-day regression with no upstream follow-up fix yet as
+of 2026-08-05 (verified: it is the newest commit in daemon/ touching
+this code). Reverting it restores gdm-51_beta to working login while
+keeping the prerequisite refactor from commit bbf4a3a065cd9705ab
+("session: Add \"session-id-of-caller\" property") intact, since that
+one is a self-contained, harmless rename from a GObject data field to
+a proper property and does not itself introduce the bug.
+
+--- a/daemon/gdm-manager.c	2026-08-05 18:33:48.117661194 +0400
++++ b/daemon/gdm-manager.c	2026-08-05 18:34:18.825057488 +0400
+@@ -1117,7 +1117,6 @@
+                 return TRUE;
+         } else if (session != NULL && gdm_session_is_running (session)) {
+                 if (!gdm_session_is_frozen (session)) {
+-                        g_object_set (session, "session-id-of-caller", session_id, NULL);
+                         gdm_session_start_reauthentication (session, pid, uid);
+                         g_hash_table_insert (self->open_reauthentication_requests,
+                                              GINT_TO_POINTER (pid),
+@@ -2069,20 +2068,20 @@
+ 
+         g_debug ("GdmManager: session conversation started for service %s on session", service_name);
+ 
+-        display = get_display_for_user_session (session);
+-        if (display == NULL) {
+-                g_debug ("GdmManager: conversation has no associated display");
++        if (g_strcmp0 (service_name, "gdm-autologin") != 0) {
++                g_debug ("GdmManager: ignoring session conversation since its not automatic login conversation");
+                 return;
+         }
+ 
+-        g_object_set (session, "session-id-of-caller", gdm_display_get_session_id (display), NULL);
++        display = get_display_for_user_session (session);
+ 
+-        if (g_strcmp0 (service_name, "gdm-autologin") != 0) {
+-                g_debug ("GdmManager: ignoring session conversation since its not automatic login conversation");
++        if (display == NULL) {
++                g_debug ("GdmManager: conversation has no associated display");
+                 return;
+         }
+ 
+         enabled = get_automatic_login_details (manager, display, &username);
++
+         if (! enabled) {
+                 return;
+         }
+--- a/daemon/gdm-session.c	2026-08-05 18:33:48.117802921 +0400
++++ b/daemon/gdm-session.c	2026-08-05 18:34:18.825717237 +0400
+@@ -2605,9 +2605,6 @@
+         if (self->display_seat_id != NULL)
+                 g_variant_builder_add_parsed (&details, "{'seat-id', <%s>}", self->display_seat_id);
+ 
+-        if (self->session_id_of_caller != NULL)
+-                g_variant_builder_add_parsed (&details, "{'session-id-of-caller', <%s>}", self->session_id_of_caller);
+-
+         g_debug ("GdmSession: Beginning initialization");
+ 
+         conversation = find_conversation_by_name (self, service_name);
+@@ -3330,7 +3327,6 @@
+         gdm_dbus_worker_call_start_reauthentication (conversation->worker_proxy,
+                                                      (int) pid_of_caller,
+                                                      (int) uid_of_caller,
+-                                                     self->session_id_of_caller ? self->session_id_of_caller : "",
+                                                      conversation->worker_cancellable,
+                                                      (GAsyncReadyCallback) on_reauthentication_started_cb,
+                                                      conversation);
+--- a/daemon/gdm-session-worker.c	2026-08-05 18:33:48.117723148 +0400
++++ b/daemon/gdm-session-worker.c	2026-08-05 18:34:18.825343179 +0400
+@@ -113,8 +113,6 @@
+ #define RELEASE_DISPLAY_SIGNAL (SIGRTMAX)
+ #define ACQUIRE_DISPLAY_SIGNAL (SIGRTMAX - 1)
+ 
+-#define GDM_AUTH_SESSION_ID "GDM_AUTH_SESSION_ID"
+-
+ typedef struct
+ {
+         GdmSessionWorker *worker;
+@@ -144,7 +142,6 @@
+         char             *username;
+         char             *log_file;
+         char             *session_id;
+-        char             *session_id_of_caller;
+         uid_t             uid;
+         gid_t             gid;
+         gboolean          password_is_required;
+@@ -1341,10 +1338,6 @@
+                 gdm_session_worker_set_environment_variable (worker, "XDG_SESSION_CLASS", "greeter");
+         }
+ 
+-        if (worker->session_id_of_caller != NULL) {
+-                setenv (GDM_AUTH_SESSION_ID, worker->session_id_of_caller, 1);
+-        }
+-
+         g_debug ("GdmSessionWorker: state SETUP_COMPLETE");
+         gdm_session_worker_set_state (worker, GDM_SESSION_WORKER_STATE_SETUP_COMPLETE);
+ 
+@@ -1429,9 +1422,6 @@
+                 goto out;
+         }
+ 
+-        gdm_session_worker_set_environment_variable (worker, GDM_AUTH_SESSION_ID, NULL);
+-        unsetenv (GDM_AUTH_SESSION_ID);
+-
+         g_debug ("GdmSessionWorker: state AUTHENTICATED");
+         gdm_session_worker_set_state (worker, GDM_SESSION_WORKER_STATE_AUTHENTICATED);
+ 
+@@ -2984,8 +2974,6 @@
+                         worker->display_is_local = g_variant_get_boolean (value);
+                 } else if (g_strcmp0 (key, "display-is-initial") == 0) {
+                         worker->display_is_initial = g_variant_get_boolean (value);
+-                } else if (g_strcmp0 (key, "session-id-of-caller") == 0) {
+-                        worker->session_id_of_caller = g_variant_dup_string (value, NULL);
+                 }
+         }
+ 
+@@ -3137,7 +3125,6 @@
+ reauthentication_request_new (GdmSessionWorker      *worker,
+                               GPid                   pid_of_caller,
+                               uid_t                  uid_of_caller,
+-                              const char            *session_id_of_caller,
+                               GDBusMethodInvocation *invocation)
+ {
+         ReauthenticationRequest *request;
+@@ -3159,9 +3146,6 @@
+                                             worker->display_is_local,
+                                             environment);
+ 
+-        if (session_id_of_caller != NULL && session_id_of_caller[0] != '\0')
+-                g_object_set (request->session, "session-id-of-caller", session_id_of_caller, NULL);
+-
+         g_signal_connect (request->session,
+                           "client-connected",
+                           G_CALLBACK (on_reauthentication_client_connected),
+@@ -3200,8 +3184,7 @@
+ gdm_session_worker_handle_start_reauthentication (GdmDBusWorker         *object,
+                                                   GDBusMethodInvocation *invocation,
+                                                   int                    pid_of_caller,
+-                                                  int                    uid_of_caller,
+-                                                  const char            *session_id_of_caller)
++                                                  int                    uid_of_caller)
+ {
+         GdmSessionWorker *worker = GDM_SESSION_WORKER (object);
+         ReauthenticationRequest *request;
+@@ -3217,11 +3200,7 @@
+ 
+         g_debug ("GdmSessionWorker: start reauthentication");
+ 
+-        request = reauthentication_request_new (worker,
+-                                                pid_of_caller,
+-                                                uid_of_caller,
+-                                                session_id_of_caller,
+-                                                invocation);
++        request = reauthentication_request_new (worker, pid_of_caller, uid_of_caller, invocation);
+         g_hash_table_replace (worker->reauthentication_requests,
+                               GINT_TO_POINTER (pid_of_caller),
+                               request);
+@@ -3402,7 +3381,6 @@
+         g_free (worker->display_seat_id);
+         g_free (worker->hostname);
+         g_free (worker->username);
+-        g_free (worker->session_id_of_caller);
+         g_free (worker->server_address);
+         g_strfreev (worker->arguments);
+         g_strfreev (worker->extensions);
+--- a/daemon/gdm-session-worker.xml	2026-08-05 18:33:48.117792631 +0400
++++ b/daemon/gdm-session-worker.xml	2026-08-05 18:34:18.825512043 +0400
+@@ -30,7 +30,6 @@
+     <method name="StartReauthentication">
+       <arg name="pid_of_caller" direction="in" type="i"/>
+       <arg name="uid_of_caller" direction="in" type="i"/>
+-      <arg name="session_id_of_caller" direction="in" type="s"/>
+       <arg name="address" direction="out" type="s"/>
+     </method>
+ 
