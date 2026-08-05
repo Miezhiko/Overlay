@@ -29,12 +29,13 @@ KEYWORDS="amd64 ~arm64"
 RESTRICT="network-sandbox"
 
 DEPEND="
-	dev-qt/qtbase:6[concurrent,dbus,gui,network,widgets,xml]
+	dev-qt/qtbase:6[concurrent,dbus,gui,network,widgets,wayland,xml]
 	dev-qt/qt5compat:6
 	dev-qt/qtdeclarative:6
 	dev-qt/qtremoteobjects:6
 	dev-qt/qtsvg:6
 	dev-qt/qttools:6
+	dev-qt/qtwayland:6
 "
 RDEPEND="${DEPEND}
 	dev-qt/qtshadertools:6
@@ -77,8 +78,21 @@ src_configure() {
 src_install() {
 	cmake_src_install
 
+	# Upstream's Qt deploy step bundles the auxiliary Wayland integration
+	# plugins (decoration/shell/graphics) but not the actual "wayland" QPA
+	# platform plugin itself, so the self-contained bundle can only run
+	# under X11/xcb and fails under a native Wayland session with:
+	#   Could not find the Qt platform plugin "wayland" in ""
+	# Copy it in directly from the system's qtbase (built with USE=wayland).
+	insinto /opt/AmneziaVPN/lib64/qt6/plugins/platforms
+	doins "${EPREFIX}"/usr/lib64/qt6/plugins/platforms/libqwayland.so
+
 	doicon "${S}/deploy/data/linux/AmneziaVPN.png"
-	make_desktop_entry AmneziaVPN "Amnezia VPN" AmneziaVPN "Network;VPN"
+	# make_desktop_entry's first arg becomes both Exec= and TryExec=; a bare
+	# command name isn't on $PATH (the binary only lives under
+	# /opt/AmneziaVPN/bin/), so desktop environments that check TryExec
+	# before showing an entry hide it entirely. Use the full path.
+	make_desktop_entry /opt/AmneziaVPN/bin/AmneziaVPN "Amnezia VPN" AmneziaVPN "Network;VPN"
 
 	systemd_dounit "${S}/deploy/data/linux/AmneziaVPN.service"
 }
