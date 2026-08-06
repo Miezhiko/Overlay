@@ -1,0 +1,74 @@
+gnome-shell-51.beta's landed a same-day (2026-07-31) 47-commit rewrite of
+the GDM greeter's authentication architecture (js/gdm/util.js split into
+authServices.js/authServicesLegacy.js/userVerifier.js, plus a new pluggable
+mechanism-selection UI via AuthMenuButton). It breaks the default password
+login path entirely:
+
+Symptom: GDM shows the user list. Clicking a username (or using "Not
+Listed?") starts the PAM conversation correctly -- gdm-password's debug
+log shows PAM successfully sending the "Password: " prompt -- but the
+GNOME Shell greeter never displays the password entry field, and no
+further GNOME Shell/PAM/GDM message appears in the journal at all.
+SDDM authenticates the same account/session fine, confirming this is
+GNOME Shell greeter-side, not GDM or PAM.
+
+Root cause: in js/gdm/loginDialog.js's _onMechanismsChanged(), the
+"selectedMechanism" computed by userVerifier.js (js/gdm/userVerifier.js,
+_onMechanismsChanged(): `this.selectedMechanism ?? mechanisms.find(m =>
+m.selectable) ?? {}`) is only a *default fallback value for UI display* --
+e.g. the lone "Password" mechanism when nothing else is enabled. The
+handler only forwards it to the menu button's visual state
+(_authMenuButton.setActiveItem()); it never calls
+this._selectAuthMechanism(), which is the only path that actually reaches
+AuthServices.selectMechanism() and sets the real internal
+_selectedMechanism used by the PAM message handlers.
+
+Every PAM prompt handler in js/gdm/authServicesLegacy.js gates on that
+real selection, e.g. _handleOnSecretInfoQuery() (which handles
+gdm-password's "Password: " prompt):
+
+  _handleOnSecretInfoQuery(serviceName, secretQuestion) {
+      if (serviceName !== this._selectedMechanism?.serviceName)
+          return;
+      ...
+  }
+
+With _selectedMechanism never actually set for the auto-selected default
+case, this silently drops the prompt -- no signal emitted, no error
+logged anywhere, matching the reported symptom exactly. Explicitly
+choosing a mechanism via the AuthMenuButton does call
+_selectAuthMechanism() (see loginDialog.js's _selectAuthMechanism()), so
+that path isn't affected -- only the default/auto-selected case is.
+
+Fix: also call _selectAuthMechanism() with the computed default so the
+real internal selection is made, not just the button's visual state.
+
+This is same-day, still-churning upstream code (checked 2026-08-05: no
+newer commit touches this code yet), so this is not a backport of an
+existing fix -- if upstream lands their own, prefer that instead.
+
+--- a/js/gdm/loginDialog.js	2026-08-06 10:36:45.625653052 +0400
++++ b/js/gdm/loginDialog.js	2026-08-06 10:36:45.639680940 +0400
+@@ -1063,8 +1063,21 @@
+             }
+         }
+ 
+-        if (Object.keys(selectedMechanism).length > 0)
++        if (Object.keys(selectedMechanism).length > 0) {
+             this._authMenuButton.setActiveItem(selectedMechanism);
++            // Update the button's visual state above, but selectedMechanism
++            // is only ever a *computed default* here (e.g. the lone
++            // "Password" mechanism when nothing else is enabled) -- it was
++            // never passed through _selectAuthMechanism(), so the backing
++            // AuthServices._selectedMechanism stays null. Every PAM prompt
++            // handler (e.g. _handleOnSecretInfoQuery for the password
++            // prompt) silently drops its message whenever
++            // serviceName !== this._selectedMechanism?.serviceName, so
++            // with no mechanism ever really selected, gdm-password's
++            // "Password: " prompt is dropped with no error anywhere and
++            // the entry field never appears. Actually select it too.
++            this._selectAuthMechanism(selectedMechanism);
++        }
+     }
+ 
+     _onDefaultSessionChanged(client, sessionId) {
