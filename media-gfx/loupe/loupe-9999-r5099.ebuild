@@ -9,7 +9,7 @@ DESCRIPTION="A simple, modern image viewer for GNOME"
 HOMEPAGE="https://apps.gnome.org/Loupe/"
 SRC_URI=""
 EGIT_REPO_URI="https://gitlab.gnome.org/GNOME/loupe.git"
-EGIT_COMMIT="50.0"
+EGIT_COMMIT="51.beta"
 
 LICENSE="GPL-3.0-or-later"
 SLOT="0"
