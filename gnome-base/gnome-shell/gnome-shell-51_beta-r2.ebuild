@@ -108,14 +108,6 @@ BDEPEND="
 	)
 "
 
-PATCHES=(
-	# Fixes the default/auto-selected auth mechanism (e.g. plain password
-	# login) never actually being applied internally, silently dropping
-	# GDM's "Password: " PAM prompt and leaving the greeter stuck on the
-	# user-selection screen. See patch header for full root-cause analysis.
-	"${FILESDIR}"/${PN}-51.beta-fix-default-auth-mechanism-selection.patch
-)
-
 src_prepare() {
 	default
 	xdg_environment_reset

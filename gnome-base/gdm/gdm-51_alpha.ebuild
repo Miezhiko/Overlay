@@ -16,7 +16,7 @@ LICENSE="
 
 SLOT="0"
 
-KEYWORDS=""
+KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc64 ~riscv ~x86"
 
 IUSE="audit debug bluetooth-sound elogind fprint plymouth selinux systemd test"
 
