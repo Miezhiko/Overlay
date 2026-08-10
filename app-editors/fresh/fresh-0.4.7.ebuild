@@ -16,13 +16,14 @@ CRATES="
 	adler2@2.0.1
 	ahash@0.8.12
 	aho-corasick@1.1.4
-	alacritty_terminal@0.25.1
+	alacritty_terminal@0.26.0
 	allocator-api2@0.2.21
 	android-activity@0.6.1
 	android-properties@0.2.2
 	android_system_properties@0.1.5
 	anstyle@1.0.14
 	anyhow@1.0.102
+	arbitrary@1.4.2
 	arboard@3.6.1
 	arc-swap@1.9.1
 	arrayref@0.3.9
@@ -117,6 +118,7 @@ CRATES="
 	darling_macro@0.23.0
 	deltae@0.3.2
 	deranged@0.5.8
+	derive_arbitrary@1.4.2
 	derive_more-impl@2.1.1
 	derive_more@2.1.1
 	digest@0.10.7
@@ -125,6 +127,7 @@ CRATES="
 	dirs@6.0.0
 	dispatch2@0.3.1
 	dispatch@0.2.0
+	displaydoc@0.2.6
 	dlib@0.5.3
 	doctest-file@1.1.1
 	document-features@0.2.12
@@ -152,6 +155,7 @@ CRATES="
 	fdeflate@0.3.7
 	field-offset@0.3.6
 	filedescriptor@0.8.3
+	filetime@0.2.29
 	find-msvc-tools@0.1.9
 	finl_unicode@1.4.0
 	fixedbitset@0.4.2
@@ -268,6 +272,7 @@ CRATES="
 	lru@0.16.4
 	lsp-types@0.97.0
 	lyon_geom@1.0.19
+	lzma-sys@0.1.20
 	mac_address@1.1.8
 	malloc_buf@0.0.6
 	matchers@0.2.0
@@ -499,6 +504,7 @@ CRATES="
 	signal-hook-mio@0.2.5
 	signal-hook-registry@1.4.8
 	signal-hook@0.3.18
+	signal-hook@0.4.4
 	simd-adler32@0.3.9
 	simd_cesu8@1.1.1
 	simdutf8@0.1.5
@@ -527,6 +533,7 @@ CRATES="
 	syntect@5.3.0
 	system-deps@6.2.2
 	tap@1.0.1
+	tar@0.4.46
 	target-lexicon@0.12.16
 	tempfile@3.27.0
 	termcolor@1.4.1
@@ -720,15 +727,19 @@ CRATES="
 	x11@2.21.0
 	x11rb-protocol@0.13.2
 	x11rb@0.13.2
+	xattr@1.6.1
 	xcursor@0.3.10
 	xkbcommon-dl@0.4.2
 	xkeysym@0.2.1
 	xml-rs@0.8.28
+	xz2@0.1.7
 	yaml-rust@0.4.5
 	zerocopy-derive@0.8.48
 	zerocopy@0.8.48
 	zeroize@1.8.2
+	zip@2.4.2
 	zmij@1.0.21
+	zopfli@0.8.3
 "
 
 inherit cargo desktop xdg
@@ -774,10 +785,19 @@ src_prepare() {
 src_configure() {
 	local myfeatures=(
 		runtime
+		# Already compiled in under the old, pre-toggle default (same
+		# deps -- ureq/rustls/ring for http, tree-sitter-* grammars for
+		# tree-sitter); keep both on to preserve prior behavior now that
+		# upstream split them into their own feature gates.
+		http
+		tree-sitter
 		$(usev plugins)
 		$(usev embed-plugins)
 		$(usev gui)
 		$(usev dev-bins)
+		# self-update (in-place binary replacement from a downloaded
+		# release asset) is deliberately left off: Portage manages
+		# updates for a distro package, not the application itself.
 	)
 
 	cargo_src_configure --no-default-features
