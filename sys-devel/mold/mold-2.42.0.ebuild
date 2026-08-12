@@ -36,10 +36,6 @@ RDEPEND="
 "
 DEPEND="${RDEPEND}"
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-2.40.4-textrel-test.patch
-)
-
 pkg_pretend() {
 	# Requires a c++20 compiler, see #831473
 	if [[ ${MERGE_TYPE} != binary ]]; then
