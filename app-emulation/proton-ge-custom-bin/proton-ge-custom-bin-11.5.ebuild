@@ -6,9 +6,10 @@ MULTILIB_COMPAT=(abi_x86_{32,64})
 inherit multilib-minimal
 
 _internal_name=GE-Proton${PV/./-}
+_internal_name2=${_internal_name}-x86_64
 DESCRIPTION="A fancy custom distribution of Valves Proton with various patches"
 HOMEPAGE="https://github.com/GloriousEggroll/proton-ge-custom"
-SRC_URI="https://github.com/GloriousEggroll/proton-ge-custom/releases/download/${_internal_name}/${_internal_name}-x86_64.tar.gz -> ${P}.tar.gz"
+SRC_URI="https://github.com/GloriousEggroll/proton-ge-custom/releases/download/${_internal_name}/${_internal_name2}.tar.gz -> ${P}.tar.gz"
 LICENSE="BSD LGPL zlib MIT MPL OFL Proton GPL MSPL"
 SLOT="${PV}"
 KEYWORDS="~amd64"
@@ -23,9 +24,10 @@ S="${WORKDIR}"
 
 src_install() {
 	dodir "/usr/share/steam/compatibilitytools.d/${_internal_name}"
-	mv "${S}/${_internal_name}/compatibilitytool.vdf" "${D}/usr/share/steam/compatibilitytools.d/${_internal_name}" || die
-	sed -i "s%\"install_path\" \".\"%\"install_path\" \"/opt/proton-ge-custom/${_internal_name}\"%" "${D}/usr/share/steam/compatibilitytools.d/${_internal_name}/compatibilitytool.vdf" || die
+
+	mv "${S}/${_internal_name2}/compatibilitytool.vdf" "${D}/usr/share/steam/compatibilitytools.d/${_internal_name}" || die
+	sed -i "s%\"install_path\" \".\"%\"install_path\" \"/opt/proton-ge-custom/${_internal_name2}\"%" "${D}/usr/share/steam/compatibilitytools.d/${_internal_name}/compatibilitytool.vdf" || die
 
 	dodir "/opt/proton-ge-custom"
-	mv "${S}/${_internal_name}" "${D}/opt/proton-ge-custom" || die
+	mv "${S}/${_internal_name2}" "${D}/opt/proton-ge-custom" || die
 }
