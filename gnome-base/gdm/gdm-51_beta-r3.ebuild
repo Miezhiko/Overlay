@@ -16,7 +16,7 @@ LICENSE="
 
 SLOT="0"
 
-KEYWORDS=""
+KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc64 ~riscv ~x86"
 
 IUSE="audit debug bluetooth-sound elogind fprint plymouth selinux systemd test"
 
@@ -74,6 +74,13 @@ BDEPEND="
 	virtual/pkgconfig
 	test? ( >=dev-libs/check-0.9.4 )
 "
+
+PATCHES=(
+	# Revert a bisected upstream regression (gdm#1089): password prompt
+	# intermittently fails to appear after selecting a user. See patch
+	# header for the full root-cause analysis and bisect reference.
+	"${FILESDIR}"/${PN}-51.beta-revert-pam-service-file-lookup.patch
+)
 
 src_prepare() {
 	default

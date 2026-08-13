@@ -1,0 +1,98 @@
+https://gitlab.gnome.org/GNOME/gdm/-/issues/1089
+https://gitlab.gnome.org/GNOME/gdm/-/merge_requests/380
+https://gitlab.gnome.org/GNOME/gdm/-/commit/e760c8e4950dfd3de7a1062be0d2c2dc18e70c73
+
+Revert upstream commit e760c8e4950dfd3de7a1062be0d2c2dc18e70c73
+("session-worker: Explicitly check and load gdm services"), included
+in the 51.beta tarball. It was independently bisected by an upstream
+reporter (gdm#1089, comment from darkblaze69, 2026-08-12) as the
+commit that introduced a login regression:
+
+Symptom: after selecting a username in the greeter, the password
+field intermittently fails to appear at all -- the conversation
+switches from gdm-switchable-auth to gdm-password, PAM initializes
+and starts authenticating, but the greeter never renders the prompt
+or relays a reply. Repeatedly clicking the username, or mashing
+Enter, sometimes works around it; eventually GDM tears down the
+stalled PAM conversation with error 19 (conversation error).
+Reproduced independently on Arch Linux and by the Miezhiko overlay
+maintainer.
+
+The commit itself replaces the plain `service` string passed to
+pam_start() with an explicitly resolved absolute path, looked up via
+synchronous g_file_test() calls against PAM_CONFIG_SERVICES_DIR
+(/etc/pam.d) and PAM_SYS_SERVICES_DIR (/usr/lib/pam.d) at PAM-init
+time -- introduced as part of MR !380, merged 2026-07-27. As of
+2026-08-13 gdm#1089 is still open upstream with no fix or revert
+merged yet, so we carry this locally until one lands.
+
+--- a/daemon/gdm-session-worker.c
++++ b/daemon/gdm-session-worker.c
+@@ -1200,24 +1200,6 @@
+         gdm_session_worker_set_state (worker, GDM_SESSION_WORKER_STATE_NONE);
+ }
+
+-static gchar *
+-gdm_session_worker_resolve_service_file (const char *service)
+-{
+-        g_autofree char *service_path = NULL;
+-
+-        g_set_str (&service_path, g_build_filename (PAM_CONFIG_SERVICES_DIR, service, NULL));
+-        if (g_file_test (service_path, G_FILE_TEST_EXISTS|G_FILE_TEST_IS_REGULAR)) {
+-                return g_steal_pointer (&service_path);
+-        }
+-
+-        g_set_str (&service_path, g_build_filename (PAM_SYS_SERVICES_DIR, service, NULL));
+-        if (g_file_test (service_path, G_FILE_TEST_EXISTS|G_FILE_TEST_IS_REGULAR)) {
+-                return g_steal_pointer (&service_path);
+-        }
+-
+-        return NULL;
+-}
+-
+ static gboolean
+ gdm_session_worker_initialize_pam (GdmSessionWorker   *worker,
+                                    const char         *service,
+@@ -1232,7 +1214,6 @@
+         struct pam_conv        pam_conversation;
+         int                    error_code;
+         char tty_string[256];
+-        g_autofree char *service_path = NULL;
+
+         g_assert (service != NULL);
+         g_assert (worker->pam_handle == NULL);
+@@ -1242,25 +1223,6 @@
+                  username ? username : "(null)",
+                  seat_id ? seat_id : "(null)");
+
+-        service_path = gdm_session_worker_resolve_service_file (service);
+-        if (!service_path) {
+-                g_debug ("GdmSessionWorker: PAM profile %s was not found", service);
+-                g_set_error (error,
+-                             GDM_SESSION_WORKER_ERROR,
+-                             GDM_SESSION_WORKER_ERROR_SERVICE_UNAVAILABLE,
+-                             "PAM profile %s was not found", service);
+-
+-                /* There is not a specific error for service not found, so we just
+-                 * error out as the module is missing, although this is not really
+-                 * used since no pam handle is set, thus it's just used to keep
+-                 * the same "out" logic.
+-                 */
+-                error_code = PAM_MODULE_UNKNOWN;
+-                goto out;
+-        }
+-
+-        g_debug ("GdmSessionWorker: using PAM profile %s", service_path);
+-
+ #ifdef SUPPORTS_PAM_EXTENSIONS
+         if (extensions != NULL) {
+                 gdm_pam_extension_advertise_supported_extensions (gdm_pam_extension_environment_block,
+@@ -1273,7 +1235,7 @@
+         pam_conversation.appdata_ptr = worker;
+
+         gdm_session_worker_start_auditor (worker);
+-        error_code = pam_start (service_path,
++        error_code = pam_start (service,
+                                 username,
+                                 &pam_conversation,
+                                 &worker->pam_handle);
