@@ -108,6 +108,10 @@ BDEPEND="
 	)
 "
 
+PATCHES=(
+	"${FILESDIR}/ecbeedfd33df161660133a4b65c3a95b4f921dc6.patch"
+)
+
 src_prepare() {
 	default
 	xdg_environment_reset

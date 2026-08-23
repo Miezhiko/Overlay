@@ -1,0 +1,89 @@
+From ecbeedfd33df161660133a4b65c3a95b4f921dc6 Mon Sep 17 00:00:00 2001
+From: Adrian Vovk <adrianvovk@gmail.com>
+Date: Thu, 13 Aug 2026 14:45:53 -0400
+Subject: [PATCH] gdm/userVerifier: Fix mechanisms-changed race
+
+Starting with GDM e760c8e4, GDM will return an error from
+BeginVerification() whenever `gdm-switchable-auth` is unavailable.
+
+This would cause AuthServicesSSSDSwitchable to emit `mechanisms-changed`
+during ShellUserVerifier.begin(). The signal would cause a chain of
+events that leads to ShellUserVerifier.cancel() being called inside of
+that same call stack. In response to this, GDM will send us a reset
+signal. Meanwhile, the call stack would move on and try to call
+BeginVerification() for AuthServicesLegacy.
+
+In the unhappy case, we'd receive the reset signal before
+BeginVerification() is done, which completely de-syncs gnome-shell's and
+GDM's views of what's going on. Ultimately the password box would never
+appear. gnome-shell would kick the user right back into the user list,
+but GDM would think that gdm-password is currently ongoing.
+
+The fix is to delay the propagation of `mechanisms-changed` until we're
+done with BeginVerification() for all available auth services.
+
+Closes: https://gitlab.gnome.org/GNOME/gdm/-/work_items/1089
+Part-of: <https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/4336>
+---
+ js/gdm/userVerifier.js | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+diff --git a/js/gdm/userVerifier.js b/js/gdm/userVerifier.js
+index 7428450da5..e2d2e352f2 100644
+--- a/js/gdm/userVerifier.js
++++ b/js/gdm/userVerifier.js
+@@ -63,6 +63,9 @@ export class ShellUserVerifier extends Signals.EventEmitter {
+         this._authServices = [];
+         this._driverService = null;
+
++        this._beginPromise = null;
++        this._redistributingRoles = false;
++
+         this._messageQueue = [];
+         this._messageQueueTimeoutId = 0;
+
+@@ -87,6 +90,9 @@ export class ShellUserVerifier extends Signals.EventEmitter {
+         this._cancellable?.cancel();
+         this._cancellable = new Gio.Cancellable();
+
++        const {promise, resolve} = Promise.withResolvers();
++        this._beginPromise = promise;
++
+         try {
+             const proxies = await this._getUserVerifierProxies(userName, this._cancellable);
+             this._setUserVerifier(proxies.userVerifier);
+@@ -101,6 +107,9 @@ export class ShellUserVerifier extends Signals.EventEmitter {
+                 logErrorUnlessCancelled(e);
+         }
+
++        resolve();
++        this._beginPromise = null;
++
+         hold?.release();
+     }
+
+@@ -408,7 +417,7 @@ export class ShellUserVerifier extends Signals.EventEmitter {
+                 'reset', (_, args) => this.emit('reset', args),
+                 'show-choice-list', (_, args) => this.emit('show-choice-list', args),
+                 'show-button', (_, args) => this.emit('show-button', args),
+-                'mechanisms-changed', () => this._onMechanismsChanged(),
++                'mechanisms-changed', () => this._onMechanismsChanged().catch(logError),
+                 'web-login', (_, args) => this.emit('web-login', args),
+                 this);
+         });
+@@ -442,10 +451,12 @@ export class ShellUserVerifier extends Signals.EventEmitter {
+         this._redistributingRoles = false;
+     }
+
+-    _onMechanismsChanged() {
++    async _onMechanismsChanged() {
+         if (this._redistributingRoles)
+             return;
+
++        await this._beginPromise;
++
+         this._redistributeRoles();
+
+         // Collect mechanisms from all authServices in priority order,
+--
+GitLab
