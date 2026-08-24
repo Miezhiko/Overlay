@@ -8,7 +8,20 @@ inherit autotools bash-completion-r1 flag-o-matic go-module linux-info readme.ge
 DESCRIPTION="Service and tools for management of snap packages"
 HOMEPAGE="http://snapcraft.io/"
 
-SRC_URI="https://github.com/snapcore/snapd/releases/download/${PV}/snapd_${PV}.vendor.tar.xz -> ${P}.tar.xz"
+# Upstream's 2.76.3 vendor bundle predates its own go.mod bumps: go.mod
+# requires go-tpm2 v1.16.2 / secboot v0.0.0-20260623..., while the shipped
+# vendor/ tree still contains v1.15.0 / v0.0.0-20260410.... The snapd code
+# calls secboot APIs added after the vendored snapshot (e.g.
+# sb_preinstall.ErrorKindNoHardwareRootOfTrust, sb_tpm2.WithLockoutAuth*),
+# so pinning go.mod back cannot work; instead ship the two refreshed module
+# sources from the Go module proxy and swap them into vendor/ (see
+# src_unpack). Their own dependencies are unchanged between versions.
+GO_TPM2_PV="1.16.2"
+SECBOOT_PV="0.0.0-20260623135244-457b03a16d19"
+
+SRC_URI="https://github.com/snapcore/snapd/releases/download/${PV}/snapd_${PV}.vendor.tar.xz -> ${P}.tar.xz
+	https://proxy.golang.org/github.com/canonical/go-tpm2/%40v/v${GO_TPM2_PV}.zip -> canonical-go-tpm2-${GO_TPM2_PV}.zip
+	https://proxy.golang.org/github.com/snapcore/secboot/%40v/v${SECBOOT_PV}.zip -> snapcore-secboot-${SECBOOT_PV}.zip"
 MY_PV=${PV}
 KEYWORDS="~amd64"
 
@@ -45,6 +58,7 @@ DEPEND="${RDEPEND}"
 
 BDEPEND="
 	>=dev-lang/go-1.9
+	app-arch/unzip
 	dev-python/docutils
 	sys-devel/gettext
 	sys-fs/xfsprogs"
@@ -61,6 +75,31 @@ pkg_setup() {
 
 	# Seems to have issues building with -O3, switch to -O2
 	replace-flags -O3 -O2
+}
+
+src_unpack() {
+	default
+
+	# Refresh the two stale vendored modules so vendor/ matches go.mod
+	# (see comment above SRC_URI for why this is needed).
+	local staging="${T}/gomod-refresh"
+	mkdir "${staging}" || die
+	pushd "${staging}" >/dev/null || die
+	unpack "canonical-go-tpm2-${GO_TPM2_PV}.zip"
+	unpack "snapcore-secboot-${SECBOOT_PV}.zip"
+
+	rm -rf "${S}/vendor/github.com/canonical/go-tpm2" \
+		"${S}/vendor/github.com/snapcore/secboot" || die
+	cp -a "github.com/canonical/go-tpm2@v${GO_TPM2_PV}" \
+		"${S}/vendor/github.com/canonical/go-tpm2" || die
+	cp -a "github.com/snapcore/secboot@v${SECBOOT_PV}" \
+		"${S}/vendor/github.com/snapcore/secboot" || die
+	popd >/dev/null || die
+
+	sed -i \
+		-e "s|# github.com/canonical/go-tpm2 v1.15.0|# github.com/canonical/go-tpm2 v${GO_TPM2_PV}|" \
+		-e "s|# github.com/snapcore/secboot v0.0.0-20260410084611-3f8b98c2db70|# github.com/snapcore/secboot v${SECBOOT_PV}|" \
+		"${S}/vendor/modules.txt" || die
 }
 
 src_prepare() {
