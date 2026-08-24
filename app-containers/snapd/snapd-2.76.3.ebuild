@@ -129,6 +129,11 @@ src_configure() {
 		"SNAP_MOUNT_DIR=${EPREFIX}/var/lib/snapd/snap"
 		"SYSTEMDSYSTEMUNITDIR=$(systemd_get_systemunitdir)"
 	)
+	# CFLAGS may contain -flto=* (e.g. thin LTO). Handing those to cgo makes
+	# every host object LLVM bitcode, which the external linker invoked by
+	# the go tool (clang -> default ld, no LTO plugin) cannot read:
+	# "file format not recognized". Upstream does not LTO either; drop it.
+	filter-flags '-flto*'
 	export CGO_ENABLED="1"
 	export CGO_CFLAGS="${CFLAGS}"
 	export CGO_CPPFLAGS="${CPPFLAGS}"
