@@ -80,6 +80,10 @@ PATCHES=(
 	# intermittently fails to appear after selecting a user. See patch
 	# header for the full root-cause analysis and bisect reference.
 	"${FILESDIR}"/${PN}-51.beta-revert-pam-service-file-lookup.patch
+	# Official upstream fix for the GDM_AUTH_SESSION_ID pam_putenv()
+	# regression (commit 6bee0c43b2), superseding this overlay's earlier
+	# local revert of that commit. See patch header for details.
+	"${FILESDIR}"/${PN}-51.beta-fix-auth-session-id-pam-putenv.patch
 )
 
 src_prepare() {

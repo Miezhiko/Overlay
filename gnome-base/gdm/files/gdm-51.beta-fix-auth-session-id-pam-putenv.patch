@@ -1,0 +1,37 @@
+https://gitlab.gnome.org/GNOME/gdm/-/commit/174f77ce3f046e99c67183175bc840c3a62fec6e
+
+Upstream's own fix for the GDM_AUTH_SESSION_ID regression (commit
+6bee0c43b2, "session: Set GDM_AUTH_SESSION_ID env var for PAM
+conversations", included in the 51.beta tarball) that this overlay
+previously carried its own local revert patch for. Adopt the official
+fix instead of the local revert now that it exists upstream.
+
+From 174f77ce3f046e99c67183175bc840c3a62fec6e Mon Sep 17 00:00:00 2001
+From: Joan Torres Lopez <joantolo@redhat.com>
+Date: Wed, 12 Aug 2026 10:58:56 +0200
+Subject: [PATCH] session-worker: Fix wrong pam_putenv of GDM_AUTH_SESSION_ID
+
+GDM_AUTH_SESSION_ID is passed via setenv(), not pam_putenv(), and it's unset
+with unsetenv(), there's no need to unset it with pam_putenv() because
+it hasn't been set with it in the first place.
+
+Fixes: 6bee0c43b2 ("session: Set GDM_AUTH_SESSION_ID env var for PAM
+conversations")
+---
+ daemon/gdm-session-worker.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/daemon/gdm-session-worker.c b/daemon/gdm-session-worker.c
+index 655e5ed9f..1a6b1bf59 100644
+--- a/daemon/gdm-session-worker.c
++++ b/daemon/gdm-session-worker.c
+@@ -1429,7 +1429,6 @@ gdm_session_worker_authenticate_user (GdmSessionWorker *worker,
+                 goto out;
+         }
+
+-        gdm_session_worker_set_environment_variable (worker, GDM_AUTH_SESSION_ID, NULL);
+         unsetenv (GDM_AUTH_SESSION_ID);
+
+         g_debug ("GdmSessionWorker: state AUTHENTICATED");
+--
+GitLab
