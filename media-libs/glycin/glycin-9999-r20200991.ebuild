@@ -11,6 +11,10 @@ DESCRIPTION="Sandboxed and extendable image loading library"
 HOMEPAGE="https://gitlab.gnome.org/GNOME/glycin"
 SRC_URI=""
 
+RESTRICT="network-sandbox"
+
+RUST_MIN_VER="1.93"
+
 EGIT_REPO_URI="https://gitlab.gnome.org/GNOME/glycin.git"
 EGIT_COMMIT="2.2.beta.1"
 
@@ -46,7 +50,7 @@ BDEPEND="
 
 S="${WORKDIR}/${P}"
 
-_custom_src_unpack() {
+src_unpack() {
 	git-r3_src_unpack
 	cargo_live_src_unpack
 
@@ -54,12 +58,14 @@ _custom_src_unpack() {
 	#pushd "${S}" || die
 	#eapply "${FILESDIR}/${PN}-2.2_alpha7-remove-debug-dbg.patch"
 	#popd || die
-
-	_do_configure_and_compile
 }
 
-_do_configure_and_compile() {
-	pushd "${S}" || die
+src_prepare() {
+	default
+}
+
+src_configure() {
+	default
 
 	vala_setup
 
@@ -86,29 +92,11 @@ _do_configure_and_compile() {
 	local loader_list=$(IFS=,; echo "${loaders[*]}")
 	emesonargs+=( -Dloaders="${loader_list}" )
 
-	einfo "Configuring with meson (in unpack phase)..."
 	meson_src_configure
-
-	einfo "Compiling with meson (in unpack phase)..."
-	meson_src_compile
-
-	popd || die
-}
-
-src_unpack() {
-	_custom_src_unpack
-}
-
-src_prepare() {
-	default
-}
-
-src_configure() {
-	:;
 }
 
 src_compile() {
-	:;
+	meson_src_compile
 }
 
 src_install() {
