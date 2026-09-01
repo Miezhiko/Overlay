@@ -5,7 +5,7 @@ EAPI=8
 
 inherit desktop font
 
-REVISION=80703
+REVISION=81383
 
 DESCRIPTION="An open source metaverse viewer"
 HOMEPAGE="http://www.firestormviewer.org/"
@@ -74,8 +74,6 @@ src_prepare() {
 	scanelf -Xr lib/libalut.so.0.0.0
 	chrpath -r '' bin/dullahan_host
 	scanelf -Xr bin/dullahan_host
-
-	eapply "${FILESDIR}/add-unifonts.patch"
 
 	eapply_user
 }
