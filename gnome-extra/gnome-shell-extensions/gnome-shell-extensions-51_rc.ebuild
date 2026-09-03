@@ -11,6 +11,7 @@ LICENSE="GPL-2+"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64 ~loong ~riscv ~x86"
 IUSE=""
+RESTRICT="mirror"
 
 DEPEND="
 	>=dev-libs/glib-2.26:2
