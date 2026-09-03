@@ -15,7 +15,7 @@ KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc64 ~riscv ~x86"
 
 IUSE="gtk-doc +ibus +networkmanager pipewire test"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
-RESTRICT="!test? ( test )"
+RESTRICT="!test? ( test ) mirror"
 
 DEPEND="
 	>=gnome-extra/evolution-data-server-3.46.0:=
@@ -107,10 +107,6 @@ BDEPEND="
 		=x11-wm/mutter-49.0[test]
 	)
 "
-
-PATCHES=(
-	"${FILESDIR}/ecbeedfd33df161660133a4b65c3a95b4f921dc6.patch"
-)
 
 src_prepare() {
 	default
