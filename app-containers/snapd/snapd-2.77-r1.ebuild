@@ -19,11 +19,30 @@ HOMEPAGE="http://snapcraft.io/"
 GO_TPM2_PV="1.16.2"
 SECBOOT_PV="0.0.0-20260623135244-457b03a16d19"
 
+# Same story: go.mod also requires go-efilib v1.8.0 (shipped vendor/ has the
+# stale v1.7.1-...) and a wholly new direct dependency, cilium/ebpf v0.9.1,
+# that isn't vendored at all. Fetch both from the module proxy too (see
+# src_unpack). The vendored coreos/go-systemd is dead weight left over from
+# an old go.mod (no longer required, and nothing in snapd's own source
+# imports it any more), so it is simply dropped rather than refreshed.
+GO_EFILIB_PV="1.8.0"
+CILIUM_EBPF_PV="0.9.1"
+
 SRC_URI="https://github.com/snapcore/snapd/releases/download/${PV}/snapd_${PV}.vendor.tar.xz -> ${P}.tar.xz
 	https://proxy.golang.org/github.com/canonical/go-tpm2/%40v/v${GO_TPM2_PV}.zip -> canonical-go-tpm2-${GO_TPM2_PV}.zip
-	https://proxy.golang.org/github.com/snapcore/secboot/%40v/v${SECBOOT_PV}.zip -> snapcore-secboot-${SECBOOT_PV}.zip"
+	https://proxy.golang.org/github.com/snapcore/secboot/%40v/v${SECBOOT_PV}.zip -> snapcore-secboot-${SECBOOT_PV}.zip
+	https://proxy.golang.org/github.com/canonical/go-efilib/%40v/v${GO_EFILIB_PV}.zip -> canonical-go-efilib-${GO_EFILIB_PV}.zip
+	https://proxy.golang.org/github.com/cilium/ebpf/%40v/v${CILIUM_EBPF_PV}.zip -> cilium-ebpf-${CILIUM_EBPF_PV}.zip"
 MY_PV=${PV}
 KEYWORDS="~amd64"
+
+# Unlike 2.76.3, the release tarball's own root directory is now
+# "snapd_${PV}.vendor" with the actual source nested one level inside it
+# (snapd_2.77.vendor/snapd-2.77/...), not "${P}" directly. Without this the
+# default S was a nonexistent path, and the vendor-refresh cp -a below (into
+# "${S}/vendor/...") died with "No such file or directory" trying to create
+# a directory under a parent that was never unpacked.
+S="${WORKDIR}/snapd_${PV}.vendor/${P}"
 
 LICENSE="GPL-3 Apache-2.0 BSD BSD-2 LGPL-3-with-linking-exception MIT"
 SLOT="0"
@@ -87,19 +106,56 @@ src_unpack() {
 	pushd "${staging}" >/dev/null || die
 	unpack "canonical-go-tpm2-${GO_TPM2_PV}.zip"
 	unpack "snapcore-secboot-${SECBOOT_PV}.zip"
+	unpack "canonical-go-efilib-${GO_EFILIB_PV}.zip"
+	unpack "cilium-ebpf-${CILIUM_EBPF_PV}.zip"
 
 	rm -rf "${S}/vendor/github.com/canonical/go-tpm2" \
-		"${S}/vendor/github.com/snapcore/secboot" || die
+		"${S}/vendor/github.com/snapcore/secboot" \
+		"${S}/vendor/github.com/canonical/go-efilib" \
+		"${S}/vendor/github.com/coreos/go-systemd" || die
 	cp -a "github.com/canonical/go-tpm2@v${GO_TPM2_PV}" \
 		"${S}/vendor/github.com/canonical/go-tpm2" || die
 	cp -a "github.com/snapcore/secboot@v${SECBOOT_PV}" \
 		"${S}/vendor/github.com/snapcore/secboot" || die
+	cp -a "github.com/canonical/go-efilib@v${GO_EFILIB_PV}" \
+		"${S}/vendor/github.com/canonical/go-efilib" || die
+	mkdir -p "${S}/vendor/github.com/cilium" || die
+	cp -a "github.com/cilium/ebpf@v${CILIUM_EBPF_PV}" \
+		"${S}/vendor/github.com/cilium/ebpf" || die
 	popd >/dev/null || die
 
 	sed -i \
 		-e "s|# github.com/canonical/go-tpm2 v1.15.0|# github.com/canonical/go-tpm2 v${GO_TPM2_PV}|" \
 		-e "s|# github.com/snapcore/secboot v0.0.0-20260410084611-3f8b98c2db70|# github.com/snapcore/secboot v${SECBOOT_PV}|" \
+		-e "s|# github.com/canonical/go-efilib v1.7.1-0.20260310185303-7166aa858b24|# github.com/canonical/go-efilib v${GO_EFILIB_PV}|" \
 		"${S}/vendor/modules.txt" || die
+
+	# Drop the dead coreos/go-systemd entry and replace it with the new
+	# cilium/ebpf one, matching go.mod's current direct dependency set.
+	python3 - "${S}/vendor/modules.txt" <<-EOF || die
+		import sys
+		path = sys.argv[1]
+		with open(path) as f:
+		    text = f.read()
+		old = (
+		    "# github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf\n"
+		    "## explicit\n"
+		    "github.com/coreos/go-systemd/activation\n"
+		)
+		new = (
+		    "# github.com/cilium/ebpf v${CILIUM_EBPF_PV}\n"
+		    "## explicit; go 1.17\n"
+		    "github.com/cilium/ebpf\n"
+		    "github.com/cilium/ebpf/asm\n"
+		    "github.com/cilium/ebpf/btf\n"
+		    "github.com/cilium/ebpf/internal\n"
+		    "github.com/cilium/ebpf/internal/sys\n"
+		    "github.com/cilium/ebpf/internal/unix\n"
+		)
+		assert old in text, "coreos/go-systemd modules.txt block not found"
+		with open(path, "w") as f:
+		    f.write(text.replace(old, new))
+	EOF
 }
 
 src_prepare() {
@@ -161,8 +217,13 @@ src_compile() {
 	local -a flags=(-buildmode=pie -ldflags "-s -linkmode external -extldflags '${LDFLAGS}'" -trimpath)
 	local -a staticflags=(-buildmode=pie -ldflags "-s -linkmode external -extldflags '${LDFLAGS} -static'" -trimpath)
 
+	# Unlike 2.76.3, "snap" is no longer a Go binary at all (cmd/snap was
+	# removed upstream); the CLI entrypoint is now the small C
+	# cmd/snap-cli-wrap program, which just execs the snapd binary itself
+	# (see snap-cli-wrap.c). It's built by the autotools "cmd" tree (see
+	# src_install) and installed separately below, not via go build here.
 	local cmd
-	for cmd in snap snapd snapd-apparmor snap-bootstrap snap-failure snap-preseed snap-recovery-chooser snap-repair snap-seccomp; do
+	for cmd in snapd snapd-apparmor snap-bootstrap snap-failure snap-preseed snap-recovery-chooser snap-repair snap-seccomp; do
 		go build ${GOFLAGS} -mod=vendor -o "${GOBIN}/${cmd}" "${flags[@]}" \
 		    -v -x "github.com/snapcore/${PN}/cmd/${cmd}"
 		[[ -e "${GOBIN}/${cmd}" ]] || die "failed to build ${cmd}"
@@ -185,7 +246,13 @@ src_install() {
 	keepdir /var/lib/snapd/{apparmor/snap-confine,cache,cookie,snap,void}
 	fperms 700 /var/lib/snapd/{cache,cookie}
 
-	dobin "${GOBIN}/"{snap,snapctl}
+	dobin "${GOBIN}/snapctl"
+	# "snap" is the C snap-cli-wrap binary now, not a Go build; see
+	# src_compile for why. It's a noinst_PROGRAM (built by the emake -C
+	# cmd install above as part of "all", but not auto-installed), so
+	# install it explicitly as /usr/bin/snap, matching upstream's own
+	# packaging (see packaging/fedora/snapd.spec).
+	newbin "${S}/cmd/snap-cli-wrap/snap-cli-wrap" snap
 	ln "${ED}/usr/bin/snapctl" "${ED}/usr/lib/snapd/snapctl" || die
 
 	exeinto /usr/lib/snapd
