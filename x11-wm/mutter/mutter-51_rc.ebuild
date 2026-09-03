@@ -24,7 +24,7 @@ REQUIRED_USE="
 	devkit? ( screencast )
 	gtk-doc? ( introspection )
 	test? ( screencast )"
-RESTRICT="!test? ( test )"
+RESTRICT="!test? ( test ) mirror"
 
 RDEPEND="
 	>=media-libs/graphene-1.10.2[introspection?]
@@ -132,11 +132,6 @@ BDEPEND="
 		')
 	)
 "
-
-# meged hopefully
-#PATCHES=(
-#	"${FILESDIR}/mutter-51_alpha-nvidia-gpu-data.patch"
-#)
 
 python_check_deps() {
 	if use test; then
