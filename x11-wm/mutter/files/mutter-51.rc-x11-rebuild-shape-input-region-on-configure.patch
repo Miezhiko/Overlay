@@ -1,27 +1,68 @@
-https://gitlab.gnome.org/GNOME/mutter/-/issues/... (Steam no longer works after update to 51-RC1)
+https://gitlab.gnome.org/GNOME/mutter/-/commit/7845e298b7cdca25fca4120319e9e6f95d585bb
 https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/5296
 
-Jonas Ådahl's tentative fix, posted on the bug report, for X11 windows
-(Steam among them) becoming unclickable/inert after upgrading to
-51-RC1. meta_window_x11_configure() stopped rebuilding the window's
-shape and input regions when only its size changed (not its
-stacking/visibility), so clicks landed on a stale input region that no
-longer matched the window's actual client area. Track mutter!5296 for
-the final upstream fix; this is the author's own workaround pending
-review.
+Upstream's final fix for X11 windows (Steam among them) becoming
+unclickable/inert after upgrading to 51-RC1: mutter!5296, "window/x11:
+Rebuild shape/input region when client size changes". Supersedes the
+author's earlier tentative workaround that this overlay previously
+carried.
+
+From 7845e298b7cdca25fca4120319e9e6f95d585bb4 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Thu, 3 Sep 2026 14:27:00 +0200
+Subject: [PATCH] window/x11: Rebuild shape/input region when client size
+ changes
+
+The input and shape gets intersected with the client size, which is set
+when a window is resized via 'meta_window_move_resize()'. If we for some
+reason postpone a window config when processing in when a window is
+initialized, it'd mean the regions will be intersected with an empty
+size, leaving them empty until they are explicitly updated.
+
+Address this by updating the regions every time their dependent size
+changes.
+
+Closes: https://gitlab.gnome.org/GNOME/gnome-shell/-/work_items/9389
+---
+ src/x11/window-x11.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
 diff --git a/src/x11/window-x11.c b/src/x11/window-x11.c
-index 5c2ac863b8..09a35a9d22 100644
+index 689589c4a8..123f9ff3ba 100644
 --- a/src/x11/window-x11.c
 +++ b/src/x11/window-x11.c
-@@ -4722,5 +4722,9 @@ meta_window_x11_configure (MetaWindow *window)
+@@ -566,6 +566,9 @@ meta_window_x11_initialize_state (MetaWindow *window)
+     {
+       priv->client_rect = meta_window_config_get_rect (config);
+       window->buffer_rect = meta_window_config_get_rect (config);
++
++      meta_window_x11_update_shape_region (window);
++      meta_window_x11_update_input_region (window);
+     }
+   else
+     {
+@@ -586,9 +589,6 @@ meta_window_x11_initialize_state (MetaWindow *window)
+           meta_window_config_get_is_fullscreen (config))
+         meta_window_config_set_position (config, rect.x, rect.y);
+     }
+-
+-  meta_window_x11_update_shape_region (window);
+-  meta_window_x11_update_input_region (window);
+ }
 
-   meta_window_notify_ready (window);
-   if (!window->override_redirect)
--    meta_window_process_config (window, window_config);
+ static void
+@@ -1523,6 +1523,12 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
+   *result |= META_MOVE_RESIZE_RESULT_UPDATE_UNCONSTRAINED;
+
+   update_gtk_edge_constraints (window);
++
++  if (need_resize_client)
 +    {
-+      meta_window_process_config (window, window_config);
 +      meta_window_x11_update_shape_region (window);
 +      meta_window_x11_update_input_region (window);
 +    }
  }
+
+ static gboolean
+--
+GitLab

@@ -143,11 +143,9 @@ python_check_deps() {
 }
 
 PATCHES=(
-	# Workaround for X11 windows (Steam among them) becoming unclickable
-	# after upgrading to 51-RC1 (gitlab.gnome.org/GNOME/mutter/-/issues,
-	# "Steam no longer works after update to 51-RC1"; tracked upstream as
-	# mutter!5296). Author's own tentative fix pending final review; see
-	# patch header for details.
+	# Upstream fix (mutter!5296) for X11 windows (Steam among them)
+	# becoming unclickable/inert after upgrading to 51-RC1. See patch
+	# header for details.
 	"${FILESDIR}"/${PN}-51.rc-x11-rebuild-shape-input-region-on-configure.patch
 )
 
