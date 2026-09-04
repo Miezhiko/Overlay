@@ -1,0 +1,27 @@
+https://gitlab.gnome.org/GNOME/mutter/-/issues/... (Steam no longer works after update to 51-RC1)
+https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/5296
+
+Jonas Ådahl's tentative fix, posted on the bug report, for X11 windows
+(Steam among them) becoming unclickable/inert after upgrading to
+51-RC1. meta_window_x11_configure() stopped rebuilding the window's
+shape and input regions when only its size changed (not its
+stacking/visibility), so clicks landed on a stale input region that no
+longer matched the window's actual client area. Track mutter!5296 for
+the final upstream fix; this is the author's own workaround pending
+review.
+
+diff --git a/src/x11/window-x11.c b/src/x11/window-x11.c
+index 5c2ac863b8..09a35a9d22 100644
+--- a/src/x11/window-x11.c
++++ b/src/x11/window-x11.c
+@@ -4722,5 +4722,9 @@ meta_window_x11_configure (MetaWindow *window)
+
+   meta_window_notify_ready (window);
+   if (!window->override_redirect)
+-    meta_window_process_config (window, window_config);
++    {
++      meta_window_process_config (window, window_config);
++      meta_window_x11_update_shape_region (window);
++      meta_window_x11_update_input_region (window);
++    }
+ }
