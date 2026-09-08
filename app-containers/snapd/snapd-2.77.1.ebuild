@@ -8,41 +8,14 @@ inherit autotools bash-completion-r1 flag-o-matic go-module linux-info readme.ge
 DESCRIPTION="Service and tools for management of snap packages"
 HOMEPAGE="http://snapcraft.io/"
 
-# Upstream's 2.76.3 vendor bundle predates its own go.mod bumps: go.mod
-# requires go-tpm2 v1.16.2 / secboot v0.0.0-20260623..., while the shipped
-# vendor/ tree still contains v1.15.0 / v0.0.0-20260410.... The snapd code
-# calls secboot APIs added after the vendored snapshot (e.g.
-# sb_preinstall.ErrorKindNoHardwareRootOfTrust, sb_tpm2.WithLockoutAuth*),
-# so pinning go.mod back cannot work; instead ship the two refreshed module
-# sources from the Go module proxy and swap them into vendor/ (see
-# src_unpack). Their own dependencies are unchanged between versions.
-GO_TPM2_PV="1.16.2"
-SECBOOT_PV="0.0.0-20260623135244-457b03a16d19"
-
-# Same story: go.mod also requires go-efilib v1.8.0 (shipped vendor/ has the
-# stale v1.7.1-...) and a wholly new direct dependency, cilium/ebpf v0.9.1,
-# that isn't vendored at all. Fetch both from the module proxy too (see
-# src_unpack). The vendored coreos/go-systemd is dead weight left over from
-# an old go.mod (no longer required, and nothing in snapd's own source
-# imports it any more), so it is simply dropped rather than refreshed.
-GO_EFILIB_PV="1.8.0"
-CILIUM_EBPF_PV="0.9.1"
-
-SRC_URI="https://github.com/snapcore/snapd/releases/download/${PV}/snapd_${PV}.vendor.tar.xz -> ${P}.tar.xz
-	https://proxy.golang.org/github.com/canonical/go-tpm2/%40v/v${GO_TPM2_PV}.zip -> canonical-go-tpm2-${GO_TPM2_PV}.zip
-	https://proxy.golang.org/github.com/snapcore/secboot/%40v/v${SECBOOT_PV}.zip -> snapcore-secboot-${SECBOOT_PV}.zip
-	https://proxy.golang.org/github.com/canonical/go-efilib/%40v/v${GO_EFILIB_PV}.zip -> canonical-go-efilib-${GO_EFILIB_PV}.zip
-	https://proxy.golang.org/github.com/cilium/ebpf/%40v/v${CILIUM_EBPF_PV}.zip -> cilium-ebpf-${CILIUM_EBPF_PV}.zip"
+# 2.77 needed a vendor-refresh workaround here (stale go-tpm2/secboot/
+# go-efilib versions, and a missing cilium/ebpf) because its release
+# tarball's vendor/ tree lagged its own go.mod. 2.77.1's tarball ships a
+# self-consistent vendor/ tree (all of those already match go.mod), so
+# none of that is needed any more; see git history if it recurs.
+SRC_URI="https://github.com/snapcore/snapd/releases/download/${PV}/snapd_${PV}.vendor.tar.xz -> ${P}.tar.xz"
 MY_PV=${PV}
 KEYWORDS="~amd64"
-
-# Unlike 2.76.3, the release tarball's own root directory is now
-# "snapd_${PV}.vendor" with the actual source nested one level inside it
-# (snapd_2.77.vendor/snapd-2.77/...), not "${P}" directly. Without this the
-# default S was a nonexistent path, and the vendor-refresh cp -a below (into
-# "${S}/vendor/...") died with "No such file or directory" trying to create
-# a directory under a parent that was never unpacked.
-S="${WORKDIR}/snapd_${PV}.vendor/${P}"
 
 LICENSE="GPL-3 Apache-2.0 BSD BSD-2 LGPL-3-with-linking-exception MIT"
 SLOT="0"
@@ -99,63 +72,15 @@ pkg_setup() {
 src_unpack() {
 	default
 
-	# Refresh the two stale vendored modules so vendor/ matches go.mod
-	# (see comment above SRC_URI for why this is needed).
-	local staging="${T}/gomod-refresh"
-	mkdir "${staging}" || die
-	pushd "${staging}" >/dev/null || die
-	unpack "canonical-go-tpm2-${GO_TPM2_PV}.zip"
-	unpack "snapcore-secboot-${SECBOOT_PV}.zip"
-	unpack "canonical-go-efilib-${GO_EFILIB_PV}.zip"
-	unpack "cilium-ebpf-${CILIUM_EBPF_PV}.zip"
-
-	rm -rf "${S}/vendor/github.com/canonical/go-tpm2" \
-		"${S}/vendor/github.com/snapcore/secboot" \
-		"${S}/vendor/github.com/canonical/go-efilib" \
-		"${S}/vendor/github.com/coreos/go-systemd" || die
-	cp -a "github.com/canonical/go-tpm2@v${GO_TPM2_PV}" \
-		"${S}/vendor/github.com/canonical/go-tpm2" || die
-	cp -a "github.com/snapcore/secboot@v${SECBOOT_PV}" \
-		"${S}/vendor/github.com/snapcore/secboot" || die
-	cp -a "github.com/canonical/go-efilib@v${GO_EFILIB_PV}" \
-		"${S}/vendor/github.com/canonical/go-efilib" || die
-	mkdir -p "${S}/vendor/github.com/cilium" || die
-	cp -a "github.com/cilium/ebpf@v${CILIUM_EBPF_PV}" \
-		"${S}/vendor/github.com/cilium/ebpf" || die
-	popd >/dev/null || die
-
-	sed -i \
-		-e "s|# github.com/canonical/go-tpm2 v1.15.0|# github.com/canonical/go-tpm2 v${GO_TPM2_PV}|" \
-		-e "s|# github.com/snapcore/secboot v0.0.0-20260410084611-3f8b98c2db70|# github.com/snapcore/secboot v${SECBOOT_PV}|" \
-		-e "s|# github.com/canonical/go-efilib v1.7.1-0.20260310185303-7166aa858b24|# github.com/canonical/go-efilib v${GO_EFILIB_PV}|" \
-		"${S}/vendor/modules.txt" || die
-
-	# Drop the dead coreos/go-systemd entry and replace it with the new
-	# cilium/ebpf one, matching go.mod's current direct dependency set.
-	python3 - "${S}/vendor/modules.txt" <<-EOF || die
-		import sys
-		path = sys.argv[1]
-		with open(path) as f:
-		    text = f.read()
-		old = (
-		    "# github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf\n"
-		    "## explicit\n"
-		    "github.com/coreos/go-systemd/activation\n"
-		)
-		new = (
-		    "# github.com/cilium/ebpf v${CILIUM_EBPF_PV}\n"
-		    "## explicit; go 1.17\n"
-		    "github.com/cilium/ebpf\n"
-		    "github.com/cilium/ebpf/asm\n"
-		    "github.com/cilium/ebpf/btf\n"
-		    "github.com/cilium/ebpf/internal\n"
-		    "github.com/cilium/ebpf/internal/sys\n"
-		    "github.com/cilium/ebpf/internal/unix\n"
-		)
-		assert old in text, "coreos/go-systemd modules.txt block not found"
-		with open(path, "w") as f:
-		    f.write(text.replace(old, new))
-	EOF
+	# Upstream is inconsistent about the release tarball's own root
+	# directory: some releases (e.g. 2.77) nest it one level under
+	# "snapd_${PV}.vendor/" instead of shipping "${P}" directly at the top
+	# level (2.77.1 and others). Normalize to the flat layout so S can
+	# stay at its default instead of hardcoding a path that breaks
+	# whenever upstream's packaging choice flips again.
+	if [[ ! -d "${WORKDIR}/${P}" && -d "${WORKDIR}/snapd_${PV}.vendor/${P}" ]]; then
+		mv "${WORKDIR}/snapd_${PV}.vendor/${P}" "${WORKDIR}/${P}" || die
+	fi
 }
 
 src_prepare() {
