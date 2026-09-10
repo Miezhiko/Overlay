@@ -27,7 +27,7 @@ RDEPEND="
 	>=gnome-base/librsvg-2:2
 	>=gui-libs/gtk-4.21.2:4
 	>=gui-libs/libadwaita-1.9_alpha:1
-	>=media-libs/glycin-2
+	>=media-libs/glycin-2:2[gtk,vala]
 	media-libs/libepoxy
 	media-libs/libglvnd
 	media-libs/libpulse
