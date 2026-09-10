@@ -873,7 +873,21 @@ src_configure() {
 				mozconfig_add_options_ac "forcing ld=lld due to USE=clang and USE=lto" --enable-linker=lld
 			fi
 
-			mozconfig_add_options_ac '+lto' --enable-lto=cross
+			if [[ ${LLVM_SLOT} == 23 ]]; then
+				# Miezhiko overlay: cross-language (Rust+C++) ThinLTO under
+				# LLVM 23 hits a ThinLTO summary incompatibility on rustc's
+				# allocator shim ("rustc-LLVM ERROR: expected function
+				# definition ...__rust_alloc to have an associated value
+				# info"), reproduced with a standalone rustc invocation
+				# outside the parallel build (not a PATH/slot-selection
+				# issue -- LLVM 23 is correctly first on PATH throughout).
+				# Drop just the cross-language merge; each side still gets
+				# its own same-language LTO (rustc's plain -Clto, clang's
+				# -flto=thin).
+				mozconfig_add_options_ac '+lto (LLVM 23: no cross-language LTO)' --enable-lto=thin
+			else
+				mozconfig_add_options_ac '+lto' --enable-lto=cross
+			fi
 
 		else
 			# ThinLTO is currently broken, see bmo#1644409.
