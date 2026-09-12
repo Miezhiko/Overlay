@@ -19,7 +19,7 @@ DEPEND="
 	>=dev-libs/glib-2.56.0:2[${MULTILIB_USEDEP}]
 	x11-misc/shared-mime-info
 	glycin? (
-		media-libs/glycin:2
+		>=media-libs/glycin-2.2.0:2
 	)
 	!glycin? (
 		jpeg? ( media-libs/libjpeg-turbo:=[${MULTILIB_USEDEP}] )
