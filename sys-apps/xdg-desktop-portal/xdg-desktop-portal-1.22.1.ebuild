@@ -72,6 +72,12 @@ src_configure() {
 		[[ -e ${dri} ]] && addpredict "${dri}"
 	done
 
+	# gst-inspect-1.0 (via gst-plugin-scanner, v4l2 plugin) also probes video
+	# capture devices, bug #951609, #972571
+	for v4l in /dev/video*; do
+		[[ -e ${v4l} ]] && addpredict "${v4l}"
+	done
+
 	local emesonargs=(
 		-Ddbus-service-dir="${EPREFIX}/usr/share/dbus-1/services"
 		-Dsystemd-user-unit-dir="$(systemd_get_userunitdir)"
