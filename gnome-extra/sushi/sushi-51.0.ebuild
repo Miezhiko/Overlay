@@ -14,31 +14,31 @@ IUSE=""
 
 DEPEND="
 	net-libs/webkit-gtk:6
-	media-libs/libepoxy
-	>=app-text/evince-49_alpha1[introspection]
+	>=app-text/papers-51_beta[introspection]
 	media-libs/freetype:2
 	>=x11-libs/gdk-pixbuf-2.23.0[introspection]
 	>=dev-libs/glib-2.29.14:2
 	media-libs/gstreamer:1.0[introspection]
 	media-libs/gst-plugins-base:1.0[introspection]
-	>=x11-libs/gtksourceview-4.0.3:4[introspection]
+	>=gui-libs/gtksourceview-5:5[introspection]
 	>=media-libs/harfbuzz-0.9.9:=
 	>=dev-libs/gobject-introspection-1.82.0-r2:=
 	>=dev-libs/gjs-1.40
+	>=gui-libs/gtk-4.20:4[introspection]
+	>=gui-libs/libadwaita-1:1
+	>=media-libs/glycin-2:2[gtk]
+	dev-libs/fribidi
 "
 RDEPEND="${DEPEND}
 	>=gnome-base/nautilus-3.1.90
 	media-plugins/gst-plugins-gtk:1.0[wayland]
 "
 BDEPEND="
+	>=dev-util/blueprint-compiler-0.19.0
 	dev-util/glib-utils
 	>=sys-devel/gettext-0.19.8
 	virtual/pkgconfig
 "
-
-PATCHES=(
-	"${FILESDIR}/${P}-evince-4.0.patch"
-)
 
 src_configure() {
 	local emesonargs=(
