@@ -51,7 +51,6 @@ PATCHES=(
 
 	# bug #964367
 	"${FILESDIR}/gnome-keyring-48.0-fix-pam-install.patch"
-	"${FILESDIR}/gnome-keyring-50.0-leak.patch"
 )
 
 pkg_setup() {
