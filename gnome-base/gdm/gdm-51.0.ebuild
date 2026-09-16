@@ -75,14 +75,6 @@ BDEPEND="
 	test? ( >=dev-libs/check-0.9.4 )
 "
 
-PATCHES=(
-	# Revert a bisected upstream regression (gdm#1089): password prompt
-	# intermittently fails to appear after selecting a user. Still
-	# unfixed upstream as of 51.0 (only a logging cleanup landed, not
-	# a behavioral fix). See patch header for the full analysis.
-	"${FILESDIR}"/${PN}-51.beta-revert-pam-service-file-lookup.patch
-)
-
 src_prepare() {
 	default
 }
