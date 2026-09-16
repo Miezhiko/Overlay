@@ -3,7 +3,7 @@
 
 EAPI=8
 
-FIREFOX_PATCHSET="firefox-155-patches-05.tar.xz"
+FIREFOX_PATCHSET="firefox-156-patches-01.tar.xz"
 
 # Miezhiko overlay: added 23, paired with the overlay's dev-lang/rust-1.98.1-r1
 # (repinned to LLVM 23 via the overlay's eclass/rust.eclass). 22 is left in
