@@ -104,7 +104,7 @@ BDEPEND="
 	virtual/pkgconfig
 	test? (
 		sys-apps/dbus
-		=x11-wm/mutter-49.0[test]
+		=x11-wm/mutter-51.0[test]
 	)
 "
 
