@@ -142,13 +142,6 @@ python_check_deps() {
 	fi
 }
 
-PATCHES=(
-	# Upstream fix (mutter!5296) for X11 windows (Steam among them)
-	# becoming unclickable/inert after upgrading to 51-RC1. See patch
-	# header for details.
-	"${FILESDIR}"/${PN}-51.rc-x11-rebuild-shape-input-region-on-configure.patch
-)
-
 src_prepare() {
 	default
 }
