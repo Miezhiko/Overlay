@@ -1,17 +1,19 @@
---- a/meson.build	2026-07-13 15:20:04.802428147 +0400
-+++ b/meson.build	2026-07-13 15:20:07.338002158 +0400
+diff -ru a/meson.build b/meson.build
+--- a/meson.build	2026-09-12 21:28:12.000000000 +0400
++++ b/meson.build	2026-09-20 20:01:39.928107033 +0400
 @@ -24,7 +24,7 @@
  libgnome_games_support = subproject ('libgnome-games-support',
  	    		             default_options: [ 'superproject_name=quadrapassel', 'sounds=true' ])
  libgnome_games_support_dependency = libgnome_games_support.get_variable ('lggs_dependency')
 -manette_dependency = dependency('manette-0.2', version: '>= 0.2.10')
 +manette_dependency = dependency('manette-1', version: '>= 1.0')
- pango_dependency = dependency('pango')
- pango_cairo_dependency = dependency('pangocairo')
- posix_dependency = meson.get_compiler('vala').find_library('posix')
---- a/src/quadrapassel.vala	2026-07-13 15:20:04.803065275 +0400
-+++ b/src/quadrapassel.vala	2026-07-13 15:20:47.233311001 +0400
-@@ -71,26 +71,24 @@
+ libm_dependency = cc.find_library('m', required : true)
+ 
+ localedir = join_paths(get_option('prefix'), get_option('localedir'))
+diff -ru a/src/quadrapassel.vala b/src/quadrapassel.vala
+--- a/src/quadrapassel.vala	2026-09-12 21:28:12.000000000 +0400
++++ b/src/quadrapassel.vala	2026-09-20 20:01:39.928256493 +0400
+@@ -72,26 +72,24 @@
      private Gtk.Button new_game_button;
  
      private Manette.Monitor manette_monitor;
@@ -53,9 +55,9 @@
 -    private HashTable<uint16, bool> buttons_state = new HashTable<uint16, bool> (direct_hash, direct_equal);
 +    private HashTable<Manette.Button, bool> buttons_state = new HashTable<Manette.Button, bool> (direct_hash, direct_equal);
  
-     private bool pause_requested = false;
- 
-@@ -310,10 +308,9 @@
+     private const uint[] KEYS = {
+         Gdk.Key.Return,
+@@ -302,10 +300,9 @@
  
          manette_monitor = new Manette.Monitor ();
          manette_monitor.device_connected.connect (manette_device_connected_cb);
@@ -67,9 +69,9 @@
 +        foreach (var device in devices)
 +            manette_device_connected_cb (device);
  
-         uint[] keys = {
-             Gdk.Key.Return,
-@@ -594,23 +591,19 @@
+         foreach (unowned var key in KEYS)
+             keys_state[key] = false;
+@@ -605,23 +602,19 @@
  
      private void manette_device_connected_cb (Manette.Device manette_device)
      {
@@ -98,7 +100,7 @@
          {
              if (game_aspect.has_focus)
                  new_game ();
-@@ -618,7 +611,7 @@
+@@ -629,7 +622,7 @@
              return;
          }
  
@@ -107,7 +109,7 @@
          {
              if (!game_aspect.has_focus)
                  return;
-@@ -639,42 +632,42 @@
+@@ -650,42 +643,42 @@
          if (game.paused)
              return;
  
@@ -158,7 +160,7 @@
          {
              if (settings.get_boolean ("rotate-counter-clock-wise"))
                  game.rotate_left ();
-@@ -683,12 +676,8 @@
+@@ -694,12 +687,8 @@
          }
      }
  
@@ -172,7 +174,7 @@
          if (!buttons_state[button])
              return;
  
-@@ -697,29 +686,25 @@
+@@ -708,29 +697,25 @@
          if (game == null)
              return;
  
