@@ -8,7 +8,7 @@ inherit cargo git-r3 meson xdg
 DESCRIPTION="GStreamer plugins written in Rust"
 HOMEPAGE="https://gstreamer.freedesktop.org/"
 EGIT_REPO_URI="https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs.git"
-EGIT_COMMIT="0.15.3"
+EGIT_COMMIT="0.15.4"
 
 LICENSE="|| ( LGPL-2.1+ MIT Apache-2.0 MPL-2.0 )"
 SLOT="1.0"
@@ -37,7 +37,17 @@ src_unpack() {
 
 	local builddir="${WORKDIR}/build"
 	mkdir -p "${builddir}"
-	
+
+	# aws-lc-sys (a C/assembly -sys crate pulled in transitively, e.g. by
+	# the aws/elevenlabs/deepgram plugins' TLS stack) compiles its C
+	# sources with CFLAGS as usual. With -flto=thin in CFLAGS the
+	# resulting objects are LLVM bitcode, which the plain (non-LTO-aware)
+	# `ld.bfd` invocation cargo/rustc uses to link the final .so can't
+	# read: "error adding symbols: file format not recognized". Rust's
+	# own codegen isn't affected (rustc drives its own LTO separately via
+	# -C lto), so just drop -flto* from the C/C++ flags feeding cc-rs.
+	filter-flags '-flto*'
+
 	tc-export CC CXX AR NM OBJCOPY PKG_CONFIG
 	export CC=$(tc-getCC)
 	export CXX=$(tc-getCXX)
