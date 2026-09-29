@@ -20,7 +20,7 @@ DEPEND="
 		>=kde-plasma/kde-cli-tools-5.8.6-r1:*[kdesu]
 	) ) )
 	policykit? ( >=sys-auth/polkit-0.102 )
-	>=dev-cpp/glibmm-2.56.1:2
+	>=dev-cpp/glibmm-2.66:2
 	>=dev-cpp/gtkmm-3.24:3.0
 	>=dev-libs/glib-2.58.3-r1:2
 	>=sys-block/parted-3.2:=

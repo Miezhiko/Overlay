@@ -1,0 +1,59 @@
+Fix build against modern GLib (this overlay currently has glib-2.90.0
+installed): glibmm 2.66 predates GLib's G_DECLARE_FINAL_TYPE() macro being
+used for GDBusActionGroup and GEmblem. That macro expands the *Class
+typedef as an anonymous struct literal typedef'd directly to the class
+name (not a named "struct _FooClass" tag), so glibmm's own generated
+forward declaration for the Class type ("using FooClass = struct
+_FooClass;") collides with GLib's declaration once both are visible in
+the same translation unit:
+
+  error: typedef redefinition with different types
+  ('struct _GDBusActionGroupClass' vs 'struct GDBusActionGroupClass')
+
+Since GLib's typedef is an anonymous-struct typedef, glibmm cannot
+provide its own compatible forward declaration for it at all (that's only
+possible for named/tagged struct types) -- the only fix is to stop
+declaring it ourselves and instead make sure GLib's own header, which
+already provides a valid FooClass typedef, is visible before glibmm's
+header needs the name. The type is only usable from inside <gio/gio.h>
+(GLib's public gdbusactiongroup.h/gemblem.h refuse direct inclusion), so
+pull that in explicitly rather than relying on include order from
+whatever consumer happens to include giomm/{dbusactiongroup,emblem}.h.
+
+giomm/private/{dbusactiongroup,emblem}_p.h reference the type by name
+only (BaseClassType = GFooClass), so they still resolve fine once GLib's
+declaration is visible.
+
+This overlay disables maintainer-mode for this ebuild (see the ebuild
+itself), so it's the pre-generated untracked/ files that need patching,
+not the gmmproc .hg templates / tools/m4 macros that would normally
+generate them.
+
+--- a/untracked/gio/giomm/dbusactiongroup.h
++++ b/untracked/gio/giomm/dbusactiongroup.h
+@@ -25,11 +25,11 @@
+ #include <glibmm/object.h>
+ #include <giomm/actiongroup.h>
+ #include <giomm/remoteactiongroup.h>
++#include <gio/gio.h>
+
+
+ #ifndef DOXYGEN_SHOULD_SKIP_THIS
+ using GDBusActionGroup = struct _GDBusActionGroup;
+-using GDBusActionGroupClass = struct _GDBusActionGroupClass;
+ #endif /* DOXYGEN_SHOULD_SKIP_THIS */
+
+
+--- a/untracked/gio/giomm/emblem.h
++++ b/untracked/gio/giomm/emblem.h
+@@ -24,11 +24,11 @@
+
+ #include <glibmm/object.h>
+ #include <giomm/icon.h>
++#include <gio/gio.h>
+
+
+ #ifndef DOXYGEN_SHOULD_SKIP_THIS
+ using GEmblem = struct _GEmblem;
+-using GEmblemClass = struct _GEmblemClass;
+ #endif /* DOXYGEN_SHOULD_SKIP_THIS */
