@@ -22,7 +22,7 @@ CRATES="
 	android-properties@0.2.2
 	android_system_properties@0.1.5
 	anstyle@1.0.14
-	anyhow@1.0.102
+	anyhow@1.0.104
 	arbitrary@1.4.2
 	arboard@3.6.1
 	arrayref@0.3.9
@@ -100,7 +100,7 @@ CRATES="
 	crc32fast@1.5.0
 	crossbeam-channel@0.5.15
 	crossbeam-deque@0.8.6
-	crossbeam-epoch@0.9.18
+	crossbeam-epoch@0.9.21
 	crossbeam-utils@0.8.21
 	crossterm@0.29.0
 	crossterm_winapi@0.9.1
@@ -410,7 +410,7 @@ CRATES="
 	proptest@1.11.0
 	pulldown-cmark@0.13.3
 	quick-error@1.2.3
-	quick-xml@0.39.3
+	quick-xml@0.39.4
 	quote@1.0.45
 	r-efi@5.3.0
 	r-efi@6.0.0
@@ -459,8 +459,8 @@ CRATES="
 	rustls-pki-types@1.14.1
 	rustls-platform-verifier-android@0.1.1
 	rustls-platform-verifier@0.6.2
-	rustls-webpki@0.103.13
-	rustls@0.23.40
+	rustls-webpki@0.103.15
+	rustls@0.23.45
 	rustversion@1.0.22
 	rusty-fork@0.3.1
 	rustybuzz@0.20.1
