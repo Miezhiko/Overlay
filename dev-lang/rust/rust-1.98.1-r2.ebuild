@@ -386,9 +386,17 @@ src_prepare() {
 	# thin-LTO + embedded bitcode unconditionally (baked into their own
 	# Cargo profile, independent of our "lto" USE flag) -- their .rlib
 	# object files are then LLVM bitcode, which plain ld.bfd can't read:
-	# "error adding symbols: file format not recognized". Force lld/mold
-	# unconditionally rather than only under USE=lto.
-	if tc-is-clang && ! tc-ld-is-lld && ! tc-ld-is-mold; then
+	# "error adding symbols: file format not recognized".
+	#
+	# Can't rely on tc-ld-is-mold here either, even though this overlay's
+	# make.conf puts -fuse-ld=mold in the global LDFLAGS: bootstrap's own
+	# internal cargo invocations for building the compiler itself construct
+	# their own flags from scratch and don't inherit the system LDFLAGS at
+	# all (confirmed: the failing link command had no -fuse-ld=* of any
+	# kind, plain bare `clang-23`, which defaults to ld.bfd). So force lld
+	# unconditionally whenever clang is the compiler, regardless of what
+	# the ambient toolchain default linker is.
+	if tc-is-clang; then
 		export RUSTFLAGS+=" -C link-arg=-fuse-ld=lld"
 	fi
 
@@ -624,10 +632,12 @@ src_configure() {
 		dist-src = false
 		remap-debuginfo = true
 		lld = $(usex system-llvm false $(toml_usex rust_sysroots_wasm))
-		# See the matching, longer comment in src_prepare: this needs to be
-		# unconditional (not just under USE=lto), since rustc's own compiler
-		# crates use thin-LTO + embedded bitcode unconditionally.
-		$(if tc-is-clang && ! tc-ld-is-mold; then
+		# See the matching, longer comment in src_prepare (tc-ld-is-mold
+		# doesn't help here: this needs to be unconditional, since rustc's
+		# own compiler crates use thin-LTO + embedded bitcode
+		# unconditionally, and bootstrap's internal cargo invocations for
+		# building the compiler don't inherit the system LDFLAGS anyway).
+		$(if tc-is-clang; then
 			echo "use-lld = true"
 		fi)
 		# only deny warnings if doc+wasm are NOT requested, documenting stage0 wasm std fails without it

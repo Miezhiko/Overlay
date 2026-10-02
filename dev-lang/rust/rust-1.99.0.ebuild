@@ -389,9 +389,17 @@ src_prepare() {
 	# thin-LTO + embedded bitcode unconditionally (baked into their own
 	# Cargo profile, independent of our "lto" USE flag) -- their .rlib
 	# object files are then LLVM bitcode, which plain ld.bfd can't read:
-	# "error adding symbols: file format not recognized". Force lld/mold
-	# unconditionally rather than only under USE=lto.
-	if tc-is-clang && ! tc-ld-is-lld && ! tc-ld-is-mold; then
+	# "error adding symbols: file format not recognized".
+	#
+	# Can't rely on tc-ld-is-mold here either, even though this overlay's
+	# make.conf puts -fuse-ld=mold in the global LDFLAGS: bootstrap's own
+	# internal cargo invocations for building the compiler itself construct
+	# their own flags from scratch and don't inherit the system LDFLAGS at
+	# all (confirmed: the failing link command had no -fuse-ld=* of any
+	# kind, plain bare `clang-23`, which defaults to ld.bfd). So force lld
+	# unconditionally whenever clang is the compiler, regardless of what
+	# the ambient toolchain default linker is.
+	if tc-is-clang; then
 		export RUSTFLAGS+=" -C link-arg=-fuse-ld=lld"
 	fi
 
@@ -627,11 +635,18 @@ src_configure() {
 		dist-src = false
 		remap-debuginfo = true
 		lld = $(usex system-llvm false $(toml_usex rust_sysroots_wasm))
-		# See the matching, longer comment in src_prepare: this needs to be
-		# unconditional (not just under USE=lto), since rustc's own compiler
-		# crates use thin-LTO + embedded bitcode unconditionally.
-		$(if tc-is-clang && ! tc-ld-is-mold; then
-			echo "use-lld = true"
+		# See the matching, longer comment in src_prepare (tc-ld-is-mold
+		# doesn't help here: this needs to be unconditional, since rustc's
+		# own compiler crates use thin-LTO + embedded bitcode
+		# unconditionally, and bootstrap's internal cargo invocations for
+		# building the compiler don't inherit the system LDFLAGS anyway).
+		# NOTE: 1.99.0 renamed this from the old "use-lld = true" boolean
+		# (still correct for 1.98.1) to "bootstrap-override-lld", which
+		# takes "external" (use $PATH's lld, matching the old true value)
+		# instead of a bare bool -- see BootstrapOverrideLld in
+		# src/bootstrap/src/core/config/toml/rust.rs.
+		$(if tc-is-clang; then
+			echo 'bootstrap-override-lld = "external"'
 		fi)
 		# only deny warnings if doc+wasm are NOT requested, documenting stage0 wasm std fails without it
 		# https://github.com/rust-lang/rust/issues/74976
