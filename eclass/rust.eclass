@@ -67,11 +67,14 @@ fi
 # @DESCRIPTION:
 # Definitive list of Rust slots and the associated LLVM slot, newest first.
 #
-# Miezhiko overlay: 1.98.1 is repinned to LLVM 23 here (upstream Gentoo still
-# has it on 22) to pair with the overlay's dev-lang/rust-1.98.1-r1, which is
-# built against llvm-core/{clang,llvm}:23. All other entries are untouched.
+# Miezhiko overlay: 1.98.1 and 1.99.0 are pinned to LLVM 23 here (upstream
+# Gentoo has 1.98.1 on 22, and had not packaged 1.99.0 at all yet at the time
+# this entry was added) to pair with the overlay's dev-lang/rust-1.98.1-r1
+# and dev-lang/rust-1.99.0, which are built against llvm-core/{clang,llvm}:23.
+# All other entries are untouched.
 declare -A -g -r _RUST_LLVM_MAP=(
 	["9999"]=22
+	["1.99.0"]=23
 	["1.98.1"]=23
 	["1.97.1"]=22
 	["1.96.1"]=22
@@ -111,6 +114,7 @@ declare -A -g -r _RUST_LLVM_MAP=(
 # this array is used to store the Rust slots in a more convenient order for iteration.
 declare -a -g -r _RUST_SLOTS_ORDERED=(
 	"9999"
+	"1.99.0"
 	"1.98.1"
 	"1.97.1"
 	"1.96.1"

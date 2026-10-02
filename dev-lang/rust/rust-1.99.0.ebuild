@@ -6,7 +6,7 @@ EAPI=8
 # Bump notes: https://wiki.gentoo.org/wiki/Project:Rust/Rust_bump
 
 # Miezhiko overlay: repinned to LLVM 23 (paired with the matching
-# _RUST_LLVM_MAP["1.98.1"]=23 entry in the overlay's eclass/rust.eclass).
+# _RUST_LLVM_MAP["1.99.0"]=23 entry in the overlay's eclass/rust.eclass).
 LLVM_COMPAT=( 23 )
 PYTHON_COMPAT=( python3_{12..15} )
 
@@ -18,6 +18,15 @@ PYTHON_COMPAT=( python3_{12..15} )
 #
 # Uncomment this line when the ebuild needs a patchset update but no revbump.
 # RUST_PATCH_VER=${PV}-1
+
+# Miezhiko overlay: Gentoo's rust-patches.git has no "1.99.0" tag yet (this
+# ebuild was bumped ahead of upstream Gentoo packaging 1.99.0 at all), so
+# pin to the last tagged patchset instead of the default ${PV}-derived one.
+# Verified both of its patches (link-with-system-libs, musl-dynamic-linking)
+# still apply cleanly to the 1.99.0 source (with minor line-offset fuzz) --
+# they're generic Gentoo-environment patches, not rustc-internals-specific.
+# Bump this back to the default once Gentoo tags rust-patches-1.99.0.
+RUST_PATCH_VER="1.98.1"
 
 RUST_MAX_VER=${PV%%_*}
 RUST_PV=${PV%%_p*}
@@ -365,23 +374,24 @@ src_unpack() {
 src_prepare() {
 	# Commit patches to the appropriate branch in proj/rust-patches.git
 	# then cut a new tag / tarball. Don't add patches to ${FILESDIR}
+	# Unlike 1.98.1 (see that ebuild's own src_prepare), 1.99.0 doesn't need
+	# the overlay's amx-tf32 patches at all: upstream rust-lang/rust#159310
+	# (dropping the not-yet-shipped-in-LLVM-23 "amx-tf32" x86 target
+	# feature) landed in stable by this release -- verified amx-tf32 is
+	# already absent from target_features.rs, std_detect and
+	# library/stdarch's core_arch/amx.rs in the 1.99.0 source tarball.
 	PATCHES=(
 		"${WORKDIR}/rust-patches-${RUST_PATCH_VER}/"
-		# Miezhiko overlay: LLVM 23 dropped the not-yet-shipped "amx-tf32"
-		# x86 target feature (still present under LLVM 22, which upstream
-		# rustc-1.98.1 was built against), so building std against system
-		# LLVM 23 fails with "rustc-LLVM ERROR: '+amx-tf32' is not a
-		# recognized feature for this target". Backports the relevant hunks
-		# of upstream rust-lang/rust#159310 (target_features.rs + std_detect)
-		# plus the matching stdarch core_arch/amx.rs removal (the two
-		# unstable, nightly-only #[target_feature(enable = "amx-tf32")]
-		# intrinsics + their extern decls + tests), which #159310 itself
-		# doesn't cover since stdarch is a separate upstream repo.
-		"${FILESDIR}/${PN}-1.98.1-llvm23-drop-amx-tf32-feature.patch"
-		"${FILESDIR}/${PN}-1.98.1-llvm23-drop-amx-tf32-stdarch.patch"
 	)
 
-	if use lto && tc-is-clang && ! tc-ld-is-lld && ! tc-ld-is-mold; then
+	# Upstream only forces lld/mold here when USE=lto is on, but rustc's own
+	# compiler crates (e.g. rustc_driver, rustc_codegen_llvm) are built with
+	# thin-LTO + embedded bitcode unconditionally (baked into their own
+	# Cargo profile, independent of our "lto" USE flag) -- their .rlib
+	# object files are then LLVM bitcode, which plain ld.bfd can't read:
+	# "error adding symbols: file format not recognized". Force lld/mold
+	# unconditionally rather than only under USE=lto.
+	if tc-is-clang && ! tc-ld-is-lld && ! tc-ld-is-mold; then
 		export RUSTFLAGS+=" -C link-arg=-fuse-ld=lld"
 	fi
 
@@ -617,7 +627,10 @@ src_configure() {
 		dist-src = false
 		remap-debuginfo = true
 		lld = $(usex system-llvm false $(toml_usex rust_sysroots_wasm))
-		$(if use lto && tc-is-clang && ! tc-ld-is-mold; then
+		# See the matching, longer comment in src_prepare: this needs to be
+		# unconditional (not just under USE=lto), since rustc's own compiler
+		# crates use thin-LTO + embedded bitcode unconditionally.
+		$(if tc-is-clang && ! tc-ld-is-mold; then
 			echo "use-lld = true"
 		fi)
 		# only deny warnings if doc+wasm are NOT requested, documenting stage0 wasm std fails without it
