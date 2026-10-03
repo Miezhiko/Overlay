@@ -8,7 +8,7 @@ RUST_MIN_VER="1.85.1"
 RUST_MULTILIB=1
 VALA_MIN_API_VERSION="0.56"
 
-inherit cargo gnome2 multilib-minimal python-any-r1 rust-toolchain vala meson git-r3
+inherit cargo gnome2 python-any-r1 rust-toolchain vala git-r3 meson-multilib
 
 DESCRIPTION="Scalable Vector Graphics (SVG) rendering library"
 HOMEPAGE="https://wiki.gnome.org/Projects/LibRsvg https://gitlab.gnome.org/GNOME/librsvg"
@@ -163,29 +163,7 @@ src_prepare() {
 
 multilib_src_configure() {
 	local emesonargs=(
-		$(meson_use gtk-doc docs)
-		$(meson_feature introspection)
-		$(meson_feature vala)
-		-Dpixbuf-loader=true
-	)
-
-	if ! multilib_is_native_abi; then
-		myconf+=(
-			-Dtriplet="$(rust_abi)"
-		)
-	fi
-	
-	meson_src_configure
-
-	if multilib_is_native_abi; then
-		ln -s "${S}"/doc/html doc/html || die
-	fi
-}
-
-
-multilib_src_configure() {
-	local emesonargs=(
-		$(meson_use gtk-doc docs)
+		$(meson_feature gtk-doc docs)
 		$(meson_native_use_feature introspection)
 		$(meson_native_use_feature vala)
 		-Dpixbuf=enabled
@@ -193,8 +171,8 @@ multilib_src_configure() {
 	)
 	
 	if ! multilib_is_native_abi; then
-		myconf+=(
-			-Dtriplet="$(rust_abi)"
+		emesonargs+=(
+			-Dtriplet="$(rust_abi "$(get_abi_CHOST)")"
 		)
 	fi
 	
