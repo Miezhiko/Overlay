@@ -404,6 +404,30 @@ src_prepare() {
 	fi
 
 	default
+
+	if [[ ${LLVM_SLOT} == 23 ]]; then
+		# Miezhiko overlay: LLVM 23.1.2's bitcode summary writer hard-crashes
+		# ("rustc-LLVM ERROR: expected function definition ... to have an
+		# associated value info", from the MemProf context-radix-tree summary
+		# code in llvm/lib/Bitcode/Writer/BitcodeWriter.cpp, which demands
+		# every function definition have a value-info summary entry) when
+		# asked to write a ThinLTO-compatible per-module summary for certain
+		# Rust generic instantiations. Hit building purely-internal
+		# build-script dependencies (shlex, cc, hashbrown via cc, ...) that
+		# library/Cargo.toml's [profile.dist] unconditionally compiles with
+		# -Cembed-bitcode=yes. Those are host tools that run build.rs
+		# scripts and are never shipped or LTO'd, so there's nothing lost by
+		# turning bitcode embedding back off for just the build-script
+		# dependency graph via Cargo's build-override mechanism. Leave the
+		# real [profile.dist] (std/core/alloc/test as shipped) untouched so
+		# downstream USE=lto Rust programs still get embedded bitcode to LTO
+		# against.
+		cat >> "${S}"/library/Cargo.toml <<-EOF
+
+			[profile.dist.build-override]
+			rustflags = ["-C", "embed-bitcode=no"]
+		EOF
+	fi
 }
 
 src_configure() {
