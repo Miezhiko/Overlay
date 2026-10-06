@@ -72,21 +72,48 @@ src_install() {
 	# both unnecessary (we link dynamically against this system's own Qt6,
 	# like any other Gentoo Qt app) and inappropriate (Gentoo packages don't
 	# vendor their own copies of shared system libs) for a real install.
-	# Skip all of that and just install the two binaries build_linux.sh
-	# itself locates at these same paths.
-	exeinto /opt/Dopamine/bin
+	#
+	# The client/service split below is NOT just a naming choice, though:
+	# WireguardUtilsLinux::wgStart() (client/platforms/linux/daemon/
+	# wireguardutilslinux.cpp) spawns the WireGuard tunnel as
+	# `QCoreApplication::applicationDirPath() + "/../../client/bin/wireguard-go"`
+	# -- i.e. it's hardcoded relative to the *service* binary's own install
+	# location, two directories up then into a sibling "client/bin". Install
+	# the service anywhere else relative to the client and that exec
+	# silently resolves to a nonexistent path, QProcess::start() fails with
+	# FailedToStart, and tunnel activation times out exactly like this
+	# (real-world symptom this was debugged from):
+	#   WireguardUtilsLinux: Tunnel process encountered an error: QProcess::FailedToStart
+	#   WireguardUtilsLinux: Unable to start tunnel process due to timeout
+	#   Daemon: Interface creation failed.
+	# So: client/bin and service/bin must be siblings under the same
+	# prefix, matching upstream's own AppDir/{client,service}/bin layout
+	# exactly (see deploy/build_linux.sh), not collapsed into one bin/ dir.
+	exeinto /opt/Dopamine/client/bin
 	newexe "${BUILD_DIR}/client/Dopamine" Dopamine
+	exeinto /opt/Dopamine/service/bin
 	newexe "${BUILD_DIR}/service/server/dopamine-service" dopamine-service
 
+	# wireguard-go itself (the actual thing missing above) plus the other
+	# prebuilt backend binaries/data (tun2socks, ss-local, openvpn,
+	# ck-client, geoip.dat, geosite.dat) all live in the same directory
+	# upstream's own build_linux.sh copies verbatim into its AppDir;
+	# there's no CMake target that builds or stages any of this, it's
+	# fetched prebuilt via the client/3rd-prebuilt submodule (see
+	# src_configure's comment on that submodule).
+	local prebuilt_bin="${S}/client/3rd-prebuilt/deploy-prebuilt/linux/client/bin"
+	[[ -d ${prebuilt_bin} ]] || die "prebuilt client/bin dir not found: ${prebuilt_bin}"
+	exeinto /opt/Dopamine/client/bin
+	doexe "${prebuilt_bin}"/*
+
 	doicon -s 512 "${S}/deploy/data/linux/Dopamine.png"
-	make_desktop_entry /opt/Dopamine/bin/Dopamine Dopamine Dopamine "Network;Qt;Security"
+	make_desktop_entry /opt/Dopamine/client/bin/Dopamine Dopamine Dopamine "Network;Qt;Security"
 
 	# Adapted from deploy/data/linux/Dopamine.service: that unit's
-	# ExecStart/LD_LIBRARY_PATH assume the CQtDeployer-bundled client/service
-	# directory layout (a wrapper .sh script, and a bundled lib/ dir next to
-	# the client binary) that we don't produce; point it at the actual
-	# installed service binary instead, with no LD_LIBRARY_PATH override
-	# needed since nothing here is statically-bundled Qt.
+	# LD_LIBRARY_PATH assumed the CQtDeployer-bundled client/lib dir that we
+	# don't produce (no LD_LIBRARY_PATH override needed since nothing here
+	# is statically-bundled Qt); ExecStart is otherwise unchanged, since
+	# service/bin is at the same relative place as upstream's own layout.
 	cat <<-EOF > "${T}/Dopamine.service"
 		[Unit]
 		Description=Dopamine Service
@@ -97,7 +124,7 @@ src_install() {
 		Type=simple
 		Restart=always
 		RestartSec=1
-		ExecStart=/opt/Dopamine/bin/dopamine-service
+		ExecStart=/opt/Dopamine/service/bin/dopamine-service
 
 		[Install]
 		WantedBy=multi-user.target
