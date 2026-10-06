@@ -735,10 +735,16 @@ RDEPEND="
 	dev-python/jsonpatch[${PYTHON_USEDEP}]
 "
 
+# maturin was pinned exactly to 1.14.1 to match pyproject.toml's own
+# requires = [maturin==1.14.1] (an isolated-build-only constraint we don't
+# honor anyway, see DISTUTILS_USE_PEP517=standalone above); floored instead
+# so this doesn't block other packages on this system from pulling in a
+# newer maturin -- the PEP517 build_wheel()/build_editable() entry points
+# this backend calls are stable across minor releases.
 BDEPEND="
 	dev-python/editables[${PYTHON_USEDEP}]
 	dev-python/truststore[${PYTHON_USEDEP}]
-	~dev-util/maturin-1.14.1[${PYTHON_USEDEP}]
+	>=dev-util/maturin-1.14.1[${PYTHON_USEDEP}]
 "
 
 RESTRICT="test"
