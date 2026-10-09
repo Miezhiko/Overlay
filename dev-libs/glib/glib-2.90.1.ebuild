@@ -89,9 +89,14 @@ MULTILIB_CHOST_TOOLS=(
 	/usr/bin/gio-querymodules$(get_exeext)
 )
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-2.64.1-mark-gdbus-server-auth-test-flaky.patch
-)
+# glib-2.64.1-mark-gdbus-server-auth-test-flaky.patch (inherited from
+# ::gentoo's own older glib ebuilds) no longer applies: its target,
+# gio/tests/meson.build, has been restructured upstream, and the
+# underlying flakiness (gitlab.gnome.org/GNOME/glib/-/issues/1672, the
+# same one this patch originally referenced as #1954) is now handled
+# natively via `'can_fail': 'thread' in glib_sanitizers` instead of the
+# patch's `'suite': ['flaky']`. Nothing left for this patch to do.
+PATCHES=()
 
 python_check_deps() {
 	if use introspection ; then
