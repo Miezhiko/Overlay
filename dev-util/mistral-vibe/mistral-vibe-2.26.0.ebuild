@@ -14,6 +14,7 @@ RUST_MIN_VER="1.97.1"
 CRATES="
 	addr2line@0.25.1
 	adler2@2.0.1
+	aes@0.9.3
 	ahash@0.8.12
 	aho-corasick@1.1.4
 	aho-corasick@1.1.5
@@ -27,9 +28,20 @@ CRATES="
 	anstyle-wincon@3.0.11
 	anstyle@1.0.14
 	anyhow@1.0.104
+	apple-native-keyring-store@1.0.2
 	ar_archive_writer@0.5.2
 	ascii@1.1.0
 	ast_node@5.0.0
+	async-broadcast@0.7.2
+	async-channel@2.5.0
+	async-executor@1.14.0
+	async-io@2.6.0
+	async-lock@3.4.2
+	async-process@2.5.0
+	async-recursion@1.1.1
+	async-signal@0.2.14
+	async-task@4.7.1
+	async-trait@0.1.92
 	atomic-waker@1.1.2
 	autocfg@1.5.1
 	aws-lc-rs@1.18.1
@@ -48,7 +60,10 @@ CRATES="
 	bitflags@2.13.1
 	bitvec@1.1.1
 	block-buffer@0.10.4
+	block-buffer@0.12.1
+	block-padding@0.4.2
 	block2@0.6.2
+	blocking@1.7.0
 	borrow-or-share@0.2.4
 	boxed_error@0.2.3
 	bstr@1.13.1
@@ -63,6 +78,7 @@ CRATES="
 	caseless@0.2.2
 	cassowary@0.3.0
 	castaway@0.2.4
+	cbc@0.2.1
 	cc@1.4.0
 	cc@1.4.4
 	cesu8@1.1.0
@@ -71,6 +87,7 @@ CRATES="
 	cfg_aliases@0.2.2
 	chacha20@0.10.2
 	chrono@0.4.45
+	cipher@0.5.2
 	clang-sys@1.8.1
 	clang-sys@1.9.1
 	clap@4.6.6
@@ -78,19 +95,24 @@ CRATES="
 	clap_derive@4.6.4
 	clap_lex@1.1.0
 	cmake@0.1.58
+	cmov@0.5.4
 	colorchoice@1.0.5
 	combine@4.6.8
 	compact_str@0.7.1
 	compact_str@0.8.2
+	concurrent-queue@2.5.0
 	console@0.16.4
+	const-oid@0.10.2
 	convert_case@0.11.0
 	cooked-waker@5.0.0
 	core-foundation-sys@0.8.7
 	core-foundation@0.10.1
+	core-foundation@0.9.4
 	core_maths@0.1.1
 	coreaudio-rs@0.11.3
 	coreaudio-sys@0.2.18
 	cpal@0.15.3
+	cpubits@0.1.1
 	cpufeatures@0.2.17
 	cpufeatures@0.3.1
 	crc32fast@1.5.0
@@ -101,7 +123,9 @@ CRATES="
 	crossterm@0.28.1
 	crossterm_winapi@0.9.1
 	crypto-common@0.1.7
+	crypto-common@0.2.2
 	ctor@1.0.11
+	ctutils@0.4.2
 	darling@0.24.1
 	darling_core@0.24.1
 	darling_macro@0.24.1
@@ -121,6 +145,7 @@ CRATES="
 	deno_unsync@0.4.4
 	deranged@0.5.8
 	digest@0.10.7
+	digest@0.11.3
 	diplomat-runtime@0.15.1
 	diplomat@0.15.0
 	diplomat_core@0.15.0
@@ -134,8 +159,13 @@ CRATES="
 	either@1.18.0
 	email_address@0.2.9
 	encode_unicode@1.0.0
+	endi@1.1.1
+	enumflags2@0.7.12
+	enumflags2_derive@0.7.12
 	equivalent@1.0.2
 	errno@0.3.14
+	event-listener-strategy@0.5.4
+	event-listener@5.4.2
 	fancy-regex@0.18.0
 	fastrand@2.5.0
 	filedescriptor@0.8.3
@@ -161,6 +191,7 @@ CRATES="
 	futures-executor@0.3.34
 	futures-io@0.3.33
 	futures-io@0.3.34
+	futures-lite@2.6.1
 	futures-macro@0.3.33
 	futures-macro@0.3.34
 	futures-sink@0.3.33
@@ -185,7 +216,10 @@ CRATES="
 	hashbrown@0.17.1
 	heck@0.5.0
 	hermit-abi@0.5.2
+	hermit-abi@0.5.3
 	hex@0.4.3
+	hkdf@0.13.0
+	hmac@0.13.0
 	home@0.5.12
 	hostname@0.4.2
 	hstr@3.0.6
@@ -194,6 +228,7 @@ CRATES="
 	http@1.5.0
 	httparse@1.10.1
 	httpdate@1.0.3
+	hybrid-array@0.4.15
 	hyper-rustls@0.27.9
 	hyper-util@0.1.20
 	hyper@1.11.1
@@ -227,6 +262,7 @@ CRATES="
 	indoc@2.0.7
 	inotify-sys@0.1.8
 	inotify@0.11.5
+	inout@0.2.2
 	insta@1.48.0
 	instability@0.3.13
 	inventory@0.3.24
@@ -248,6 +284,8 @@ CRATES="
 	jsonschema-regex@0.49.1
 	jsonschema-value@0.49.1
 	jsonschema@0.49.1
+	keyring-core@1.0.0
+	keyring@4.2.0
 	kqueue-sys@1.1.2
 	kqueue@1.2.1
 	lazy_static@1.5.0
@@ -268,6 +306,7 @@ CRATES="
 	mach2@0.4.3
 	matchers@0.2.0
 	memchr@2.8.3
+	memoffset@0.9.1
 	micromap@0.3.0
 	minimal-lexical@0.2.1
 	miniz_oxide@0.8.9
@@ -294,6 +333,7 @@ CRATES="
 	num-conv@0.2.2
 	num-derive@0.4.2
 	num-integer@0.1.46
+	num-integer@0.1.47
 	num-iter@0.1.46
 	num-rational@0.4.2
 	num-traits@0.2.19
@@ -323,9 +363,11 @@ CRATES="
 	onig@6.5.3
 	onig_sys@69.9.3
 	openssl-probe@0.2.1
+	ordered-stream@0.2.0
 	os_info@3.15.0
 	outref@0.5.2
 	par-core@2.0.0
+	parking@2.2.1
 	parking_lot@0.12.5
 	parking_lot_core@0.9.12
 	paste@1.0.15
@@ -338,8 +380,10 @@ CRATES="
 	pin-project-internal@1.1.13
 	pin-project-lite@0.2.17
 	pin-project@1.1.13
+	piper@0.2.5
 	pkg-config@0.3.34
 	plist@1.10.0
+	polling@3.11.0
 	portable-atomic@1.14.0
 	potential_utf@0.1.5
 	potential_utf@0.1.6
@@ -409,6 +453,7 @@ CRATES="
 	schemars_derive@1.2.2
 	scoped-tls@1.0.1
 	scopeguard@1.2.0
+	secret-service@5.2.0
 	security-framework-sys@2.17.0
 	security-framework@3.7.0
 	semver@1.0.28
@@ -424,9 +469,11 @@ CRATES="
 	serde_derive@1.0.229
 	serde_derive_internals@0.30.0
 	serde_json@1.0.151
+	serde_repr@0.1.21
 	serde_v8@0.318.0
 	sha1@0.10.7
 	sha1_smol@1.0.1
+	sha2@0.11.0
 	sharded-slab@0.1.7
 	shlex@1.3.0
 	shlex@2.0.1
@@ -490,6 +537,8 @@ CRATES="
 	syntect@5.3.0
 	sys_traits@0.1.28
 	sys_traits_macros@0.1.0
+	system-configuration-sys@0.6.0
+	system-configuration@0.7.0
 	tap@1.0.1
 	target-lexicon@0.13.5
 	tempfile@3.27.0
@@ -537,6 +586,7 @@ CRATES="
 	tungstenite@0.24.0
 	two-face@0.5.2+bat-0.26.1
 	typenum@1.20.1
+	uds_windows@1.2.1
 	uname@0.1.1
 	unicase@2.9.0
 	unicode-general-category@1.1.0
@@ -591,6 +641,8 @@ CRATES="
 	windows-implement@0.60.2
 	windows-interface@0.59.3
 	windows-link@0.2.1
+	windows-native-keyring-store@1.1.0
+	windows-registry@0.6.1
 	windows-result@0.1.2
 	windows-result@0.4.1
 	windows-strings@0.5.1
@@ -635,6 +687,11 @@ CRATES="
 	yaml-rust@0.4.5
 	yoke-derive@0.8.2
 	yoke@0.8.3
+	zbus-secret-service-keyring-store@1.0.1
+	zbus@5.19.0
+	zbus_macros@5.19.0
+	zbus_names@4.3.4
+	zcheapstr@1.1.0
 	zerocopy-derive@0.8.55
 	zerocopy-derive@0.8.56
 	zerocopy@0.8.55
@@ -651,6 +708,9 @@ CRATES="
 	zlib-rs@0.6.7
 	zmij@1.0.23
 	zoneinfo64@0.3.0
+	zvariant@5.15.0
+	zvariant_derive@5.15.0
+	zvariant_utils@4.2.0
 "
 
 inherit cargo distutils-r1
