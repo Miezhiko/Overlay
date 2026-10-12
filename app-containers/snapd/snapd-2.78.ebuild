@@ -147,13 +147,28 @@ src_compile() {
 	# cmd/snap-cli-wrap program, which just execs the snapd binary itself
 	# (see snap-cli-wrap.c). It's built by the autotools "cmd" tree (see
 	# src_install) and installed separately below, not via go build here.
+	#
+	# 2.78 ("multi-entry snapd") went further and folded several more
+	# former standalone cmd/ Go binaries into the main snapd/snapctl
+	# binaries as argv0/argv1-dispatched tools (see cmd/snapd/main.go's
+	# toolMains and cmd/snapctl/main.go): snapd-apparmor, snap-preseed,
+	# snap-recovery-chooser, snap-gpio-helper and snap-fde-keymgr are now
+	# dispatched from inside the snapd binary itself (via the new
+	# cmd/snapd-tool-wrap C multi-call wrapper, built by the autotools
+	# "cmd" tree and hardlinked under each tool name below), and snap-exec
+	# is now dispatched from inside the snapctl binary (via a plain
+	# argv0 check, so a plain hardlink to snapctl is enough -- no wrapper
+	# needed). None of those five tool names are `go build`-able targets
+	# any more; attempting to build them individually fails with
+	# "import lookup disabled by -mod=vendor" since their cmd/<name>
+	# directories no longer exist.
 	local cmd
-	for cmd in snapd snapd-apparmor snap-bootstrap snap-failure snap-preseed snap-recovery-chooser snap-repair snap-seccomp; do
+	for cmd in snapd snap-bootstrap snap-failure snap-repair snap-seccomp; do
 		go build ${GOFLAGS} -mod=vendor -o "${GOBIN}/${cmd}" "${flags[@]}" \
 		    -v -x "github.com/snapcore/${PN}/cmd/${cmd}"
 		[[ -e "${GOBIN}/${cmd}" ]] || die "failed to build ${cmd}"
 	done
-	for cmd in snapctl snap-exec snap-update-ns; do
+	for cmd in snapctl snap-update-ns; do
 		go build ${GOFLAGS} -mod=vendor -o "${GOBIN}/${cmd}" "${staticflags[@]}" \
 		    -v -x "github.com/snapcore/${PN}/cmd/${cmd}"
 		[[ -e "${GOBIN}/${cmd}" ]] || die "failed to build ${cmd}"
@@ -179,11 +194,28 @@ src_install() {
 	# packaging (see packaging/fedora/snapd.spec).
 	newbin "${S}/cmd/snap-cli-wrap/snap-cli-wrap" snap
 	ln "${ED}/usr/bin/snapctl" "${ED}/usr/lib/snapd/snapctl" || die
+	# snap-exec is dispatched from inside the snapctl binary itself now
+	# (see cmd/snapctl/main.go); a plain hardlink under the name it's
+	# invoked as is all that's needed, same as the snapctl one above.
+	ln "${ED}/usr/lib/snapd/snapctl" "${ED}/usr/lib/snapd/snap-exec" || die
 
 	exeinto /usr/lib/snapd
-	doexe "${GOBIN}/"{snapd,snapd-apparmor,snap-bootstrap,snap-failure,snap-exec,snap-preseed,snap-recovery-chooser,snap-repair,snap-seccomp,snap-update-ns} \
+	doexe "${GOBIN}/"{snapd,snap-bootstrap,snap-failure,snap-repair,snap-seccomp,snap-update-ns} \
 		"${S}/"{cmd/snap-discard-ns/snap-discard-ns,cmd/snap-mgmt/snap-mgmt} \
 		"${S}/data/completion/bash/"{complete.sh,etelpmoc.sh,}
+
+	# snapd-tool-wrap (emake -C cmd install above, via libexec_PROGRAMS,
+	# already dropped the wrapper binary itself at
+	# /usr/lib/snapd/snapd-tool-wrap) is a generic multi-call wrapper:
+	# basename(argv[0]) picks the tool, and it execs the real snapd
+	# binary with argv[0]="snapd" argv[1]=<tool-name> for dispatch (see
+	# cmd/snapd-tool-wrap/snapd-tool-wrap.c and cmd/snapd/main.go's
+	# toolMains). Hardlink it under each merged tool's former standalone
+	# binary name.
+	local tool
+	for tool in snapd-apparmor snap-preseed snap-recovery-chooser snap-gpio-helper snap-fde-keymgr; do
+		ln "${ED}/usr/lib/snapd/snapd-tool-wrap" "${ED}/usr/lib/snapd/${tool}" || die
+	done
 
 	dobashcomp "${S}/data/completion/bash/snap"
 
