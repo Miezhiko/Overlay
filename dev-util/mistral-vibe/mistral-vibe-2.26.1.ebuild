@@ -124,6 +124,7 @@ CRATES="
 	crossterm_winapi@0.9.1
 	crypto-common@0.1.7
 	crypto-common@0.2.2
+	ctor@0.2.9
 	ctor@1.0.11
 	ctutils@0.4.2
 	darling@0.24.1
@@ -473,6 +474,8 @@ CRATES="
 	serde_v8@0.318.0
 	sha1@0.10.7
 	sha1_smol@1.0.1
+	sha256@1.6.0
+	sha2@0.10.9
 	sha2@0.11.0
 	sharded-slab@0.1.7
 	shlex@1.3.0
