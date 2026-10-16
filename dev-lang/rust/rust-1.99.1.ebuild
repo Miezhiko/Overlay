@@ -6,7 +6,7 @@ EAPI=8
 # Bump notes: https://wiki.gentoo.org/wiki/Project:Rust/Rust_bump
 
 # Miezhiko overlay: repinned to LLVM 23 (paired with the matching
-# _RUST_LLVM_MAP["1.99.0"]=23 entry in the overlay's eclass/rust.eclass).
+# _RUST_LLVM_MAP["1.99.1"]=23 entry in the overlay's eclass/rust.eclass).
 LLVM_COMPAT=( 23 )
 PYTHON_COMPAT=( python3_{12..15} )
 
@@ -19,13 +19,14 @@ PYTHON_COMPAT=( python3_{12..15} )
 # Uncomment this line when the ebuild needs a patchset update but no revbump.
 # RUST_PATCH_VER=${PV}-1
 
-# Miezhiko overlay: Gentoo's rust-patches.git has no "1.99.0" tag yet (this
-# ebuild was bumped ahead of upstream Gentoo packaging 1.99.0 at all), so
-# pin to the last tagged patchset instead of the default ${PV}-derived one.
-# Verified both of its patches (link-with-system-libs, musl-dynamic-linking)
-# still apply cleanly to the 1.99.0 source (with minor line-offset fuzz) --
-# they're generic Gentoo-environment patches, not rustc-internals-specific.
-# Bump this back to the default once Gentoo tags rust-patches-1.99.0.
+# Miezhiko overlay: Gentoo's rust-patches.git has no "1.99.0" or "1.99.1"
+# tag yet (this ebuild was bumped ahead of upstream Gentoo packaging the
+# 1.99.x series at all), so pin to the last tagged patchset instead of the
+# default ${PV}-derived one. Verified both of its patches
+# (link-with-system-libs, musl-dynamic-linking) still apply cleanly to the
+# 1.99.1 source (with minor line-offset fuzz) -- they're generic
+# Gentoo-environment patches, not rustc-internals-specific.
+# Bump this back to the default once Gentoo tags a matching rust-patches.
 RUST_PATCH_VER="1.98.1"
 
 RUST_MAX_VER=${PV%%_*}
