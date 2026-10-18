@@ -67,14 +67,24 @@ fi
 # @DESCRIPTION:
 # Definitive list of Rust slots and the associated LLVM slot, newest first.
 #
-# Miezhiko overlay: 1.98.1 and 1.99.1 are pinned to LLVM 23 here (upstream
-# Gentoo has 1.98.1 on 22, and had not packaged the 1.99.x series at all yet
-# at the time this entry was added) to pair with the overlay's
-# dev-lang/rust-1.98.1-r1 and dev-lang/rust-1.99.1, which are built against
+# Miezhiko overlay: 1.98.1, 1.99.0 and 1.99.1 are pinned to LLVM 23 here
+# (upstream Gentoo has 1.98.1 on 22, and had not packaged the 1.99.x series
+# at all yet at the time this entry was added) to pair with the overlay's
+# dev-lang/rust-1.98.1-r1, -1.99.0 and -1.99.1, which are built against
 # llvm-core/{clang,llvm}:23. All other entries are untouched.
+#
+# 1.99.0 is kept here even after its own ebuild was dropped from the tree:
+# without it, rust-1.99.1's LLVM-23-gated bootstrap dependency (generated
+# below from this table) has no slot left to fall back on other than itself
+# -- 1.98.1 was also dropped, and dev-lang/rust-bin is masked down to a
+# single LLVM-21 slot kept only for dev-lang/spidermonkey (see
+# /etc/portage/package.mask/rust-bin-pin) -- producing a real circular
+# dependency (rust-1.99.1 depending on rust-1.99.1) instead of falling back
+# to the already-installed dev-lang/rust-1.99.0.
 declare -A -g -r _RUST_LLVM_MAP=(
 	["9999"]=22
 	["1.99.1"]=23
+	["1.99.0"]=23
 	["1.98.1"]=23
 	["1.97.1"]=22
 	["1.96.1"]=22
@@ -115,6 +125,7 @@ declare -A -g -r _RUST_LLVM_MAP=(
 declare -a -g -r _RUST_SLOTS_ORDERED=(
 	"9999"
 	"1.99.1"
+	"1.99.0"
 	"1.98.1"
 	"1.97.1"
 	"1.96.1"
