@@ -1,9 +1,0 @@
-[Unit]
-Requires=tmux@%i.socket
-
-[Service]
-ExecStart=/usr/bin/tmux -D
-
-[Install]
-Also=tmux@%i.socket
-DefaultInstance=default
