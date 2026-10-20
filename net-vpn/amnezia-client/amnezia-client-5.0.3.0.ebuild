@@ -68,6 +68,24 @@ src_configure() {
 	echo "tools.cmake.cmakedeps:new=will_break_next" \
 		>> "$(conan config home)/global.conf" || die "failed to enable CMakeConfigDeps conf"
 
+	# Conan 2.24's bundled settings.yml only knows compilers up to
+	# gcc 15 / clang 21; conan profile detect and conan_provider.cmake
+	# record the real major (gcc 16 / clang 23) and Conan rejects it:
+	#   ERROR: Invalid setting '23' is not a valid
+	#          'settings.compiler.version' value.
+	# settings_user.yml is merged on top of settings.yml, so extend the
+	# accepted version lists. ${HOME} is ${PORTAGE_BUILDDIR}/homedir
+	# (fresh per build), so rewrite it every configure.
+	local conan_home
+	conan_home="$(conan config home)" || die "conan config home failed"
+	cat > "${conan_home}/settings_user.yml" <<-EOF || die "failed to write settings_user.yml"
+		compiler:
+		    gcc:
+		        version: ["16", "16.1", "16.2"]
+		    clang:
+		        version: ["22", "23"]
+	EOF
+
 	local mycmakeargs=(
 		-DCMAKE_BUILD_TYPE=Release
 		-DCMAKE_INSTALL_PREFIX=/opt/AmneziaVPN
