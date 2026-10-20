@@ -8,8 +8,11 @@ inherit cmake desktop git-r3 systemd xdg
 DESCRIPTION="FRKN's Dopamine VPN client, a fork of amnezia-client"
 HOMEPAGE="https://frkn.org/"
 
-EGIT_REPO_URI="https://github.com/Masha/dopamine.git"
-EGIT_BRANCH="mawa"
+#EGIT_REPO_URI="https://github.com/Masha/dopamine.git"
+#EGIT_BRANCH="mawa"
+
+EGIT_REPO_URI="https://github.com/frkn-dev/dopamine.git"
+
 # Pull every submodule recursively rather than hand-listing them like the
 # amnezia-client ebuild does for its two: unlike amnezia-client, dopamine
 # vendors five (qtkeychain, SortFilterProxyModel, QSimpleCrypto, qtgamepad,
