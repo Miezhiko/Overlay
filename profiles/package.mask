@@ -24,3 +24,36 @@
 # the GNOME 51 set (the installed package was actually coming from
 # ::bentoo because this one was never bumped).
 =gui-libs/gtksourceview-5.21.0
+
+# Miezhiko overlay: dev-python version-bump sweep.
+#
+# None of these were actually installed on the system -- they were
+# dormant/unused overlay ebuilds that had simply fallen behind their own
+# upstream's current PyPI/GitHub release. Each has a newer ebuild added
+# alongside it; masked here rather than deleted so the old copies stay
+# available for review before actual removal.
+=dev-python/mistralai-3.2.0
+=dev-python/python-socketio-5.10.0
+=dev-python/pyro-4.80
+=dev-python/bidict-0.22.1
+=dev-python/eval-type-backport-0.3.1
+=dev-python/giturlparse-0.15.0
+=dev-python/Telethon-1.30.3
+=dev-python/motor-3.1.2
+=dev-python/accelerate-0.32.0
+=dev-python/cf-clearance-0.29.0
+=dev-python/cloudscraper-1.2.69-r1
+=dev-python/fake-useragent-1.5.1
+=dev-python/pydeck-0.7.1
+=dev-python/google-cloud-translate-3.15.4
+=dev-python/streamlit-1.22.0
+=dev-python/reactivex-4.0.4-r1
+=dev-python/tree-sitter-php-0.24.2
+=dev-python/curl-cffi-0.7.1
+
+# celery-5.2.0 additionally had a real bug independent of being outdated:
+# its SRC_URI/S hardcoded v5.0.2 despite the filename/PV claiming 5.2.0,
+# so it was silently building two minor versions older than its own name
+# said. Also never had a working dev-python/billiard to depend on in any
+# repo on this system, so it could never have actually been installed.
+=dev-python/celery-5.2.0
