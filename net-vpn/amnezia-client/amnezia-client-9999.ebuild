@@ -41,6 +41,7 @@ DEPEND="
 	dev-qt/qtbase:6[concurrent,dbus,gui,network,widgets,wayland,xml]
 	dev-qt/qt5compat:6
 	dev-qt/qtdeclarative:6
+	dev-qt/qthttpserver:6
 	dev-qt/qtremoteobjects:6
 	dev-qt/qtsvg:6
 	dev-qt/qttools:6
