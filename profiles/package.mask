@@ -1,0 +1,26 @@
+# Miezhiko overlay removal candidates
+#
+# These are orphaned/superseded versions found during a GNOME-ecosystem
+# sweep: nothing on the system installs them, and a newer version already
+# exists in this overlay. Masked here (not deleted) so they stay available
+# for review before actual removal.
+
+# Superseded by gnome-desktop-51.0-r300/r400 (SLOT 3/21, 4/2); nothing on
+# the system still uses the old 3/20, 4/2-era 44.5 slots.
+=gnome-base/gnome-desktop-44.5-r300
+=gnome-base/gnome-desktop-44.5-r400
+
+# Superseded by net-libs/webkit-gtk-2.54.1-r400/r600, which now comes
+# straight from ::gentoo -- this overlay's own 2.52.4 fork is unused.
+=net-libs/webkit-gtk-2.52.4-r411
+=net-libs/webkit-gtk-2.52.4-r601
+
+# Superseded by sushi-51.1.ebuild, added to match the rest of the GNOME 51
+# set (the installed package was actually coming from ::bentoo because
+# this one was never bumped).
+=gnome-extra/sushi-51.0
+
+# Superseded by gtksourceview-5.22.0.ebuild, added to match the rest of
+# the GNOME 51 set (the installed package was actually coming from
+# ::bentoo because this one was never bumped).
+=gui-libs/gtksourceview-5.21.0
