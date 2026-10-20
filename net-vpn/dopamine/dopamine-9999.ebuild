@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit cmake desktop git-r3 systemd xdg
+inherit cmake desktop flag-o-matic git-r3 systemd xdg
 
 DESCRIPTION="FRKN's Dopamine VPN client, a fork of amnezia-client"
 HOMEPAGE="https://frkn.org/"
@@ -61,6 +61,42 @@ src_configure() {
 	# upstream's own prebuilt libs exactly (fetched above via
 	# EGIT_SUBMODULES) is the safer default; revisit if this overlay ever
 	# wants to harden this instead of just tracking upstream.
+	#
+	# However, statically linking OpenSSL is only safe if the vendored
+	# copy's symbols stay *private* to the executable. They don't by
+	# default: libQt6Network.so.6 and libQt6Core.so.6 carry undefined
+	# OpenSSL symbols (EVP_Digest*, EVP_KDF_*, OSSL_PARAM_*, ... -- they
+	# link against the system's libcrypto.so.3), so when ld links the
+	# Dopamine executable it sees those shared objects' undefined symbols
+	# match the vendored static libcrypto.a/libssl.a definitions and
+	# auto-exports ~1500 OPENSSL_*/EVP_*/SSL_*/X509_* symbols into the
+	# executable's .dynsym to "satisfy" them.
+	#
+	# At runtime the exe is first in the global symbol scope, so when
+	# Qt loads its TLS backend (/usr/lib64/qt6/plugins/tls/
+	# libqopensslbackend.so, which NEEDs the system libssl.so.3), every
+	# *unversioned* internal call inside system libssl.so.3 -- e.g.
+	# SSL_CTX_free -> OPENSSL_LH_free -- resolves to the vendored static
+	# copy baked into the executable instead of the system libcrypto.so.3
+	# the SSL_CTX was actually allocated from. Two OpenSSL instances, one
+	# process, mixed heap state -> SIGSEGV (reproducibly in
+	# OPENSSL_LH_flush via QSslConfiguration::defaultConfiguration() on
+	# the first QNetworkAccessManager::post, i.e. the app dies before it
+	# can even reach the AGW login request; the versioned
+	# EVP_*@OPENSSL_3.0.0 references from Qt itself are immune, only the
+	# TLS plugin's unversioned libssl->libcrypto calls get hijacked).
+	#
+	# --exclude-libs,ALL keeps the vendored OpenSSL/zlib working for the
+	# app's own code (its references bind at static-link time, unaffected)
+	# while hiding the archives' symbols from .dynsym so system libssl.so.3
+	# binds to system libcrypto.so.3 where they belong. Equivalent to what
+	# CQtDeployer-produced AppImage builds get away with because they ship
+	# a private copy of libcrypto.so.3 next to the binary instead of
+	# coexisting with the system one. If this ever regresses, the
+	# alternative is patching 3rdparty.cmake to use system OpenSSL on
+	# Linux outright (dev-libs/openssl + virtual/zlib in DEPEND).
+	append-ldflags -Wl,--exclude-libs,ALL
+
 	local mycmakeargs=(
 		-DCMAKE_BUILD_TYPE=Release
 	)
