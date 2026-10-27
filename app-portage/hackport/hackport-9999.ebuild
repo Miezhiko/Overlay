@@ -57,11 +57,17 @@ RDEPEND="
 	>=dev-haskell/zlib-0.5.3:=[profile?]
 	>=dev-lang/ghc-9.4.5:=[profile?]
 "
+# cabal-doctest is needed unconditionally below, not just under test?:
+# Setup.hs checks for it via a MIN_VERSION_cabal_doctest CPP guard
+# regardless of USE=test, and GHC_BOOTSTRAP_PACKAGES in src_configure
+# always passes it to the Setup.hs bootstrap compile -- so it has to
+# actually be installed every time, or that compile fails with
+# cannot satisfy -package cabal-doctest before USE=test is ever consulted.
 DEPEND="${RDEPEND}
 	>=dev-haskell/cabal-3.8.1.0
+	>=dev-haskell/cabal-doctest-1.0
 	test? (
 		dev-haskell/base-compat
-		>=dev-haskell/cabal-doctest-1.0
 		>=dev-haskell/doctest-0.8
 		dev-haskell/glob
 		>=dev-haskell/hspec-2.0
