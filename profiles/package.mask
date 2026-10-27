@@ -57,8 +57,3 @@
 # said. Also never had a working dev-python/billiard to depend on in any
 # repo on this system, so it could never have actually been installed.
 =dev-python/celery-5.2.0
-
-# Superseded by glycin-2.2.5/glycin-loaders-2.2.5; both built and
-# installed cleanly via a real `emerge`.
-=media-libs/glycin-2.2.4
-=media-libs/glycin-loaders-2.2.4
