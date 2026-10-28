@@ -1,0 +1,185 @@
+From ac7cc3f3442dae8b30276c929b0c833970d72937 Mon Sep 17 00:00:00 2001
+From: jonathanrainer <jonathan.rainer@apollographql.com>
+Date: Sun, 15 Mar 2026 16:37:46 +0000
+Subject: [PATCH] fix: folded scalars emit spurious trailing blank line in
+ original mode
+
+fy_emit_token_write_folded_original was treating the parser's lookahead
+fragment (indent bytes consumed by fy_scan_block_scalar_indent) as a
+content line, producing a spurious blank line after every folded scalar
+in original mode.
+
+Fix by breaking on lines with no trailing linebreak
+(line_len_lb == line_len) and deferring blank-line emission so that
+only FYAC_KEEP chomping retains trailing blank lines.
+
+Signed-off-by: jonathanrainer <jonathan@jonathan-rainer.com>
+---
+ src/lib/fy-emit.c              | 45 ++++++++++++++++-------
+ test/libfyaml-test-emit-bugs.c | 67 ++++++++++++++++++++++++++++++++++
+ 2 files changed, 99 insertions(+), 13 deletions(-)
+
+diff --git a/src/lib/fy-emit.c b/src/lib/fy-emit.c
+index 3649cc5d1..dcccdf40d 100644
+--- a/src/lib/fy-emit.c
++++ b/src/lib/fy-emit.c
+@@ -1313,6 +1313,7 @@ static void fy_emit_token_write_folded_original(struct fy_emitter *emit,
+ 	struct fy_atom_raw_line_iter rliter;
+ 	const struct fy_raw_line *rl;
+ 	int w;
++	int deferred_blanks = 0;
+ 
+ 	fy_atom_raw_line_iter_start(atom, &rliter);
+ 	fy_emit_accum_start(&emit->ea, emit->column, fy_token_atom_lb_mode(fyt));
+@@ -1321,21 +1322,14 @@ static void fy_emit_token_write_folded_original(struct fy_emitter *emit,
+ 
+ 	while ((rl = fy_atom_raw_line_iter_next(&rliter)) != NULL) {
+ 
+-		if (rl->content_len == 0) {
+-			/* blank line: emit newline only */
+-			fy_emit_putc_simple(emit, fyewt_linebreak, '\n');
+-			emit->flags |= FYEF_WHITESPACE | FYEF_INDENTATION;
+-			continue;
+-		}
+-
+-		/* content line: write indent, content, then newline */
+-		fy_emit_write_indent(emit, indent);
+-		fy_emit_output_col_sync(emit, &emit->ea);
++		/* Partial final fragment: parser lookahead consumed indent bytes of the
++		 * next element; no trailing linebreak means this is not scalar content. */
++		if (rl->line_len_lb == rl->line_len)
++			break;
+ 
++		/* Compute content after stripping base indentation */
+ 		const char *s = rl->content_start;
+ 		const char *e = s + rl->content_len;
+-
+-		/* skip the block scalar's base indentation */
+ 		{
+ 			unsigned int skip = orig_indent;
+ 			while (skip > 0 && s < e &&
+@@ -1345,8 +1339,24 @@ static void fy_emit_token_write_folded_original(struct fy_emitter *emit,
+ 			}
+ 		}
+ 
++		if (s >= e) {
++			/* blank line: defer emission */
++			deferred_blanks++;
++			continue;
++		}
++
++		/* non-blank content line: flush any deferred blank lines first */
++		while (deferred_blanks > 0) {
++			fy_emit_putc_simple(emit, fyewt_linebreak, '\n');
++			emit->flags |= FYEF_WHITESPACE | FYEF_INDENTATION;
++			deferred_blanks--;
++		}
++
++		fy_emit_write_indent(emit, indent);
++		fy_emit_output_col_sync(emit, &emit->ea);
++
+ 		while (s < e) {
+-			const int c = fy_utf8_get(s, (size_t) (e - s), &w);
++			const int c = fy_utf8_get(s, (size_t)(e - s), &w);
+ 			if (c <= 0)
+ 				break;
+ 			fy_emit_accum_utf8_put(&emit->ea, c);
+@@ -1357,6 +1367,15 @@ static void fy_emit_token_write_folded_original(struct fy_emitter *emit,
+ 		emit->flags |= FYEF_WHITESPACE | FYEF_INDENTATION;
+ 	}
+ 
++	/* trailing blank lines: only keep-chomp retains them */
++	if (atom->chomp == FYAC_KEEP) {
++		while (deferred_blanks > 0) {
++			fy_emit_putc_simple(emit, fyewt_linebreak, '\n');
++			emit->flags |= FYEF_WHITESPACE | FYEF_INDENTATION;
++			deferred_blanks--;
++		}
++	}
++
+ 	fy_emit_accum_finish(&emit->ea);
+ 	fy_atom_raw_line_iter_finish(&rliter);
+ }
+diff --git a/test/libfyaml-test-emit-bugs.c b/test/libfyaml-test-emit-bugs.c
+index 02ee5cc14..15beeda12 100644
+--- a/test/libfyaml-test-emit-bugs.c
++++ b/test/libfyaml-test-emit-bugs.c
+@@ -913,6 +913,67 @@ START_TEST(emit_bug_folded_more_indented_roundtrip)
+ }
+ END_TEST
+ 
++/* ═══ Bug 16: fy_emit_token_write_folded_original emits spurious blank line ═══ */
++
++START_TEST(emit_bug_folded_clip_no_trailing_blank)
++{
++    /* >  (clip): roundtrip must not add a blank line after the scalar */
++    static const char input[] =
++        "key: >\n"
++        "  content line\n"
++        "other: value\n";
++    char *got = roundtrip_doc(input);
++    ck_assert_ptr_ne(got, NULL);
++    ck_assert_str_eq(got, input);
++    free(got);
++}
++END_TEST
++
++START_TEST(emit_bug_folded_strip_no_trailing_blank)
++{
++    /* >- (strip): roundtrip must not add a blank line after the scalar */
++    static const char input[] =
++        "key: >-\n"
++        "  content line\n"
++        "other: value\n";
++    char *got = roundtrip_doc(input);
++    ck_assert_ptr_ne(got, NULL);
++    ck_assert_str_eq(got, input);
++    free(got);
++}
++END_TEST
++
++START_TEST(emit_bug_folded_keep_trailing_blank_preserved)
++{
++    /* >+ (keep): trailing blank lines must be preserved */
++    static const char input[] =
++        "key: >+\n"
++        "  content line\n"
++        "\n"
++        "other: value\n";
++    char *got = roundtrip_doc(input);
++    ck_assert_ptr_ne(got, NULL);
++    ck_assert_str_eq(got, input);
++    free(got);
++}
++END_TEST
++
++START_TEST(emit_bug_folded_mid_content_blank_preserved)
++{
++    /* mid-content blank lines must always be preserved regardless of chomp */
++    static const char input[] =
++        "key: >\n"
++        "  first line\n"
++        "\n"
++        "  second line\n"
++        "other: value\n";
++    char *got = roundtrip_doc(input);
++    ck_assert_ptr_ne(got, NULL);
++    ck_assert_str_eq(got, input);
++    free(got);
++}
++END_TEST
++
+ /* ── registration ────────────────────────────────────────────────── */
+ 
+ void libfyaml_case_emit_bugs(struct fy_check_suite *cs)
+@@ -994,4 +1055,10 @@ void libfyaml_case_emit_bugs(struct fy_check_suite *cs)
+ 	fy_check_testcase_add_test(ctc, emit_bug_folded_keep_roundtrip);
+ 	fy_check_testcase_add_test(ctc, emit_bug_folded_blank_lines_roundtrip);
+ 	fy_check_testcase_add_test(ctc, emit_bug_folded_more_indented_roundtrip);
++
++	/* Bug 16: folded scalar spurious trailing blank line */
++	fy_check_testcase_add_test(ctc, emit_bug_folded_clip_no_trailing_blank);
++	fy_check_testcase_add_test(ctc, emit_bug_folded_strip_no_trailing_blank);
++	fy_check_testcase_add_test(ctc, emit_bug_folded_keep_trailing_blank_preserved);
++	fy_check_testcase_add_test(ctc, emit_bug_folded_mid_content_blank_preserved);
+ }

@@ -35,20 +35,6 @@ else
 			${TESTSUITEURL}/archive/${TESTSUITECHECKOUT}.tar.gz -> ${TESTSUITE_P}.tar.gz
 			${JSONTESTSUITEURL}/archive/${JSONTESTSUITECHECKOUT}.tar.gz -> ${JSONTESTSUITE_P}.tar.gz
 		)
-		https://github.com/pantoniou/${PN}/commit/600c93bbff40b939d19de3776da97a7579758776.patch
-			-> ${P}-0001-fix-crash-on-NULL-pointer.patch
-		https://github.com/pantoniou/${PN}/commit/040e85d6176f093bb50af750cd0ea5a76e502d5d.patch
-			-> ${P}-0002-fix-UB-treaming_alias_collection_state.patch
-		https://github.com/pantoniou/${PN}/commit/1026d76850909dc9b1c5f95b8cd94e865a313fd5.patch
-			-> ${P}-0003-fix-c11-atomics-detection.patch
-		https://github.com/pantoniou/${PN}/commit/0982fcefc6a16d4c8cb5b06747d3fc8e630de3ae.patch
-			-> ${P}-0004-fix-32bit-build.patch
-		https://github.com/pantoniou/${PN}/commit/ac7cc3f3442dae8b30276c929b0c833970d72937.patch
-			-> ${P}-0005-folded-scalars.patch
-		https://github.com/pantoniou/${PN}/commit/3fbc353d9018735140bf24e93ae35cedcea7eb62.patch
-			-> ${P}-0006-docutils.error_reporting-workaround.patch
-		https://github.com/pantoniou/${PN}/commit/b372618fa681a51d82fa44fb5a2959504de5e6d2.patch
-			-> ${P}-0007-canned-man.patch
 	"
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 fi
@@ -87,19 +73,19 @@ DOCS=( AUTHORS CHANGELOG.md README.md )
 
 PATCHES=(
 	# utf8: Guard against NULL pointer in fy_utf8_split_posix
-	"${DISTDIR}/${P}-0001-fix-crash-on-NULL-pointer.patch"
+	"${FILESDIR}/${P}-0001-fix-crash-on-NULL-pointer.patch"
 	# Fix UB in treaming_alias_collection_state
-	"${DISTDIR}/${P}-0002-fix-UB-treaming_alias_collection_state.patch"
+	"${FILESDIR}/${P}-0002-fix-UB-treaming_alias_collection_state.patch"
 	# Fix C11 atomics detection and buggy macros for C++ compatibility
-	"${DISTDIR}/${P}-0003-fix-c11-atomics-detection.patch"
+	"${FILESDIR}/${P}-0003-fix-c11-atomics-detection.patch"
 	# Fix 32-bit build by removing stray parameter to fy_skip_size32()
-	"${DISTDIR}/${P}-0004-fix-32bit-build.patch"
+	"${FILESDIR}/${P}-0004-fix-32bit-build.patch"
 	# Fix folded scalars emit spurious trailing blank line in original mode
-	"${DISTDIR}/${P}-0005-folded-scalars.patch"
+	"${FILESDIR}/${P}-0005-folded-scalars.patch"
 	# Add BUILD_DOC switch
 	"${FILESDIR}/${PN}-optional-doc.patch"
 	# doc: workaround removed docutils.error_reporting
-	"${DISTDIR}/${P}-0006-docutils.error_reporting-workaround.patch"
+	"${FILESDIR}/${P}-0006-docutils.error_reporting-workaround.patch"
 	# Add canned man and configuration switches
 	"${FILESDIR}/${P}-canned-man.patch"
 	)

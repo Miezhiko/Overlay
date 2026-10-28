@@ -1,0 +1,34 @@
+From 600c93bbff40b939d19de3776da97a7579758776 Mon Sep 17 00:00:00 2001
+From: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+Date: Sun, 15 Mar 2026 16:59:04 +0200
+Subject: [PATCH] utf8: Guard against NULL pointer in fy_utf8_split_posix
+
+Do not crash when passed a NULL pointer.
+
+Signed-off-by: Pantelis Antoniou <pantelis.antoniou@konsulko.com>
+---
+ src/util/fy-utf8.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/util/fy-utf8.c b/src/util/fy-utf8.c
+index 218509f08..08e4cf2ff 100644
+--- a/src/util/fy-utf8.c
++++ b/src/util/fy-utf8.c
+@@ -624,7 +624,7 @@ void *fy_utf8_split_posix(const char *str, int *argcp, const char * const *argvp
+ 	const char *s, *e;
+ 	enum split_state ss;
+ 	int c, w, val, tmp, outc, i;
+-	size_t arg_alloc = strlen(str) + 1, tmplen;
++	size_t arg_alloc, tmplen;
+ 	char *arg = NULL, *args, *arge, *tmparg;
+ 	int argv_alloc = 64, argv_count = 0;
+ 	char **argv = NULL, **tmpargv;
+@@ -633,6 +633,8 @@ void *fy_utf8_split_posix(const char *str, int *argcp, const char * const *argvp
+ 	if (!str || !argcp || !argvp)
+ 		return NULL;
+ 
++	arg_alloc = strlen(str) + 1;
++
+ 	/* the temporary is guaranteed to fit one split */
+ 	arg = alloca(arg_alloc);
+ 	args = arg;
