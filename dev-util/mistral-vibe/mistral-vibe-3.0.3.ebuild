@@ -8,6 +8,7 @@ PYTHON_COMPAT=( python3_14 )
 # eclass's own PEP517 backend verification/dependency injection entirely
 # and drive the build ourselves.
 DISTUTILS_USE_PEP517=standalone
+DISTUTILS_EXT=1
 
 RUST_MIN_VER="1.97.1"
 
@@ -486,7 +487,7 @@ CRATES="
 	rustls-platform-verifier-android@0.1.1
 	rustls-platform-verifier@0.7.0
 	rustls-webpki@0.103.15
-	rustls@0.23.43
+	rustls@0.23.45
 	rustversion@1.0.23
 	ryu-js@1.0.3
 	ryu@1.0.23
