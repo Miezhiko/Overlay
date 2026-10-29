@@ -25,6 +25,7 @@ RDEPEND="
 	>=dev-python/typing-extensions-4.0[${PYTHON_USEDEP}]
 	dev-python/opentelemetry-api[${PYTHON_USEDEP}]
 	dev-python/opentelemetry-semantic-conventions[${PYTHON_USEDEP}]
+	dev-python/croniter[${PYTHON_USEDEP}]
 "
 
 RESTRICT="test"
