@@ -56,27 +56,7 @@ BDEPEND="
 "
 
 src_unpack() {
-	# git itself links against the same libcurl as `curl`/cmd/go -- built on
-	# this host with the c-ares resolver, which (like them) bypasses NSS and
-	# queries /etc/resolv.conf's nameserver directly instead of going through
-	# systemd-resolved. See the go-connect-proxy.py comment in src_configure
-	# for the full story; the same tiny local CONNECT proxy fixes git's own
-	# https:// fetch here, for the same reason.
-	local go_proxy_fifo="${T}/go-connect-proxy.port"
-	mkfifo "${go_proxy_fifo}" || die "mkfifo failed"
-	python3 "${FILESDIR}/go-connect-proxy.py" 0 > "${go_proxy_fifo}" &
-	local go_proxy_pid=$!
-	local go_proxy_port
-	go_proxy_port=$(timeout 5 cat "${go_proxy_fifo}")
-	rm -f "${go_proxy_fifo}"
-	[[ -n ${go_proxy_port} ]] || die "go-connect-proxy failed to start"
-
-	http_proxy="http://127.0.0.1:${go_proxy_port}" \
-	https_proxy="http://127.0.0.1:${go_proxy_port}" \
-		git-r3_src_unpack
-	local ret=$?
-	kill "${go_proxy_pid}" 2>/dev/null
-	[[ ${ret} -eq 0 ]] || die "git-r3_src_unpack failed"
+	git-r3_src_unpack
 
 	# Seed Conan's local sources backup cache (see LZO_SHA256 above) so its
 	# own conan-center-index recipe never has to touch oberhumer.com itself.
@@ -124,38 +104,7 @@ src_configure() {
 		-DCMAKE_INSTALL_PREFIX=/opt/AmneziaVPN
 	)
 
-	# conan_provider.cmake's conan install (above) builds amnezia-xray-bindings
-	# locally, which runs `go build` against an un-vendored go.mod -- `go`
-	# fetches github.com/amnezia-vpn/amnezia-xray-core straight from
-	# proxy.golang.org. cmd/go's own hostname resolution is *always* pure-Go
-	# (the go tool binary itself is built without cgo support, even when
-	# CGO_ENABLED=1 is the default for code it compiles -- GODEBUG=netdns=cgo
-	# is silently ignored for it), so on a host where /etc/resolv.conf's
-	# nameserver is a LAN router rather than the local systemd-resolved stub
-	# and a firewall only allows that stub to speak raw DNS, go's direct UDP
-	# query gets rejected and fails every later write on that socket with
-	# EPERM. go's HTTP client does honor https_proxy/http_proxy though, and a
-	# CONNECT tunnel only requires go to resolve the proxy's own (literal,
-	# DNS-free) address -- the real target host gets resolved by the proxy
-	# process instead, via Python's normal glibc/NSS path, which isn't
-	# affected by this. Spin up the tiny local one from files/ for the
-	# duration of this configure (it's where conan's build-missing step
-	# runs), and tear it down again right after.
-	local go_proxy_fifo="${T}/go-connect-proxy.port"
-	mkfifo "${go_proxy_fifo}" || die "mkfifo failed"
-	python3 "${FILESDIR}/go-connect-proxy.py" 0 > "${go_proxy_fifo}" &
-	local go_proxy_pid=$!
-	local go_proxy_port
-	go_proxy_port=$(timeout 5 cat "${go_proxy_fifo}")
-	rm -f "${go_proxy_fifo}"
-	[[ -n ${go_proxy_port} ]] || die "go-connect-proxy failed to start"
-
-	http_proxy="http://127.0.0.1:${go_proxy_port}" \
-	https_proxy="http://127.0.0.1:${go_proxy_port}" \
-		cmake_src_configure
-	local ret=$?
-	kill "${go_proxy_pid}" 2>/dev/null
-	[[ ${ret} -eq 0 ]] || die "cmake failed"
+	cmake_src_configure
 }
 
 src_install() {
