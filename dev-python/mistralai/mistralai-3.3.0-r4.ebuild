@@ -28,6 +28,7 @@ RDEPEND="
 	dev-python/croniter[${PYTHON_USEDEP}]
 	dev-python/rfc8785[${PYTHON_USEDEP}]
 	dev-python/httpx2[${PYTHON_USEDEP}]
+	dev-python/uuid-utils[${PYTHON_USEDEP}]
 "
 
 RESTRICT="test"
