@@ -1,0 +1,20 @@
+--- a/src/lib/ec_glob.c
++++ b/src/lib/ec_glob.c
+@@ -33,7 +33,17 @@
+ #include <pcre2.h>
+ 
+ #define utarray_oom() { return -2; }
++/* uthash >= 2.4.0 defines utarray_str_cpy() as returning void, while the
++ * macro above returns a value. GCC >= 14 rejects that as an error while
++ * compiling the (unused by this file) static function from the header. */
++#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ >= 14
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wreturn-mismatch"
++#endif
+ #include "utarray.h"
++#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ >= 14
++#pragma GCC diagnostic pop
++#endif
+ #include "misc.h"
+ #include "util.h"
+ 
