@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+  <maintainer type="person">
+    <email>miezhiko@gentoo.org</email>
+    <name>Miezhiko</name>
+  </maintainer>
+  <longdescription lang="en">
+    Clownfish Voice Changer Console is a real-time voice changer application
+    that allows you to modify your voice during calls or recordings.
+    It supports various voice effects and works with different applications.
+  </longdescription>
+  <upstream>
+    <remote-id type="sourceforge">clownfish-translator</remote-id>
+  </upstream>
+</pkgmetadata>
