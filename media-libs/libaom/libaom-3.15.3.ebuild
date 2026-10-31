@@ -45,11 +45,6 @@ BDEPEND="${PYTHON_DEPS}
 # The PATENTS file is required to be distributed with this package, bug #682214
 DOCS=( PATENTS )
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-3.4.0-posix-c-source-ftello.patch
-	"${FILESDIR}"/${PN}-3.8.1-tests-parallel.patch
-)
-
 src_prepare() {
 	# fix hardcoded path
 	# libvmaf ERROR could not read model from path: "/usr/local/share/model/vmaf_v0.6.1.json"
