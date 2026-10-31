@@ -11,7 +11,7 @@ else
 	KEYWORDS="amd64 arm arm64 ~loong ~mips ppc ppc64 ~riscv x86"
 fi
 
-PYTHON_COMPAT=( python3_{11..14} )
+PYTHON_COMPAT=( python3_{11..15} )
 inherit bash-completion-r1 meson python-any-r1 udev
 
 DESCRIPTION="Qualcomm MSM (Mobile Station Modem) Interface (QMI) modem protocol library"

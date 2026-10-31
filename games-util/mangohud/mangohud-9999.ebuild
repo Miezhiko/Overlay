@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..14} )
+PYTHON_COMPAT=( python3_{10..15} )
 
 inherit flag-o-matic python-single-r1 meson-multilib
 

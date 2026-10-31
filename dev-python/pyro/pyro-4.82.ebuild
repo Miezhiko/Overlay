@@ -4,7 +4,7 @@
 EAPI=8
 
 DISTUTILS_USE_SETUPTOOLS=rdepend
-PYTHON_COMPAT=( python3_{9..14} )
+PYTHON_COMPAT=( python3_{9..15} )
 
 DISTUTILS_USE_PEP517=setuptools
 

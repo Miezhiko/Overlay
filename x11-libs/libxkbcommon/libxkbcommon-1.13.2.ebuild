@@ -12,7 +12,7 @@ else
 	S="${WORKDIR}/libxkbcommon-xkbcommon-${PV}"
 fi
 
-PYTHON_COMPAT=( python3_{11..14} )
+PYTHON_COMPAT=( python3_{11..15} )
 
 inherit bash-completion-r1 meson-multilib ${GIT_ECLASS} python-any-r1 virtualx
 

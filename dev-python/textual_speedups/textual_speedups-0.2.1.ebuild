@@ -24,7 +24,7 @@ CRATES="
 	unindent@0.2.4
 "
 
-PYTHON_COMPAT=( python3_{11..14} )
+PYTHON_COMPAT=( python3_{11..15} )
 DISTUTILS_USE_PEP517=maturin
 DISTUTILS_EXT=1
 

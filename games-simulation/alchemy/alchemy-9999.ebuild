@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..14} )
+PYTHON_COMPAT=( python3_{9..15} )
 
 inherit git-r3 python-any-r1 desktop xdg wrapper
 

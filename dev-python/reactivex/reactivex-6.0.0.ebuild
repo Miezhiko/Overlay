@@ -5,7 +5,7 @@ EAPI=8
 
 # Upstream's own requires-python floor moved to >=3.11,<4.0 for this
 # release (confirmed via the PyPI JSON API's info.requires_python field).
-PYTHON_COMPAT=( python3_{11..14} )
+PYTHON_COMPAT=( python3_{11..15} )
 DISTUTILS_USE_PEP517=poetry
 
 inherit distutils-r1

@@ -9,7 +9,7 @@ EAPI=8
 #     https://github.com/visgl/deck.gl/tree/master/bindings/pydeck
 
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{10..14} )
+PYTHON_COMPAT=( python3_{10..15} )
 
 # files.pythonhosted.org has no "pypi" thirdpartymirrors entry on this
 # system -- mirror://pypi only ever resolves against GENTOO_MIRRORS, which
