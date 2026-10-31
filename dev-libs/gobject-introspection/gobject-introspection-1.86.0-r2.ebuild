@@ -10,7 +10,7 @@ inherit gnome.org meson python-single-r1 xdg
 DESCRIPTION="Introspection system for GObject-based libraries"
 HOMEPAGE="https://gi.readthedocs.io/"
 
-LICENSE="LGPL-2+ GPL-2+"
+LICENSE="FSFUL GPL-2+ LGPL-2+"
 SLOT="0"
 
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-macos ~x64-solaris"
@@ -56,6 +56,10 @@ BDEPEND="
 	)
 "
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-1.86.0-tests-setuptools.patch
+)
+
 pkg_setup() {
 	python-single-r1_pkg_setup
 }
@@ -63,11 +67,7 @@ pkg_setup() {
 src_configure() {
 	local emesonargs=(
 		$(meson_feature test cairo)
-		# Enable building the tests (and installing them) unconditionally
-		# for now as a workaround for old gnome-extra/cjs and dev-libs/gjs,
-		# see bug #952011.
-		#$(meson_use test tests)
-		-Dtests=true
+		$(meson_use test tests)
 		$(meson_feature doctool)
 		#-Dglib_src_dir
 		$(meson_use gtk-doc gtk_doc)
