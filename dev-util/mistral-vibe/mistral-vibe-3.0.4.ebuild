@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_14 )
+PYTHON_COMPAT=( python3_{14,15} )
 # Not a plain hatchling package any more (see below); we bypass the
 # eclass's own PEP517 backend verification/dependency injection entirely
 # and drive the build ourselves.

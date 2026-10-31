@@ -3,7 +3,7 @@
 
 EAPI=8
 
-# This overlay only has python3_14 enabled (PYTHON_TARGETS in make.conf), so
+# This overlay only has python3_{14,15} enabled (PYTHON_TARGETS in make.conf), so
 # match that instead of the full python3_{12..15} range dev-libs/tree-sitter-*
 # grammar packages' own [python] USE flag supports (see
 # dev-libs/tree-sitter-grammar.eclass) -- pinning to a wider, partly-unbuilt
@@ -11,7 +11,7 @@ EAPI=8
 # of python3_12/13/14/15 simultaneously instead of just the one actually
 # enabled, which portage can't satisfy ("no ebuilds built with USE flags to
 # satisfy ...").
-PYTHON_COMPAT=( python3_14 )
+PYTHON_COMPAT=( python3_{14,15} )
 DISTUTILS_USE_PEP517=setuptools
 
 inherit distutils-r1 git-r3
