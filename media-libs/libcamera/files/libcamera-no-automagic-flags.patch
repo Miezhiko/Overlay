@@ -1,0 +1,33 @@
+Upstream de-automagicked most optional dependencies in 0.7.x (cam-output-kms,
+cam-output-sdl2, cam-jpeg, apps-output-dng, libdw), but IPA module signing via
+gnutls is still auto-detected. Add a 'gnutls' feature option and honour it so
+the openssl USE flag can deterministically select the crypto backend.
+
+diff --git a/meson_options.txt b/meson_options.txt
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -66,7 +66,12 @@ option('apps-output-dng',
+         type : 'feature',
+         value : 'auto',
+         description : 'Enable DNG file creation support in the cam and qcam applications')
+
++option('gnutls',
++        type : 'feature',
++        value : 'auto',
++        description : 'Compile libcamera with IPA module signing support using GNU TLS library')
++
+ option('libunwind',
+         type : 'feature',
+         value : 'auto',
+diff --git a/src/libcamera/meson.build b/src/libcamera/meson.build
+--- a/src/libcamera/meson.build
++++ b/src/libcamera/meson.build
+@@ -88,7 +88,7 @@ libudev = dependency('libudev', required : get_option('udev'))
+ ])
+
+ # Use one of gnutls or libcrypto (provided by OpenSSL), trying gnutls first.
+-libcrypto = dependency('gnutls', required : false)
++libcrypto = dependency('gnutls', required : get_option('gnutls'))
+ if libcrypto.found()
+     config_h.set('HAVE_GNUTLS', 1)
+ else

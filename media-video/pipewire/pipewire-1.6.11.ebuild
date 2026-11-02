@@ -192,6 +192,7 @@ RDEPEND+=" selinux? ( sec-policy/selinux-pipewire )"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-0.3.25-enable-failed-mlock-warning.patch
+	"${FILESDIR}"/${PN}-1.6.11-libcamera-API-fix.patch
 )
 
 pkg_setup() {

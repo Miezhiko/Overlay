@@ -1,0 +1,29 @@
+From: Gentoo PipeWire Maintainers <pipewire@gentoo.org>
+Date: Sat, 2 Nov 2026 00:00:00 +0000
+Subject: [PATCH] spa/plugins/libcamera: Fix libcamera 0.8.0 API changes
+
+The libcamera API changed in version 0.8.0, renaming:
+- CameraLocationFront -> LocationFront
+- CameraLocationBack -> LocationBack  
+- CameraLocationExternal -> LocationExternal
+
+This patch updates the pipewire source to use the new API names.
+
+Bug: https://bugs.gentoo.org/XXXXXX
+--- a/spa/plugins/libcamera/libcamera-device.cpp
++++ b/spa/plugins/libcamera/libcamera-device.cpp
+@@ -69,11 +69,11 @@
+ {
+ 	if (auto location = camera.properties().get(properties::Location)) {
+ 		switch (location.value()) {
+-		case properties::CameraLocationFront:
++		case properties::LocationFront:
+ 			return "front";
+-		case properties::CameraLocationBack:
++		case properties::LocationBack:
+ 			return "back";
+-		case properties::CameraLocationExternal:
++		case properties::LocationExternal:
+ 			return "external";
+ 		}
+ 	}
