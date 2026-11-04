@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>maintainer-needed@gentoo.org</email>
+	</maintainer>
+	<longdescription lang="en">
+		ClamUI is a modern Linux desktop interface for ClamAV, built with Rust, Tauri, and a React frontend.
+		It provides a user-friendly GUI for managing ClamAV scans, updates, and configuration.
+	</longdescription>
+	<use>
+		<flag name="test">Enable test suite (requires additional dependencies)</flag>
+	</use>
+	<upstream>
+		<remote-id type="github">linx-systems/clamui</remote-id>
+		<changelog>https://github.com/linx-systems/clamui/releases</changelog>
+		<doc lang="en">https://clamui.com/docs/</doc>
+	</upstream>
+</pkgmetadata>
