@@ -1,0 +1,17 @@
+--- a/service/server/CMakeLists.txt
++++ b/service/server/CMakeLists.txt
+@@ -422,7 +422,13 @@
+ # install openvpn via the service's dep set to ship its openssl, then
+ # rewrite conan's absolute build rpath to a relative one for the package
+ if(LINUX)
+-    install(IMPORTED_RUNTIME_ARTIFACTS openvpn::openvpn
++    # Scan the build-tree copy whose RPATH was fixed above, rather than the
++    # Conan executable which may still refer to a different OpenSSL build.
++    add_executable(amnezia_openvpn_deploy IMPORTED)
++    set_target_properties(amnezia_openvpn_deploy PROPERTIES
++        IMPORTED_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/openvpn"
++    )
++    install(IMPORTED_RUNTIME_ARTIFACTS amnezia_openvpn_deploy
+         RUNTIME_DEPENDENCY_SET service_deps
+         PERMISSIONS
+             OWNER_READ OWNER_EXECUTE

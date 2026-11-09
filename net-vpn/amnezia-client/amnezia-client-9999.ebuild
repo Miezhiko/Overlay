@@ -55,6 +55,8 @@ BDEPEND="
 	dev-qt/qttools:6
 "
 
+PATCHES=( "${FILESDIR}/${PN}-openvpn-deploy.patch" )
+
 src_unpack() {
 	git-r3_src_unpack
 
