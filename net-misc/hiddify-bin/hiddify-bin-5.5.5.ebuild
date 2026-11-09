@@ -18,6 +18,8 @@ RDEPEND="
 RESTRICT="bindist mirror"
 
 src_install() {
+	[[ -x ${S}/opt/hiddify/hiddify ]] || die "Hiddify executable is missing"
+	cp -pPR "${S}/opt" "${D}/opt/" || die
 	cp -pPR "${S}/usr" "${D}/usr/" || die
-	dosym /usr/share/hiddify/hiddify /usr/bin/hiddify
+	dosym -r /opt/hiddify/hiddify /usr/bin/hiddify
 }
