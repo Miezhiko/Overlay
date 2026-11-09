@@ -33,7 +33,6 @@ distutils_enable_tests pytest
 
 src_unpack() {
 	git-r3_src_unpack
-	S="${WORKDIR}/${P}/src/_bcrypt"
+	cd "${S}/src/_bcrypt" || die
 	cargo_live_src_unpack
-	S="${WORKDIR}/${P}"
 }
