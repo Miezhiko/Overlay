@@ -44,14 +44,12 @@ RDEPEND="app-accessibility/at-spi2-atk:2[${MULTILIB_USEDEP}]
 
 S="${WORKDIR}"
 
-QA_PREBUILT="opt/beekeeper-studio/crashpad_handler
-  opt/beekeeper-studio/swiftshader/libEGL.so
-  opt/beekeeper-studio/swiftshader/libGLESv2.so
-  opt/beekeeper-studio/libEGL.so
+QA_PREBUILT="opt/beekeeper-studio/chrome_crashpad_handler
+  opt/beekeeper-studio/chrome-sandbox
   opt/beekeeper-studio/beekeeper-studio-bin
   opt/beekeeper-studio/libffmpeg.so
   opt/beekeeper-studio/libvk_swiftshader.so
-  opt/beekeeper-studio/libGLESv2.so"
+  opt/beekeeper-studio/libvulkan.so.1"
 
 src_prepare() {
   default
@@ -70,12 +68,9 @@ src_install() {
 
   domenu usr/share/applications/beekeeper-studio.desktop
 
-  insinto /opt/beekeeper-studio
-  doins -r opt/"Beekeeper Studio"/.
-  fperms -R +x /opt/beekeeper-studio/beekeeper-studio /opt/beekeeper-studio/beekeeper-studio-bin \
-    /opt/beekeeper-studio/chrome-sandbox \
-    /opt/beekeeper-studio/libEGL.so /opt/beekeeper-studio/libGLESv2.so \
-    /opt/beekeeper-studio/libffmpeg.so /opt/beekeeper-studio/libvk_swiftshader.so
+  # Preserve executable permissions for Electron and bundled helper programs.
+  dodir /opt/beekeeper-studio
+  cp -pPR opt/"Beekeeper Studio"/. "${ED}/opt/beekeeper-studio/" || die
   dosym ../beekeeper-studio/beekeeper-studio-bin opt/bin/beekeeper-studio
 
   pax-mark -m "${ED}"/opt/beekeeper-studio/beekeeper-studio-bin
