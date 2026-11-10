@@ -13,6 +13,8 @@ inherit qt5-build
 
 DESCRIPTION="Network abstraction library for the Qt5 framework"
 
+PATCHES=( "${FILESDIR}/${P}-openssl-4.patch" )
+
 IUSE="gssapi libproxy sctp +ssl"
 
 DEPEND="
