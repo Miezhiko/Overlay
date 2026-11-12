@@ -6,34 +6,16 @@
 
 <h3>Overlay specifics</h3>
 
- - EAPIS older than 7 banned
- - no thin manifest
+ - EAPIs older than 7 are banned
+ - full Manifests are used
  - pull requests are very welcome
  - many patches taken from Arch Linux
- - currently I use it with [bentoo](https://github.com/obentoo/bentoo) overlay
 
 <h3>Install</h3>
 
 [Custom ebuild repository](https://wiki.gentoo.org/wiki/Custom_ebuild_repository)
 
-It's heavily suggested to run this overlay on top of the
-[bentoo](https://github.com/obentoo/bentoo) overlay: this overlay forks and
-patches a number of packages that originate there, and depends on bentoo
-for everything it doesn't itself override. Add both via
-`/etc/portage/repos.conf/`, with this overlay listed **after** bentoo and
-given a **higher `priority`** than bentoo, so that whenever both overlays
-carry the same package, Portage prefers this overlay's version over
-bentoo's:
-
-```
-# /etc/portage/repos.conf/bentoo.conf
-[bentoo]
-location = /var/db/repos/bentoo
-sync-type = git
-sync-uri = https://github.com/obentoo/bentoo.git
-priority = 10
-auto-sync = yes
-```
+Add the overlay to `/etc/portage/repos.conf/miezhiko.conf`:
 
 ```
 # /etc/portage/repos.conf/miezhiko.conf
@@ -45,20 +27,19 @@ priority = 20
 auto-sync = yes
 ```
 
-Then sync both repositories:
+Then sync the repository:
+
+```
+emaint sync --repo Miezhiko
+```
+
+To sync all configured repositories instead:
 
 ```
 emerge --sync
 ```
 
-or, for just these two repos:
-
-```
-emaint sync --repo bentoo
-emaint sync --repo Miezhiko
-```
-
-Verify both are registered and in the expected priority order:
+Verify that the overlay is registered:
 
 ```
 eselect repository list
