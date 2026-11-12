@@ -394,14 +394,16 @@ NPM_STUB_PKGS="
 	@esbuild/win32-x64@0.21.5
 "
 
-LLVM_COMPAT=( 23 )
+BUN_LLVM_SLOT=23
 PYTHON_COMPAT=( python3_{11..14} )
 # JavaScriptCore's offlineasm, same range as net-libs/webkit-gtk
 USE_RUBY="ruby32 ruby33 ruby34 ruby40"
 # CRATES includes std's own crates for -Zbuild-std, which are per Rust version
 RUST_MIN_VER="1.99.0"
 RUST_MAX_VER="${RUST_MIN_VER}"
-RUST_NEEDS_LLVM=1
+# Bun needs a matching Rust toolchain, but manages LLVM itself.  Enabling
+# RUST_NEEDS_LLVM mixes Cargo's llvm-r2 with the overlay's older rust eclass.
+RUST_REQ_USE="llvm_slot_${BUN_LLVM_SLOT}"
 NPM_OPTIONAL=1
 
 inherit cargo check-reqs edo flag-o-matic multiprocessing python-any-r1 ruby-single shell-completion toolchain-funcs
@@ -427,6 +429,7 @@ DEPEND="
 "
 RDEPEND="${DEPEND}"
 # Inlined from npm.eclass
+: "${NPM_REGISTRY_URI:=https://registry.npmjs.org}"
 NPM_NODE_DEPEND="net-libs/nodejs[npm]"
 IUSE+=" elibc_llvm"
 
@@ -507,11 +510,9 @@ BDEPEND="
 	${RUST_DEPEND}
 	$([[ -z ${NPM_OPTIONAL} ]] && echo ${NPM_NODE_DEPEND})
 	>=net-libs/nodejs-25
-	$(llvm_gen_dep '
-		llvm-core/clang:${LLVM_SLOT}
-		llvm-core/lld:${LLVM_SLOT}
-		llvm-core/llvm:${LLVM_SLOT}
-	')
+	llvm-core/clang:${BUN_LLVM_SLOT}
+	llvm-core/lld:${BUN_LLVM_SLOT}
+	llvm-core/llvm:${BUN_LLVM_SLOT}
 	app-alternatives/ninja
 	dev-build/cmake
 	${RUBY_DEPS}
@@ -817,7 +818,14 @@ pkg_pretend() {
 pkg_setup() {
 	if [[ ${MERGE_TYPE} != binary ]]; then
 		check-reqs_pkg_setup
-		llvm-r2_pkg_setup
+		local llvm_prefix="${BROOT}/usr/lib/llvm/${BUN_LLVM_SLOT}"
+		local tool
+		for tool in clang clang++ ld.lld llvm-config; do
+			[[ -x ${llvm_prefix}/bin/${tool} ]] ||
+				die "Missing LLVM ${BUN_LLVM_SLOT} build tool: ${llvm_prefix}/bin/${tool}"
+		done
+		export PATH="${llvm_prefix}/bin:${PATH}"
+		export LLVM_CONFIG="${llvm_prefix}/bin/llvm-config"
 		rust_pkg_setup
 		python-any-r1_pkg_setup
 	fi
@@ -902,7 +910,7 @@ src_compile() {
 
 	export BUN_BUILD_PREFETCH_DIR="${WORKDIR}/bun-prefetch"
 	export BUN_WEBKIT_PATH="${WORKDIR}/WebKit-${BUN_WEBKIT_COMMIT}"
-	export BUN_TOOLCHAIN_LLVM=$(get_llvm_prefix -b)
+	export BUN_TOOLCHAIN_LLVM="${BROOT}/usr/lib/llvm/${BUN_LLVM_SLOT}"
 	export BUN_TOOLCHAIN_RUST=$(get_rust_prefix)
 	export CARGO_HOME="${ECARGO_HOME}"
 	# The Rust sources use nightly features
