@@ -20,11 +20,11 @@ SLOT="0/${PV}"
 KEYWORDS="~amd64 ~x86"
 
 RDEPEND="dev-haskell/base-unicode-symbols:=[profile?]
-	dev-haskell/split
-	dev-haskell/parsec
-	dev-haskell/yaml
-	dev-haskell/async
-	dev-haskell/unliftio
+	dev-haskell/split:=[profile?]
+	dev-haskell/parsec:=[profile?]
+	dev-haskell/yaml:=[profile?]
+	dev-haskell/async:=[profile?]
+	dev-haskell/unliftio:=[profile?]
 	>=dev-lang/ghc-8.0:=
 "
 DEPEND="${RDEPEND}
