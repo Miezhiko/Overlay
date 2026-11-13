@@ -31,6 +31,7 @@ BDEPEND="
 
 src_unpack() {
 	git-r3_src_unpack
+	cd "${S}" || die
 	cargo_live_src_unpack
 }
 
