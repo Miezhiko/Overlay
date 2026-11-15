@@ -1,4 +1,4 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -70,10 +70,10 @@ src_install() {
 
 	exeinto "${DESTDIR}"
 	cd opt/CurseForge/ || die "Failed changing directory to unpacked source"
-	doexe ${PN} chrome-sandbox libEGL.so libffmpeg.so libGLESv2.so libvk_swiftshader.so libvulkan.so.1
+	doexe ${PN} chrome-sandbox libffmpeg.so libvk_swiftshader.so libvulkan.so.1
 
 	insinto "${DESTDIR}"
-	doins chrome_100_percent.pak chrome_200_percent.pak icudtl.dat resources.pak snapshot_blob.bin v8_context_snapshot.bin
+	doins chrome_100_percent.pak chrome_200_percent.pak icudtl.dat resources.pak snapshot_blob.bin v8_context_snapshot.bin vk_swiftshader_icd.json
 	insopts -m0755
 	doins -r locales resources
 
