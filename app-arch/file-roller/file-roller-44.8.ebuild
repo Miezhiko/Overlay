@@ -8,11 +8,14 @@ inherit gnome.org gnome2-utils meson readme.gentoo-r1 xdg
 DESCRIPTION="Archive manager for GNOME"
 HOMEPAGE="https://gitlab.gnome.org/GNOME/file-roller"
 
+SRC_URI="https://gitlab.gnome.org/GNOME/file-roller/-/archive/${PV}/${P}.tar.bz2"
+
 LICENSE="GPL-2+ CC-BY-SA-3.0"
 SLOT="0"
 KEYWORDS="amd64 ~arm arm64 ~loong ~ppc ~ppc64 ~riscv x86 ~amd64-linux ~x86-linux"
 IUSE="gtk-doc +introspection nautilus"
 REQUIRED_USE="gtk-doc? ( introspection )"
+RESTRICT="mirror"
 
 # gdk-pixbuf used extensively in the source
 # cairo used in eggtreemultidnd.c
