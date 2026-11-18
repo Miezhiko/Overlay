@@ -36,7 +36,7 @@ RDEPEND="
 	sys-libs/ncurses:0/6
 "
 
-RESTRICT="strip"
+RESTRICT="strip mirror"
 QA_PREBUILT="
 	usr/libexec/${MY_PN}/bin/${MY_PN}
 	usr/libexec/${MY_PN}/bin/${MY_PN}-code-mode-host
