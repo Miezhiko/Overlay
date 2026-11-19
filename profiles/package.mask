@@ -57,3 +57,8 @@
 # said. Also never had a working dev-python/billiard to depend on in any
 # repo on this system, so it could never have actually been installed.
 =dev-python/celery-5.2.0
+
+# http-api-data-0.6.1 requires text-iso8601 <0.2. Keep this compatible
+# combination while calamity and req still require http-api-data <0.7.
+>=dev-haskell/text-iso8601-0.2::haskell
+>=dev-haskell/http-api-data-0.7::haskell
