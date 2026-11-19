@@ -16,6 +16,7 @@ RESTRICT="bindist mirror"
 
 RDEPEND="app-accessibility/at-spi2-atk:2[${MULTILIB_USEDEP}]
   app-accessibility/at-spi2-core:2[${MULTILIB_USEDEP}]
+  dev-db/unixODBC[${MULTILIB_USEDEP}]
   dev-libs/atk:0[${MULTILIB_USEDEP}]
   dev-libs/expat:0[${MULTILIB_USEDEP}]
   dev-libs/glib:2[${MULTILIB_USEDEP}]
