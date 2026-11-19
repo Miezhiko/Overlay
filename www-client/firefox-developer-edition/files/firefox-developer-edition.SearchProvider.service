@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=org.mozilla.firefox_developer_edition.SearchProvider
+Exec=@PREFIX@/@LIBDIR@/firefox-developer-edition/firefox --dbus-service @PREFIX@/bin/firefox-developer-edition
