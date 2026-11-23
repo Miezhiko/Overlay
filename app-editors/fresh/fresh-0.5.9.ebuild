@@ -23,7 +23,6 @@ CRATES="
 	android_system_properties@0.1.5
 	anstyle@1.0.14
 	anyhow@1.0.104
-	arbitrary@1.4.2
 	arboard@3.6.1
 	arrayref@0.3.9
 	arrayvec@0.7.6
@@ -76,7 +75,7 @@ CRATES="
 	clap_builder@4.6.0
 	clap_derive@4.6.1
 	clap_lex@1.1.0
-	clipboard-win@5.4.1
+	clipboard-win@5.4.3
 	cobs@0.3.0
 	codespan-reporting@0.12.0
 	combine@4.6.7
@@ -116,7 +115,6 @@ CRATES="
 	darling_macro@0.23.0
 	deltae@0.3.2
 	deranged@0.5.8
-	derive_arbitrary@1.4.2
 	derive_more-impl@2.1.1
 	derive_more@2.1.1
 	digest@0.10.7
@@ -125,7 +123,6 @@ CRATES="
 	dirs@6.0.0
 	dispatch2@0.3.1
 	dispatch@0.2.0
-	displaydoc@0.2.6
 	dlib@0.5.3
 	doctest-file@1.1.1
 	document-features@0.2.12
@@ -241,7 +238,7 @@ CRATES="
 	jni@0.22.4
 	jobserver@0.1.34
 	js-sys@0.3.97
-	jsonc-parser@0.32.3
+	jsonc-parser@0.34.0
 	kasuari@0.4.12
 	keyboard-types@0.7.0
 	khronos-egl@6.0.0
@@ -253,7 +250,6 @@ CRATES="
 	leb128fmt@0.1.0
 	libc@0.2.186
 	libloading@0.8.9
-	libloading@0.9.0
 	libm@0.2.16
 	libredox@0.1.16
 	libxdo-sys@0.11.0
@@ -288,7 +284,7 @@ CRATES="
 	ndk@0.9.0
 	nix@0.28.0
 	nix@0.29.0
-	nix@0.31.2
+	nix@0.31.3
 	nom@7.1.3
 	nom@8.0.0
 	nonmax@0.5.5
@@ -408,7 +404,7 @@ CRATES="
 	proc-macro2@1.0.106
 	profiling@1.0.18
 	proptest@1.11.0
-	pulldown-cmark@0.13.3
+	pulldown-cmark@0.13.6
 	quick-error@1.2.3
 	quick-xml@0.39.4
 	quote@1.0.45
@@ -459,8 +455,8 @@ CRATES="
 	rustls-pki-types@1.14.1
 	rustls-platform-verifier-android@0.1.1
 	rustls-platform-verifier@0.6.2
-	rustls-webpki@0.103.15
-	rustls@0.23.45
+	rustls-webpki@0.103.16
+	rustls@0.23.46
 	rustversion@1.0.22
 	rusty-fork@0.3.1
 	rustybuzz@0.20.1
@@ -543,7 +539,7 @@ CRATES="
 	tiny-skia@0.11.4
 	tiny_http@0.12.0
 	tokio-macros@2.7.0
-	tokio@1.52.2
+	tokio@1.54.1
 	toml@0.8.23
 	toml@1.1.2+spec-1.1.0
 	toml_datetime@0.6.11
@@ -574,6 +570,7 @@ CRATES="
 	ts-rs@12.0.1
 	ttf-parser@0.25.1
 	typed-arena@2.0.2
+	typed-path@0.12.3
 	typenum@1.20.0
 	ucd-trie@0.1.7
 	unarray@0.1.4
@@ -628,7 +625,7 @@ CRATES="
 	web-sys@0.3.97
 	web-time@1.1.0
 	webpki-root-certs@1.0.7
-	webpki-roots@1.0.7
+	webpki-roots@1.0.10
 	wezterm-bidi@0.2.3
 	wezterm-blob-leases@0.1.1
 	wezterm-color-types@0.3.0
@@ -642,7 +639,7 @@ CRATES="
 	wgpu-hal@28.0.1
 	wgpu-types@28.0.0
 	wgpu@28.0.0
-	which@6.0.3
+	which@8.0.6
 	widestring@1.2.1
 	winapi-i686-pc-windows-gnu@0.4.0
 	winapi-util@0.1.11
@@ -701,7 +698,6 @@ CRATES="
 	winnow@1.0.2
 	winreg@0.10.1
 	winresource@0.1.31
-	winsafe@0.0.19
 	wit-bindgen-core@0.51.0
 	wit-bindgen-rust-macro@0.51.0
 	wit-bindgen-rust@0.51.0
@@ -725,7 +721,8 @@ CRATES="
 	zerocopy-derive@0.8.48
 	zerocopy@0.8.48
 	zeroize@1.8.2
-	zip@2.4.2
+	zip@9.0.3
+	zlib-rs@0.6.8
 	zmij@1.0.21
 	zopfli@0.8.3
 "
@@ -745,7 +742,7 @@ SRC_URI="
 
 S="${WORKDIR}/${P}/crates/${MY_PN}"
 
-LICENSE="GPL-2"
+LICENSE="GPL-3+"
 # Dependent crate licenses
 LICENSE+="
 	0BSD Apache-2.0 Apache-2.0-with-LLVM-exceptions BSD-2 BSD Boost-1.0
@@ -780,7 +777,9 @@ src_configure() {
 		http
 		tree-sitter
 		$(usev plugins)
+		$(usev plugins oxc)
 		$(usev embed-plugins)
+		$(usev embed-plugins precompiled-plugins)
 		$(usev gui)
 		$(usev dev-bins)
 		# self-update (in-place binary replacement from a downloaded

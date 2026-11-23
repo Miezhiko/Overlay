@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<upstream>
+		<remote-id type="github">sinelaw/fresh</remote-id>
+	</upstream>
+	<use>
+		<flag name="dev-bins">Install development helper binaries</flag>
+		<flag name="embed-plugins">Embed and precompile bundled editor plugins</flag>
+		<flag name="plugins">Enable JavaScript and TypeScript plugins</flag>
+	</use>
+</pkgmetadata>
