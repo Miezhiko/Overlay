@@ -15,6 +15,7 @@ REQUIRED_USE="
 	|| ( aqua wayland X )
 	test? ( introspection )
 "
+RESTRICT="mirror"
 
 KEYWORDS="~alpha amd64 arm arm64 ~loong ppc ppc64 ~riscv sparc x86"
 
