@@ -8,12 +8,13 @@ inherit gnome.org meson xdg
 DESCRIPTION="A modern video player for GNOME"
 HOMEPAGE="https://apps.gnome.org/Showtime/"
 
-SRC_URI="https://download.gnome.org/sources/showtime/${PV%.*}/showtime-${PV}.tar.xz"
+SRC_URI="https://gitlab.gnome.org/GNOME/showtime/-/archive/${PV}/showtime-${PV}.tar.bz2;downloadfilename=showtime-${PV}.tar.bz2"
 
 LICENSE="GPL-3.0-or-later"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
+RESTRICT="mirror"
 
 DEPEND="
 	>=dev-libs/glib-2.76:2
@@ -23,6 +24,8 @@ DEPEND="
 	media-plugins/gst-plugins-rs
 "
 RDEPEND="${DEPEND}"
+
+S="${WORKDIR}/showtime-50.1.1-c73f7956d6353db85d0981d680d2644e3c16e158"
 
 src_prepare() {
 	default
