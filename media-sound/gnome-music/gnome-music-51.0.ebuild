@@ -12,6 +12,7 @@ HOMEPAGE="https://apps.gnome.org/Music/"
 LICENSE="GPL-2+"
 SLOT="0"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
+RESTRICT="mirror"
 
 KEYWORDS="~amd64 ~arm64 ~ppc64 ~riscv ~x86"
 
