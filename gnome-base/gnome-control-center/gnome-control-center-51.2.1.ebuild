@@ -21,7 +21,7 @@ REQUIRED_USE="
 " # Theoretically "?? ( elogind systemd )" is fine too, lacking some functionality at runtime,
 #   but needs testing if handled gracefully enough
 
-RESTRICT="!test? ( test )"
+RESTRICT="!test? ( test ) mirror"
 
 # kerberos unfortunately means mit-krb5; build fails with heimdal
 # display panel requires colord and gnome-settings-daemon[colord]
