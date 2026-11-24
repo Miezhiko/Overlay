@@ -15,6 +15,7 @@ KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~x86"
 
 IUSE="+cloudproviders doc gnome +gstreamer +introspection +previewer selinux"
 REQUIRED_USE="doc? ( introspection )"
+RESTRICT="mirror"
 
 DEPEND="
 	>=dev-libs/glib-2.88.0:2
