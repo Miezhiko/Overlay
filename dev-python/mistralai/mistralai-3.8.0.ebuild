@@ -31,4 +31,4 @@ RDEPEND="
 	dev-python/uuid-utils[${PYTHON_USEDEP}]
 "
 
-RESTRICT="test"
+RESTRICT="test mirror"
