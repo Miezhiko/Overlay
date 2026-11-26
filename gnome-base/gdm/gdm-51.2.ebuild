@@ -20,7 +20,7 @@ KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc64 ~riscv ~x86"
 
 IUSE="audit debug bluetooth-sound elogind fprint plymouth selinux systemd test"
 
-RESTRICT="!test? ( test )"
+RESTRICT="!test? ( test ) mirror"
 
 # dconf, dbus and g-s-d are needed at install time for dconf update
 # keyutils is automagic dep that makes autologin unlock login keyring
@@ -29,7 +29,7 @@ RESTRICT="!test? ( test )"
 COMMON_DEPEND="
 	virtual/udev
 	>=dev-libs/libgudev-232:=
-	>=dev-libs/glib-2.88:2
+	>=dev-libs/glib-2.91.0:2
 	>=dev-libs/json-glib-1.2.0
 	>=sys-apps/accountsservice-0.6.35
 	sys-apps/keyutils:=
