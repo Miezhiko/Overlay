@@ -18,7 +18,7 @@ LICENSE="Apache-2.0"
 SLOT="0"
 KEYWORDS="~amd64"
 
-RESTRICT="test"
+RESTRICT="test mirror"
 
 RDEPEND="
 	dev-python/pydantic[${PYTHON_USEDEP}]
