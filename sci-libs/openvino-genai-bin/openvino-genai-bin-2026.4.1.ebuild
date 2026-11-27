@@ -16,7 +16,7 @@ S="${WORKDIR}/${MY_P}"
 LICENSE="Apache-2.0 Intel-OpenVINO"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="+python"
+IUSE="python"
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
 RESTRICT="strip"
 
