@@ -1,0 +1,15 @@
+--- a/js/ui/overview.js
++++ b/js/ui/overview.js
+@@ -594,6 +594,12 @@
+         Main.panel.style = null;
+ 
+         this._syncGrab();
++
++        // The startup overview can focus its controls before taking the
++        // modal grab. Releasing the grab can restore focus to those controls.
++        const keyFocus = global.stage.get_key_focus();
++        if (!this._visible && keyFocus && this._overview.contains(keyFocus))
++            global.stage.set_key_focus(null);
+     }
+ 
+     toggle() {
