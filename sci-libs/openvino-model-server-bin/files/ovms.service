@@ -1,0 +1,21 @@
+[Unit]
+Description=OpenVINO Model Server
+After=network.target
+
+[Service]
+Type=exec
+DynamicUser=yes
+SupplementaryGroups=render
+CacheDirectory=ovms
+WorkingDirectory=/var/cache/ovms
+EnvironmentFile=/etc/ovms/ovms.conf
+ExecStart=/usr/bin/ovms --model_name ${MODEL_NAME} --model_path ${MODEL_PATH} --task text_generation --target_device ${TARGET_DEVICE} --max_prompt_len ${MAX_PROMPT_LEN} --tool_parser ${TOOL_PARSER} --cache_dir ${CACHE_DIRECTORY} --rest_bind_address 127.0.0.1 --rest_port ${REST_PORT}
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+
+[Install]
+WantedBy=multi-user.target

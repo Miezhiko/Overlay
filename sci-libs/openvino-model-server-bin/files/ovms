@@ -1,0 +1,5 @@
+#!/bin/sh
+root=/opt/ovms
+export LD_LIBRARY_PATH="$root/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export ESPEAK_DATA_PATH="$root/share"
+exec "$root/bin/ovms" "$@"
